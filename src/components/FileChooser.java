@@ -24,7 +24,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	WPA wpaType;
 
 	public enum Carrier {
-		UMPC, Aetna, CPA, NEPA, WPA, IBC
+		UPMC, Aetna, CPA, NEPA, WPA, IBC
 	}
 
 	public enum WPA {
@@ -63,7 +63,7 @@ public class FileChooser extends JPanel implements ActionListener {
 		openButton.addActionListener(this);
 
 		// Options for the JComboBox
-		String[] carriers = { "Aetna", "UMPC", "CPA", "NEPA", "WPA", "IBC" };
+		String[] carriers = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC" };
 
 		String[] sheets = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
 
@@ -124,8 +124,8 @@ public class FileChooser extends JPanel implements ActionListener {
 				log.append("Parsing: " + selectedFile.getName() + "." + newline);
 				int sheet = Integer.parseInt((String) sheetBox.getSelectedItem());
 				filename = removeFileExtension(selectedFile.getName());
-				if (carrierBox.getSelectedItem().equals("UMPC")) {
-					carrierType = Carrier.UMPC;
+				if (carrierBox.getSelectedItem().equals("UPMC")) {
+					carrierType = Carrier.UPMC;
 				} else if (carrierBox.getSelectedItem().equals("Aetna")) {
 					carrierType = Carrier.Aetna;
 				} else if (carrierBox.getSelectedItem().equals("WPA")) {
@@ -165,11 +165,11 @@ public class FileChooser extends JPanel implements ActionListener {
 				}
 				try {
 					switch (carrierType) {
-					case UMPC:
-						upmc.UPMC_Page[] umpc_pages;
-						upmc.UPMC_Parser umpc_parser = new upmc.UPMC_Parser(selectedFile, start_date, end_date);
-						umpc_pages = umpc_parser.parse();
-						upmc.UPMC_ExcelWriter.populateExcel(umpc_pages, filename);
+					case UPMC:
+						upmc.UPMC_Page[] UPMC_pages;
+						upmc.UPMC_Parser UPMC_parser = new upmc.UPMC_Parser(selectedFile, start_date, end_date);
+						UPMC_pages = UPMC_parser.parse();
+						upmc.UPMC_ExcelWriter.populateExcel(UPMC_pages, filename);
 						break;
 					case Aetna:
 						aetna.Aetna_Page[] aetna_pages;
@@ -224,17 +224,17 @@ public class FileChooser extends JPanel implements ActionListener {
 	}
 
 	// public Carrier checkCarrier(String name){
-	// if(name.toLowerCase().contains("UMPC")){
-	// return Carrier.UMPC;
+	// if(name.toLowerCase().contains("UPMC")){
+	// return Carrier.UPMC;
 	// }
 	// else if(name.toLowerCase().contains("Aetna")){
 	// return Carrier.Aetna;
 	// }
-	// else if(name.toLowerCase().contains("UMPC")){
-	// return Carrier.UMPC;
+	// else if(name.toLowerCase().contains("UPMC")){
+	// return Carrier.UPMC;
 	// }
-	// if(name.toLowerCase().contains("UMPC")){
-	// return Carrier.UMPC;
+	// if(name.toLowerCase().contains("UPMC")){
+	// return Carrier.UPMC;
 	// }
 	// }
 
