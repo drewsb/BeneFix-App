@@ -1,2 +1,2 @@
 # BeneFix-App
-Java application that uses a combination of scripts to parse data templates from various carriers. 
+BeneFix App is a java application that uses scripts to parse data templates from various carriers in Pennsylvania.  
