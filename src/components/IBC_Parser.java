@@ -2,8 +2,8 @@ package components;
 
 import java.io.File;
 
+
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 /*
@@ -42,7 +42,6 @@ public class IBC_Parser {
 		String product_name = "";
 		String plan_code = "";
 		String rating_area = "";
-		String plan_name = "";
 		String state = "PA";
 		int age_count = 20;
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
@@ -58,7 +57,7 @@ public class IBC_Parser {
 		rating_area = tokens[temp_index+1];
 		temp_index+= product_token_length + 1;
 		while(!tokens[temp_index].equals("Age")){
-			plan_name+=tokens[temp_index] + " ";
+			//product_name+=tokens[temp_index] + " ";
 			temp_index++;
 		}
 		temp_index+=10;
@@ -81,9 +80,9 @@ public class IBC_Parser {
 			age_count++;
 		}
 		
-		Page page = new Page(carrier_id, "", start_date, end_date, plan_name, "", "", "", "", "",
-				"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "",
-				product_name, state, 0, non_tobacco_dict, tobacco_dict);
+		Page page = new Page(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
+				"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "", 
+				state, 0, non_tobacco_dict, tobacco_dict);
 		
 		page.printPage();
 
