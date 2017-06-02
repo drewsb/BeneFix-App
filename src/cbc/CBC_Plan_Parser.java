@@ -523,7 +523,6 @@ public class CBC_Plan_Parser {
 					temp_index++;
 				}
 				rx_mail_copay = tokens[temp_index + 1];
-				System.out.println(temp_index);
 				for (int i = 0; i < 3; i++) {
 					temp_index += 14;
 					while (!tokens[temp_index].equals("copayment")) {
