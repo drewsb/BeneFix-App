@@ -32,15 +32,15 @@ public class CBC_Plan_Parser {
 	public Page parse(String filename) {
 		this.tokens = text.split(" |\n"); // Split pdf text by spaces and
 											// new line chars
-//		for (String s : tokens) {
-//			System.out.println(s);
-//		}
-//		System.out.println("**********************");
+		// for (String s : tokens) {
+		// System.out.println(s);
+		// }
+		// System.out.println("**********************");
 		int x;
 		Boolean covered = false;
 		Boolean none = false;
 		Boolean valuePassed = false;
-		
+
 		int temp_index = 0;
 		while (!tokens[temp_index].equals("Benefit")) {
 			temp_index++;
@@ -231,19 +231,27 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index++;
-			while (!tokens[temp_index].equals("copayment") & (!tokens[temp_index].isEmpty() || !valuePassed)) {
-				if (!tokens[temp_index].isEmpty()) {
-					dr_visit_copay += tokens[temp_index] + " ";
-					valuePassed = true;
-				}
+			while (tokens[temp_index].isEmpty()) {
+				temp_index++;
+			}
+			while (!tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty() 
+					& !tokens[temp_index + 1].equals("coinsurance")) {
+				dr_visit_copay += tokens[temp_index] + " ";
 				temp_index++;
 			}
 			while (!tokens[temp_index].equals("Specialist")) {
 				temp_index++;
 			}
 			// need to add "after deductible"
-			specialist_visit_copay = tokens[temp_index + 3];
-			temp_index += 6;
+			temp_index += 3;
+			while (tokens[temp_index].isEmpty()) {
+				temp_index++;
+			}
+			while (!tokens[temp_index].isEmpty() & !tokens[temp_index].equals("copayment")
+					& !tokens[temp_index + 1].equals("coinsurance")) {
+				specialist_visit_copay += tokens[temp_index] + " ";
+				temp_index++;
+			}
 			while (!tokens[temp_index].equals("Emergency")) {
 				temp_index++;
 			}
@@ -294,18 +302,18 @@ public class CBC_Plan_Parser {
 			}
 			temp_index += 2;
 			oop_max_indiv = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oop_max_family = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oon_oop_max_individual = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oon_oop_max_family = tokens[temp_index];
@@ -348,7 +356,8 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 2;
-			while (!tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty()) {
+			while (!tokens[temp_index + 1].equals("coinsurance") & !tokens[temp_index].equals("copayment")
+					& !tokens[temp_index].isEmpty()) {
 				physical_occupational_therapy += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -433,18 +442,18 @@ public class CBC_Plan_Parser {
 			}
 			temp_index += 2;
 			oop_max_indiv = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oop_max_family = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oon_oop_max_individual = tokens[temp_index];
-			temp_index ++;
-			while(!tokens[temp_index].contains("$")){
+			temp_index++;
+			while (!tokens[temp_index].contains("$")) {
 				temp_index++;
 			}
 			oon_oop_max_family = tokens[temp_index];
@@ -531,14 +540,15 @@ public class CBC_Plan_Parser {
 						temp_index++;
 					}
 					temp_index++;
+					while (tokens[temp_index].isEmpty()) {
+						temp_index++;
+					}
 					while (!tokens[temp_index].equals("copay")) {
-						System.out.println(tokens[temp_index]);
 						rx_copay += "/" + tokens[temp_index];
 						temp_index++;
 					}
 					temp_index += 3;
 					while (!tokens[temp_index].equals("copay")) {
-						System.out.println(tokens[temp_index]);
 						rx_mail_copay += "/" + tokens[temp_index];
 						temp_index++;
 					}
@@ -551,16 +561,21 @@ public class CBC_Plan_Parser {
 		oon_deductible_individual = formatString(oon_deductible_individual);
 		oon_deductible_family = formatString(oon_deductible_family);
 		coinsurance = "0%";
+		dr_visit_copay = formatString(dr_visit_copay);
+		specialist_visit_copay = formatString(specialist_visit_copay);
+		er_copay = formatString(er_copay);
+		urgent_care_copay = formatString(urgent_care_copay);
+		rx_copay = formatString(rx_copay);
+		rx_mail_copay = formatString(rx_mail_copay);
 		oop_max_indiv = formatString(oop_max_indiv);
 		oop_max_family = formatString(oop_max_family);
-		oon_oop_max_individual = formatString(oon_oop_max_family);
+		oon_oop_max_individual = formatString(oon_oop_max_individual);
 		in_patient_hospital = formatString(in_patient_hospital);
 		outpatient_diagnostic_lab = formatString(outpatient_diagnostic_lab);
 		outpatient_surgery = formatString(outpatient_surgery);
 		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
-		er_copay = formatString(er_copay);
 
 		Page new_page = new Page(carrier_id, carrier_plan_id, "", "", product_name, plan_pdf_file_name,
 				deductible_indiv, deductible_family, oon_deductible_individual, oon_deductible_family, coinsurance,
@@ -568,32 +583,6 @@ public class CBC_Plan_Parser {
 				oop_max_indiv, oop_max_family, oon_oop_max_individual, oon_oop_max_family, in_patient_hospital,
 				outpatient_diagnostic_lab, outpatient_surgery, outpatient_diagnostic_x_ray, outpatient_complex_imaging,
 				physical_occupational_therapy, "", service_zones, "", 0, non_tobacco_dict, tobacco_dict);
-		// System.out.printf("deductible_indiv: %s\n", deductible_indiv);
-		// System.out.printf("deductible_family: %s\n", deductible_family);
-		// System.out.printf("oon_deductible_indiv: %s\n",
-		// oon_deductible_individual);
-		// System.out.printf("oon_deductible_family: %s\n",
-		// oon_deductible_family);
-		// System.out.printf("dr_visit_copay: %s\n", dr_visit_copay);
-		// System.out.printf("specialist_visits_copay: %s\n",
-		// specialist_visit_copay);
-		// System.out.printf("er_copay: %s\n", er_copay);
-		// System.out.printf("urgent_care_copay: %s\n", urgent_care_copay);
-		// System.out.printf("oop_max_indiv: %s\n", oop_max_indiv);
-		// System.out.printf("oop_max_family: %s\n", oop_max_family);
-		// System.out.printf("oon_oop_max_indiv: %s\n", oon_oop_max_individual);
-		// System.out.printf("oon_oop_max_family: %s\n", oon_oop_max_family);
-		// System.out.printf("in_patient_hosptial: %s\n", in_patient_hospital);
-		// System.out.printf("outpatient_diagnostic_lab: %s\n",
-		// outpatient_diagnostic_lab);
-		// System.out.printf("outpatient_diagnostic_x_ray: %s\n",
-		// outpatient_diagnostic_x_ray);
-		// System.out.printf("outpatient_complex_imaging: %s\n",
-		// outpatient_complex_imaging);
-		// System.out.printf("physical_occupational_therapy: %s\n",
-		// physical_occupational_therapy);
-		// System.out.printf("rx_copay: %s\n", rx_copay);
-		// System.out.printf("rx_mail_copay: %s", rx_mail_copay);
 		return new_page;
 	}
 
