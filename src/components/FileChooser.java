@@ -26,6 +26,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	ArrayList<Page> pages;
 	String filename;
 	Boolean file;
+	String year;
 	Carrier carrierType;
 	WPA wpaType;
 
@@ -39,6 +40,8 @@ public class FileChooser extends JPanel implements ActionListener {
 
 	public FileChooser() {
 		super(new BorderLayout());
+		
+		year = "2017";
 
 		// Create the log first, because the action listeners
 		// need to refer to it.
@@ -158,7 +161,7 @@ public class FileChooser extends JPanel implements ActionListener {
 		pages = new ArrayList<Page>();
 		if (selectedPlans != null) {
 			for (File selectedPlan : selectedPlans) {
-				filename = removeFileExtension(selectedPlan.getName());
+				filename = selectedPlan.getName();
 				try {
 					switch (carrierType) {
 					case UPMC:
@@ -178,10 +181,10 @@ public class FileChooser extends JPanel implements ActionListener {
 						CBC_Plan_Parser cbc_plan_parser = new cbc.CBC_Plan_Parser(selectedPlan);
 						cbc_page = cbc_plan_parser.parse(filename);
 						pages.add(cbc_page);
+						String parsed = String.format("File: %s parsed\n", selectedPlan.getName());
+						log.append(parsed);
 						break;
 					}
-					String parsed = String.format("File: %s parsed\n", selectedPlan.getName());
-					log.append(parsed);
 
 				} catch (IOException e1) {
 					log.append("Invalid file." + newline);
@@ -274,8 +277,8 @@ public class FileChooser extends JPanel implements ActionListener {
 		}
 		try {
 			if (pages.size() > 1) {
-				filename = String.format("%s_%s_Combined", carrierType.toString(),
-						(String) dateBox.getSelectedItem());
+				filename = String.format("%s_%s_%s", carrierType.toString(),
+						(String) dateBox.getSelectedItem(), year);
 			}
 			ExcelWriter.populateExcel(pages, filename, carrierType);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
