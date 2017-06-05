@@ -19,7 +19,7 @@ public class CBC_Plan_Parser {
 	cbcType type;
 
 	public enum cbcType {
-		ONE, TWO, THREE
+		ONE, TWO, THREE, DEFAULT
 	}
 
 	public CBC_Plan_Parser(File file) throws IOException {
@@ -32,10 +32,10 @@ public class CBC_Plan_Parser {
 	public Page parse(String filename) {
 		this.tokens = text.split(" |\n"); // Split pdf text by spaces and
 											// new line chars
-		// for (String s : tokens) {
-		// System.out.println(s);
-		// }
-		// System.out.println("**********************");
+		 for(String s : tokens){
+		 System.out.println(s);
+		 }
+		 System.out.println("TOKENS******************");
 		int x;
 		Boolean covered = false;
 		Boolean none = false;
@@ -67,6 +67,9 @@ public class CBC_Plan_Parser {
 				break;
 			}
 			temp_index++;
+		}
+		if(type == null){
+			type = cbcType.DEFAULT;
 		}
 		System.out.println(type.toString());
 		int carrier_id = 0;
@@ -177,12 +180,17 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 10;
-			while (!tokens[temp_index].isEmpty()) {
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance") 
+					& !tokens[temp_index].isEmpty()) {
 				outpatient_complex_imaging += tokens[temp_index] + " ";
 				temp_index++;
 			}
-			temp_index += 9;
-			while (!tokens[temp_index].isEmpty()) {
+			while (!tokens[temp_index].equals("Radiology")) {
+				temp_index++;
+			}
+			temp_index += 7;
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")
+					& !tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty()) {
 				outpatient_diagnostic_x_ray += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -234,9 +242,10 @@ public class CBC_Plan_Parser {
 			while (tokens[temp_index].isEmpty()) {
 				temp_index++;
 			}
-			while (!tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty() 
-					& !tokens[temp_index + 1].equals("coinsurance")) {
-				dr_visit_copay += tokens[temp_index] + " ";
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")) {
+				if (!tokens[temp_index].isEmpty()) {
+					dr_visit_copay += tokens[temp_index] + " ";
+				}
 				temp_index++;
 			}
 			while (!tokens[temp_index].equals("Specialist")) {
@@ -247,16 +256,17 @@ public class CBC_Plan_Parser {
 			while (tokens[temp_index].isEmpty()) {
 				temp_index++;
 			}
-			while (!tokens[temp_index].isEmpty() & !tokens[temp_index].equals("copayment")
-					& !tokens[temp_index + 1].equals("coinsurance")) {
-				specialist_visit_copay += tokens[temp_index] + " ";
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")) {
+				if (!tokens[temp_index].isEmpty()) {
+					specialist_visit_copay += tokens[temp_index] + " ";
+				}
 				temp_index++;
 			}
 			while (!tokens[temp_index].equals("Emergency")) {
 				temp_index++;
 			}
 			temp_index += 3;
-			while (!tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty()) {
+			while (!tokens[temp_index].isEmpty()) {
 				er_copay += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -264,7 +274,8 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 2;
-			while (!tokens[temp_index].equals("copayment") & !tokens[temp_index - 1].equals("Applicable")) {
+			while (!tokens[temp_index + 2].equals("Inpatient") & !tokens[temp_index - 1].equals("deductible")
+					& !tokens[temp_index - 1].equals("Applicable")) {
 				if (!tokens[temp_index].isEmpty()) {
 					urgent_care_copay += tokens[temp_index] + " ";
 				}
@@ -321,13 +332,23 @@ public class CBC_Plan_Parser {
 			while (!tokens[temp_index].equals("High")) {
 				temp_index++;
 			}
-			temp_index += 12;
-			while (!tokens[temp_index - 1].equals("deductible")) {
+			temp_index += 11;
+			while(tokens[temp_index].isEmpty()){
+				temp_index++;
+			}
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")) {
 				outpatient_complex_imaging += tokens[temp_index] + " ";
 				temp_index++;
 			}
-			temp_index += 13;
-			while (!tokens[temp_index - 1].equals("deductible")) {
+			while (!tokens[temp_index].equals("Radiology")) {
+				temp_index++;
+			}
+			temp_index += 6;
+			while (tokens[temp_index].isEmpty()) {
+				temp_index++;
+			}
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")
+					& !tokens[temp_index].equals("copayment")) {
 				outpatient_diagnostic_x_ray += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -337,7 +358,7 @@ public class CBC_Plan_Parser {
 			}
 			temp_index += 3;
 			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index].equals("copayment")
-					& !tokens[temp_index].isEmpty()) {
+					& !tokens[temp_index+1].equals("coinsurance")) {
 				outpatient_diagnostic_lab += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -347,7 +368,7 @@ public class CBC_Plan_Parser {
 			outpatient_diagnostic_lab += "Facility-owned lab: ";
 			temp_index += 3;
 			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index].equals("copayment")
-					& !tokens[temp_index].isEmpty()) {
+					& !tokens[temp_index+1].equals("coinsurance")) {
 				outpatient_diagnostic_lab += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -356,12 +377,11 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 2;
-			while (!tokens[temp_index + 1].equals("coinsurance") & !tokens[temp_index].equals("copayment")
-					& !tokens[temp_index].isEmpty()) {
+			while (!tokens[temp_index + 1].equals("coinsurance") & !tokens[temp_index].isEmpty()) {
 				physical_occupational_therapy += tokens[temp_index] + " ";
 				temp_index++;
 			}
-			temp_index += 420;
+			temp_index += 400;
 			break;
 		case THREE:
 			while (!tokens[temp_index].equals("per")) {
@@ -392,12 +412,14 @@ public class CBC_Plan_Parser {
 				}
 				temp_index++;
 			}
-			// need to add "after deductible"
 			while (!tokens[temp_index].equals("Specialist")) {
 				temp_index++;
 			}
-			specialist_visit_copay = tokens[temp_index + 3];
-			temp_index += 10;
+			temp_index += 3;
+			while (!tokens[temp_index].isEmpty() & !tokens[temp_index + 1].equals("coinsurance")) {
+				specialist_visit_copay += tokens[temp_index] + " ";
+				temp_index++;
+			}
 			while (!tokens[temp_index].equals("Emergency")) {
 				temp_index++;
 			}
@@ -462,16 +484,19 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 12;
+			while(tokens[temp_index].isEmpty()){
+				temp_index++;
+			}
 			while (!tokens[temp_index - 1].equals("deductible")) {
 				outpatient_complex_imaging += tokens[temp_index] + " ";
 				temp_index++;
 			}
-			temp_index += 13;
-			while (!tokens[temp_index].equals("Imaging)")) {
+			while (!tokens[temp_index].equals("Radiology")) {
 				temp_index++;
 			}
-			temp_index += 3;
-			while (!tokens[temp_index - 1].equals("deductible")) {
+			temp_index += 9;
+			while (!tokens[temp_index - 1].equals("deductible") & !tokens[temp_index + 1].equals("coinsurance")
+					& !tokens[temp_index].equals("copayment") & !tokens[temp_index].isEmpty()) {
 				outpatient_diagnostic_x_ray += tokens[temp_index] + " ";
 				temp_index++;
 			}
@@ -482,7 +507,9 @@ public class CBC_Plan_Parser {
 			temp_index += 4;
 			outpatient_diagnostic_lab = "Independent lab: ";
 			while (!tokens[temp_index + 2].equals("coinsurance")) {
-				outpatient_diagnostic_lab += tokens[temp_index] + " ";
+				if(!tokens[temp_index].isEmpty()){
+					outpatient_diagnostic_lab += tokens[temp_index] + " ";
+				}
 				temp_index++;
 			}
 			outpatient_diagnostic_lab += "Facility-owned lab: ";
@@ -496,7 +523,7 @@ public class CBC_Plan_Parser {
 				temp_index++;
 			}
 			temp_index += 40;
-			while (!tokens[temp_index].equals("period)")) {
+			while (!tokens[temp_index].equals("period)") && !tokens[temp_index].equals("period")) {
 				temp_index++;
 			}
 			temp_index += 2;
@@ -507,7 +534,7 @@ public class CBC_Plan_Parser {
 			temp_index += 500;
 			break;
 		}
-
+		
 		while (!tokens[temp_index].equals("Generic")) {
 			temp_index++;
 		}
@@ -590,19 +617,32 @@ public class CBC_Plan_Parser {
 		if (input.contains("Not Applicable") || input.contains("Not Applicable ")) {
 			return "n/a";
 		}
-		if (input.contains(",")) {
-			index = input.indexOf(",");
-			input = input.substring(0, index) + input.substring(index + 1, input.length());
-		}
 		if (input.contains(" copayment per visit")) {
 			index = input.indexOf(" copayment per visit");
-			input = input.substring(0, index) + "," + input.substring(index + 20, input.length());
+			input = input.substring(0, index) + input.substring(index + 20, input.length());
 		}
 		if (input.contains(" copayment")) {
 			index = input.indexOf(" copayment");
-			input = input.substring(0, index) + "," + input.substring(index + 10, input.length());
+			input = input.substring(0, index) + input.substring(index + 10, input.length());
+		}
+		if (input.contains(",")) {
+			index = input.indexOf(",");
+			String afterComma = input.substring(index + 1, input.length());
+			if (!containsChar(afterComma)) {
+				input = input.substring(0, index) + input.substring(index + 1, input.length());
+			}
 		}
 		return input;
+	}
+
+	public Boolean containsChar(String input) {
+		char[] arr = input.toCharArray();
+		for (char c : arr) {
+			if (c != ' ') {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
