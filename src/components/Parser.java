@@ -16,8 +16,6 @@ import components.FileChooser.Carrier;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
-	ArrayList<Page> pages;
-
 	final Carrier carrierType;
 
 	final int sheetIndex;
@@ -179,20 +177,7 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 				}
 			}
 		}
-		this.pages = pages;
 		return pages;
-//		try {
-//			if (pages.size() > 1) {
-//				filename = String.format("%s_%s_Combined", carrierType.toString(),
-//						(String) dateBox.getSelectedItem());
-//			}
-//			ExcelWriter.populateExcel(pages, filename, carrierType);
-//			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
-//			log.append(output);
-//		} catch (IOException e1) {
-//			// TODO Auto-generated catch block
-//			e1.printStackTrace();
-//		}
 	}
 
 
