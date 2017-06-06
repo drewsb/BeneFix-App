@@ -1,13 +1,35 @@
 package components;
 
-import java.io.*;
-
+import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
-import cbc.*;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+
+import aetna.AetnaNJParser;
+import amerihealth.Amerihealth_Parser;
+import cbc.CBC_Parser;
+import cbc.CBC_Plan_Parser;
+import uhc.Oxford_NJ_Parser;
 
 public class FileChooser extends JPanel implements ActionListener {
 	/**
@@ -15,10 +37,11 @@ public class FileChooser extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	JButton planButton, rateButton, parseButton;
+	JButton planButton, rateButton, parseButton, stateButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
+	JComboBox<String> stateBox;
 	JTextArea log;
 	JFileChooser fc;
 	File[] selectedPlans;
@@ -28,9 +51,10 @@ public class FileChooser extends JPanel implements ActionListener {
 	Boolean file;
 	Carrier carrierType;
 	WPA wpaType;
+	HashMap<String, Set<String>> carriersInState;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC
 	}
 
 	public enum WPA {
@@ -39,6 +63,8 @@ public class FileChooser extends JPanel implements ActionListener {
 
 	public FileChooser() {
 		super(new BorderLayout());
+		
+		carriersInState = new HashMap<String, Set<String>>();
 
 		// Create the log first, because the action listeners
 		// need to refer to it.
@@ -72,14 +98,27 @@ public class FileChooser extends JPanel implements ActionListener {
 		rateButton = new JButton("Upload rates",
 				createImageIcon("/Users/drewboyette/Documents/Fall 2016/CIS 121/BeneFixApp/src/components/file.png"));
 		rateButton.addActionListener(this);
+		
+		stateButton = new JButton("Choose state",
+				createImageIcon("directory"));
+		stateButton.addActionListener(this);
 
 		// Options for the JComboBox
-		String[] carriers = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC" };
+		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC"};
+		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
+		carriersInState.put("PA", PAcarriers);
+		
+		String[] NJcorps = {"AmeriHealth (Demo)", "Aetna", "Oxford"};
+		Set<String> NJcarriers = new HashSet<String>(Arrays.asList(NJcorps));
+		carriersInState.put("NJ", NJcarriers);
 
-		String[] sheets = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10" };
+		String[] sheets = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+				,"11","12","13","14","15","16","17","18","19","20"};
 
 		String[] quarters = { "Q1", "Q2", "Q3", "Q4" };
-
+		
+		Set<String> states = carriersInState.keySet();
+		
 		// Create the save button. We use the image from the JLF
 		// Graphics Repository (but we extracted it from the jar).
 		parseButton = new JButton("Parse", createImageIcon("images/Save16.gif"));
@@ -88,9 +127,14 @@ public class FileChooser extends JPanel implements ActionListener {
 		JLabel carrierLbl = new JLabel("Carrier:");
 		JLabel sheetLbl = new JLabel("Sheet:");
 		JLabel quarterLbl = new JLabel("Quarter:");
-		carrierBox = new JComboBox<String>(carriers);
+		JLabel stateLbl = new JLabel("State:");
+		carrierBox = new JComboBox<String>(carriersInState.get("PA").toArray
+				(new String[carriersInState.get("PA").size()]));
 		sheetBox = new JComboBox<String>(sheets);
 		dateBox = new JComboBox<String>(quarters);
+		stateBox = new JComboBox<String>(states.toArray(new String[states.size()]));
+		stateBox.addActionListener(this);
+		
 
 		// For layout purposes, put the buttons in a separate panel
 		JPanel buttonPanel = new JPanel(); // use FlowLayout
@@ -98,6 +142,8 @@ public class FileChooser extends JPanel implements ActionListener {
 		buttonPanel.add(rateButton);
 		buttonPanel.add(carrierLbl);
 		buttonPanel.add(carrierBox);
+		buttonPanel.add(stateLbl);
+		buttonPanel.add(stateBox);
 		buttonPanel.add(sheetLbl);
 		buttonPanel.add(sheetBox);
 		buttonPanel.add(quarterLbl);
@@ -149,6 +195,13 @@ public class FileChooser extends JPanel implements ActionListener {
 				return;
 			}
 			parse();
+		} else if (e.getSource() == stateBox) {
+			String state = (String) stateBox.getSelectedItem();
+			carrierBox.removeAllItems();
+			Set<String> c = carriersInState.get(state);
+			for (String carrier: c) {
+				carrierBox.addItem(carrier);
+			}
 		}
 	}
 	
@@ -156,6 +209,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	public void parse(){
 		checkCarrier((String) carrierBox.getSelectedItem(), filename);
 		pages = new ArrayList<Page>();
+		int pageNum = Integer.parseInt(sheetBox.getSelectedItem().toString());
 		if (selectedPlans != null) {
 			for (File selectedPlan : selectedPlans) {
 				filename = removeFileExtension(selectedPlan.getName());
@@ -164,6 +218,9 @@ public class FileChooser extends JPanel implements ActionListener {
 					case UPMC:
 						break;
 					case Aetna:
+						if (stateBox.getSelectedItem().equals("NJ")) {
+							AetnaNJParser p = new AetnaNJParser("NJ - Aetna - Small Group.pdf");
+						}
 						break;
 					case WPA:
 						switch (wpaType) {
@@ -179,7 +236,17 @@ public class FileChooser extends JPanel implements ActionListener {
 						cbc_page = cbc_plan_parser.parse(filename);
 						pages.add(cbc_page);
 						break;
-					}
+					case AmeriHealth:
+						Page amerihealth;
+						Amerihealth_Parser ap = new Amerihealth_Parser(selectedPlan, pageNum);
+						ap.printText();
+						break;
+					case UHC: 
+						Page oxford;
+						Oxford_NJ_Parser op = new Oxford_NJ_Parser(selectedPlan);
+						ArrayList<Page> UHCPages = op.getParsed();
+						pages.addAll(UHCPages);
+					}						
 					String parsed = String.format("File: %s parsed\n", selectedPlan.getName());
 					log.append(parsed);
 
@@ -307,6 +374,10 @@ public class FileChooser extends JPanel implements ActionListener {
 			this.carrierType = Carrier.IBC;
 		} else if (carrierBox.getSelectedItem().equals("CBC")) {
 			this.carrierType = Carrier.CBC;
+		} else if (carrierBox.getSelectedItem().equals("AmeriHealth (Demo)")) {
+			this.carrierType = Carrier.AmeriHealth;
+		} else if (carrierBox.getSelectedItem().equals("Oxford")) {
+			this.carrierType = Carrier.UHC;
 		}
 	}
 

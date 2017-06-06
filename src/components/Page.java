@@ -84,6 +84,42 @@ public class Page {
 		this.page = page;
 	}
 	
+	public Page() {
+		this.carrier_id = 0;
+		this.carrier_plan_id = "";
+		this.start_date = "" ;
+		this.end_date = "";
+		this.product_name = "";
+		this.plan_pdf_file_name = "";
+		this.deductible_indiv = "";
+		this.deductible_family = "";
+		this.oon_deductible_individual = "";
+		this.oon_deductible_family = "";
+		this.coinsurance = "";
+		this.dr_visit_copay = "";
+		this.specialist_visit_copay = "";
+		this.er_copay = "";
+		this.urgent_care_copay = "";
+		this.rx_copay = "";
+		this.rx_mail_copay = "";
+		this.oop_max_indiv = "";
+		this.oop_max_family = "";
+		this.oon_oop_max_individual = "";
+		this.oon_oop_max_family = "";
+		this.in_patient_hospital = "";
+		this.outpatient_diagnostic_lab = "";
+		this.outpatient_surgery =  "";
+		this.outpatient_diagnostic_x_ray =  "";
+		this.outpatient_complex_imaging = "";
+		this.physical_occupational_therapy = "";
+		this.group_rating_area = "";
+		this.service_zones = "";
+		this.state = "";
+		this.non_tobacco_dict = new HashMap<String, Double>();
+		this.tobacco_dict = new HashMap<String, Double>();
+		this.page = 0;
+	}
+	
 	/*
 	 * Print method used for debugging purposes. 
 	 */
