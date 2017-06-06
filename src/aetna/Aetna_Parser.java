@@ -3,8 +3,10 @@ package aetna;
 import java.io.File;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
+import components.Page;
 import upmc.UPMC_Page;
 
 
@@ -15,7 +17,7 @@ public class Aetna_Parser {
 	
 	static String text;
 	
-	static Aetna_Page[] pages;
+	static ArrayList<Page> pages;
 	
 	static int numPages;
 	
@@ -30,17 +32,22 @@ public class Aetna_Parser {
 	    pdfManager.setFilePath(file.getAbsolutePath());
 	    text = pdfManager.ToText();
 	    numPages = pdfManager.getNumPages();
-	    pages = new Aetna_Page[numPages];
+	    pages = new ArrayList<Page>();
 	}
 	
-	public Aetna_Page[] parse(){
+	public ArrayList<Page> parse(){
 		int base_row = 0;  //Denotes starting index for each page in the array of tokens
 		for(int page_index = 1; page_index <= numPages; page_index++){
 			String rating_area = "";
 			String plan_id = "";
 			String plan_name = "";
 			String state = "";
-			HashMap<String,Double> age_dict = new HashMap<String,Double>();
+			int carrier_id = 12;
+			String product_name = "";
+			String plan_code = "";
+			
+			HashMap<String,Double> non_tob_dict = new HashMap<String,Double>();
+			HashMap<String,Double> tob_dict = new HashMap<String,Double>();
 			
 			String[] tokens = text.split(" |\n");   //Split pdf text by spaces and new line chars
 			rating_area = tokens[base_row+9];
@@ -57,12 +64,14 @@ public class Aetna_Parser {
 			int start_index = base_row+count + 6;
 			int end_index = base_row+count + 95;
 			for(int i = start_index; i <= end_index; i+=2){  		//Construct hashmap mapping age to rate
-				age_dict.put(tokens[i], Double.valueOf(tokens[i+1])); 
+				non_tob_dict.put(tokens[i], Double.valueOf(tokens[i+1])); 
 			}
 			base_row+=count+159;    //Update base_row to beginning of next page
 			state = tokens[base_row-1];
-			Aetna_Page page = new Aetna_Page(start_date, end_date, page_index,rating_area,plan_id,plan_name, state, age_dict);
-			pages[page_index-1] = page;
+			Page page = new Page(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
+					"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "", 
+					state, 0, non_tob_dict, tob_dict);			
+			pages.add(page);
 		}
 		return pages;
 	}

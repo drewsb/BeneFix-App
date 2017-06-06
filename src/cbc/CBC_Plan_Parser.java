@@ -32,10 +32,10 @@ public class CBC_Plan_Parser {
 	public Page parse(String filename) {
 		this.tokens = text.split(" |\n"); // Split pdf text by spaces and
 											// new line chars
-		 for(String s : tokens){
-		 System.out.println(s);
-		 }
-		 System.out.println("TOKENS******************");
+//		 for(String s : tokens){
+//		 System.out.println(s);
+//		 }
+//		 System.out.println("TOKENS******************");
 		int x;
 		Boolean covered = false;
 		Boolean none = false;
@@ -71,7 +71,7 @@ public class CBC_Plan_Parser {
 		if(type == null){
 			type = cbcType.DEFAULT;
 		}
-		System.out.println(type.toString());
+		//System.out.println(type.toString());
 		int carrier_id = 0;
 		String carrier_plan_id = "";
 		String plan_pdf_file_name = filename;
