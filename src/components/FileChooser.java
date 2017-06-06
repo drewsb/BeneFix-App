@@ -38,6 +38,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	ArrayList<Page> pages;
 	String filename;
 	Boolean done;
+	String year;
 	int progress;
 	Carrier carrierType;
 
@@ -47,8 +48,8 @@ public class FileChooser extends JPanel implements ActionListener {
 
 	public FileChooser() {
 		super(new BorderLayout());
-
-		year = "2017";
+		
+		String year = "2017";
 
 		selectedPlans = new ArrayList<File>();
 		selectedRates = new ArrayList<File>();

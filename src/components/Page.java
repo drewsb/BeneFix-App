@@ -5,7 +5,7 @@ import java.util.Map;
 
 
 /**
- * Page class for a PDF page. Holds necessary data to populate an excel sheet. 
+ * Page class for a PDF page. Holds necessary data to populate an excel sheet.
  */
 public class Page {
 	public int carrier_id;
@@ -41,8 +41,8 @@ public class Page {
 	public HashMap<String,Double> non_tobacco_dict;
 	public HashMap<String,Double> tobacco_dict;
 	public int page;
-	
-	public Page(int carrier_id, String carrier_plan_id, String start_date, String end_date, String product_name, String plan_pdf_file_name, 
+
+	public Page(int carrier_id, String carrier_plan_id, String start_date, String end_date, String product_name, String plan_pdf_file_name,
 			String deductible_indiv, String deductible_family, String oon_deductible_individual, String oon_deductible_family,
 	String coinsurance, String dr_visit_copay, String specialist_visit_copay, String er_copay, String urgent_care_copay,
 	String rx_copay, String rx_mail_copay, String oop_max_indiv, String oop_max_family, String oon_oop_max_individual,
@@ -83,9 +83,9 @@ public class Page {
 		this.tobacco_dict = tob_dict;
 		this.page = page;
 	}
-	
+
 	/*
-	 * Print method used for debugging purposes. 
+	 * Print method used for debugging purposes.
 	 */
 	public void printPage(){
 		System.out.printf("Start date: %s\n", this.start_date);
