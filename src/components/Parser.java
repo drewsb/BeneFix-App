@@ -10,9 +10,11 @@ import javax.swing.*;
 
 import aetna.Aetna_Parser;
 import aetna.Aetna_Plan_Parser;
+import amerihealth.Amerihealth_Parser;
 import cbc.CBC_Parser;
 import cbc.CBC_Plan_Parser;
 import components.FileChooser.Carrier;
+import uhc.Oxford_NJ_Parser;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
@@ -77,6 +79,17 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						CBC_Plan_Parser cbc_plan_parser = new CBC_Plan_Parser(selectedPlan);
 						cbc_page = cbc_plan_parser.parse(filename);
 						pages.add(cbc_page);
+						break;
+					case AmeriHealth:
+						Page amerihealth;
+						Amerihealth_Parser ap = new Amerihealth_Parser(selectedPlan, 1);
+						ap.printText();
+						break;
+					case UHC: 
+						Page oxford;
+						Oxford_NJ_Parser op = new Oxford_NJ_Parser(selectedPlan);
+						ArrayList<Page> UHCPages = op.getParsed();
+						pages.addAll(UHCPages);
 						break;
 					}
 
