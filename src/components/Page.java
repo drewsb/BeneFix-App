@@ -93,7 +93,7 @@ public class Page {
 		this.plan_pdf_file_name = "";
 		this.deductible_indiv = "";
 		this.deductible_family = "";
-		this.oon_deductible_individual = "";
+		this.oon_deductible_indiv = "";
 		this.oon_deductible_family = "";
 		this.coinsurance = "";
 		this.dr_visit_copay = "";
@@ -104,7 +104,7 @@ public class Page {
 		this.rx_mail_copay = "";
 		this.oop_max_indiv = "";
 		this.oop_max_family = "";
-		this.oon_oop_max_individual = "";
+		this.oon_oop_max_indiv = "";
 		this.oon_oop_max_family = "";
 		this.in_patient_hospital = "";
 		this.outpatient_diagnostic_lab = "";

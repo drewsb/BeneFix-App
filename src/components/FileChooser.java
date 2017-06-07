@@ -1,6 +1,7 @@
 package components;
 
 import java.awt.BorderLayout;
+
 import java.awt.Component;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
