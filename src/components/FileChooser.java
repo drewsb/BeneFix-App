@@ -48,7 +48,7 @@ public class FileChooser extends JPanel implements ActionListener {
 
 	public FileChooser() {
 		super(new BorderLayout());
-		
+
 		String year = "2017";
 
 		selectedPlans = new ArrayList<File>();
@@ -164,7 +164,7 @@ public class FileChooser extends JPanel implements ActionListener {
 				return;
 			}
 			checkCarrier();
-			parser = new Parser(carrierType, progress, filename, selectedPlans, selectedRates, log, progressBar);
+			parser = new Parser(carrierType, progress, (String) dateBox.getSelectedItem(), selectedPlans, selectedRates, log, progressBar);
 			parser.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(final PropertyChangeEvent event) {
@@ -205,8 +205,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	public void createExcel() {
 		try {
 			if (pages.size() > 1) {
-				filename = String.format("%s_%s_%s", carrierType.toString(),
-						(String) dateBox.getSelectedItem(), year);
+				filename = String.format("%s_%s_%s", carrierType.toString(), (String) dateBox.getSelectedItem(), year);
 			}
 			ExcelWriter.populateExcel(pages, filename, carrierType);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
@@ -252,7 +251,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	 */
 	private static void createAndShowGUI() {
 		// Create and set up the window.
-		JFrame frame = new JFrame("FileChooserDemo");
+		JFrame frame = new JFrame("BeneFix Parser");
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		// Add content to the window.

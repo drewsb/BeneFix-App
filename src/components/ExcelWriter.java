@@ -87,7 +87,7 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.deductible_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue((String) p.oon_deductible_individual);
+			cell.setCellValue((String) p.oon_deductible_indiv);
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.oon_deductible_family);
 			cell = row.createCell(colCount++);
@@ -109,7 +109,7 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.oop_max_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue(p.oon_oop_max_individual);
+			cell.setCellValue(p.oon_oop_max_indiv);
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.oon_oop_max_family);
 			cell = row.createCell(colCount++);

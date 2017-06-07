@@ -34,8 +34,9 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 		HMK, HCA
 	}
 
-	public Parser(final Carrier type, final int sheetIndex, final String quarter,
-			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates ,final JTextArea textArea, final JProgressBar bar) {
+	public Parser(final Carrier type, final int sheetIndex, final String quarter, 
+			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates,
+			final JTextArea textArea, final JProgressBar bar) {
 	    this.carrierType = type;
 	    this.sheetIndex = sheetIndex;
 	    this.quarter = quarter;
@@ -76,12 +77,6 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						CBC_Plan_Parser cbc_plan_parser = new CBC_Plan_Parser(selectedPlan);
 						cbc_page = cbc_plan_parser.parse(filename);
 						pages.add(cbc_page);
-						String parsed = String.format("File: %s parsed\n", selectedPlan.getName());
-						System.out.println(parsed);
-						publish(parsed + "\n");
-						//publish("\n");
-						index++;
-						setProgress(100 * (index) / size);
 						break;
 					}
 
@@ -89,7 +84,11 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 					publish("Invalid file.\n");
 					e1.printStackTrace();
 				}
-
+				String parsed = String.format("File: %s parsed\n", selectedPlan.getName());
+				System.out.println(parsed);
+				publish(parsed + "\n");
+				index++;
+				setProgress(100 * (index) / size);
 			}
 		}
 		if (!selectedRates.isEmpty()) {
