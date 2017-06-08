@@ -50,7 +50,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	JButton planButton, rateButton, parseButton, stateButton;
+	JButton planButton, rateButton, parseButton, outputButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
@@ -61,16 +61,22 @@ public class FileChooser extends JPanel implements ActionListener {
 	Parser parser;
 	ArrayList<File> selectedPlans;
 	ArrayList<File> selectedRates;
+	ArrayList<File> selectedOutputs;
 	ArrayList<Page> pages;
 	String filename;
 	Boolean done;
 	String year;
+	State selectedState;
 	int progress;
 	Carrier carrierType;
 	HashMap<String, Set<String>> carriersInState;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Cigna, Horizon
+	}
+	
+	public enum State{
+		NJ, PA
 	}
 
 	public FileChooser() {
@@ -112,16 +118,16 @@ public class FileChooser extends JPanel implements ActionListener {
 				createImageIcon("/Users/drewboyette/Documents/Fall 2016/CIS 121/BeneFixApp/src/components/file.png"));
 		rateButton.addActionListener(this);
 		
-		stateButton = new JButton("Choose state",
+		outputButton = new JButton("Output file",
 				createImageIcon("directory"));
-		stateButton.addActionListener(this);
+		outputButton.addActionListener(this);
 
 		// Options for the JComboBox
 		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC"};
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
 		carriersInState.put("PA", PAcarriers);
 		
-		String[] NJcorps = {"AmeriHealth (Demo)", "Aetna", "Oxford"};
+		String[] NJcorps = {"AmeriHealth", "Aetna", "Cigna", "Horizon", "UHC Oxford"};
 		Set<String> NJcarriers = new HashSet<String>(Arrays.asList(NJcorps));
 		carriersInState.put("NJ", NJcarriers);
 
@@ -156,6 +162,7 @@ public class FileChooser extends JPanel implements ActionListener {
 		JPanel buttonPanel = new JPanel(); // use FlowLayout
 		buttonPanel.add(planButton);
 		buttonPanel.add(rateButton);
+		buttonPanel.add(outputButton);
 		buttonPanel.add(stateLbl);
 		buttonPanel.add(stateBox);
 		buttonPanel.add(carrierLbl);
@@ -188,6 +195,17 @@ public class FileChooser extends JPanel implements ActionListener {
 				log.append("Open command cancelled by user." + newline);
 			}
 			log.setCaretPosition(log.getDocument().getLength());
+		} else if (e.getSource() == outputButton) {
+			int returnVal = fc.showOpenDialog(FileChooser.this);
+			if (returnVal ==JFileChooser.APPROVE_OPTION) {
+				selectedOutputs = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+				
+				for (File f: selectedOutputs) {
+					log.append("Will output to: " + f.getName() + "." + newline);
+				} 
+			} else {
+				log.append("Open command cancelled by user." + newline);
+			}
 		}
 		// Handle open rate button action.
 		else if (e.getSource() == rateButton) {
@@ -211,8 +229,18 @@ public class FileChooser extends JPanel implements ActionListener {
 				log.append("No files selected." + newline);
 				return;
 			}
+			String currState = (String) stateBox.getSelectedItem();
+			switch (currState) {
+			case "NJ": 
+				selectedState = State.NJ;
+				break;
+			case "PA":
+				selectedState = State.PA;
+				break;
+			}
 			checkCarrier();
-			parser = new Parser(carrierType, progress, filename, selectedPlans, selectedRates, log, progressBar);
+			parser = new Parser(carrierType, progress, selectedState, 
+					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log, progressBar);
 			parser.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(final PropertyChangeEvent event) {
@@ -288,10 +316,16 @@ public class FileChooser extends JPanel implements ActionListener {
 			this.carrierType = Carrier.IBC;
 		} else if (carrierBox.getSelectedItem().equals("CBC")) {
 			this.carrierType = Carrier.CBC;
-		} else if (carrierBox.getSelectedItem().equals("AmeriHealth (Demo)")) {
+		} else if (carrierBox.getSelectedItem().equals("AmeriHealth")) {
 			this.carrierType = Carrier.AmeriHealth;
 		} else if (carrierBox.getSelectedItem().equals("Oxford")) {
 			this.carrierType = Carrier.UHC;
+		} else if (carrierBox.getSelectedItem().equals("UHC Oxford")) {
+			this.carrierType = Carrier.UHC;
+		} else if (carrierBox.getSelectedItem().equals("Cigna")) {
+			this.carrierType = Carrier.Cigna;
+		} else if (carrierBox.getSelectedItem().equals("Horizon")) {
+			this.carrierType = Carrier.Horizon;
 		}
 	}
 
