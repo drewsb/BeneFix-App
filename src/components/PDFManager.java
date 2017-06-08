@@ -1,5 +1,6 @@
 package components;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import org.apache.pdfbox.cos.COSDocument;
 import org.apache.pdfbox.io.RandomAccessFile;
@@ -21,8 +22,21 @@ public class PDFManager {
    private int numPages;
 
     public PDFManager() {
-        
+  
     }
+    
+    public PDFManager(File srcFile) throws FileNotFoundException, IOException {
+    	filePath = srcFile.getAbsolutePath();
+        file = new File(filePath);
+        parser = new PDFParser(new RandomAccessFile(file,"r")); 
+        parser.parse();
+
+        cosDoc = parser.getDocument();
+        pdfStripper = new PDFTextStripper();
+        pdDoc = new PDDocument(cosDoc);
+        numPages = pdDoc.getNumberOfPages();
+    }
+    
    public String ToText() throws IOException
    {
        this.pdfStripper = null;
@@ -39,6 +53,28 @@ public class PDFManager {
        numPages = pdDoc.getNumberOfPages();
        pdfStripper.setStartPage(1);
        pdfStripper.setEndPage(numPages);
+  
+       
+       Text = pdfStripper.getText(pdDoc);
+       pdDoc.close();
+       return Text;
+   }
+   
+   public String ToText(int startPage, int endPage) throws IOException
+   {
+       this.pdfStripper = null;
+       this.pdDoc = null;
+       this.cosDoc = null;
+       
+       file = new File(filePath);
+       parser = new PDFParser(new RandomAccessFile(file,"r")); 
+       
+       parser.parse();
+       cosDoc = parser.getDocument();
+       pdfStripper = new PDFTextStripper();
+       pdDoc = new PDDocument(cosDoc);
+       pdfStripper.setStartPage(startPage);
+       pdfStripper.setEndPage(endPage);
   
        
        Text = pdfStripper.getText(pdDoc);

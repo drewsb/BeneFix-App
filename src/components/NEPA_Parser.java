@@ -16,20 +16,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 
 /*
- * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
+ * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown
  */
 public class NEPA_Parser {
-	
+
 	static ArrayList<Page> products;
-	
+
 	static Sheet sheet;
-	
-	static Iterator<Row> iterator;	
-	
+
+	static Iterator<Row> iterator;
+
 	static String start_date;
-	
+
 	static String end_date;
-	
+
 	public NEPA_Parser(File file, int sheet_index, String s_date, String e_date) throws IOException{
 		start_date = s_date;
 		end_date = e_date;
@@ -46,7 +46,7 @@ public class NEPA_Parser {
         }
 
     }
-	
+
 	public ArrayList<Page> parse(){
 		Cell cell;
 		int page_index = 1;
@@ -57,17 +57,17 @@ public class NEPA_Parser {
         int numRows = sheet.getPhysicalNumberOfRows();
 		int numCols = r.getPhysicalNumberOfCells();
 		String state = "PA";
-		
-		
+
+
 		row_index = 2;
 		col_index = 2;
 		r = sheet.getRow(row_index);
 		cell = r.getCell(col_index);
     	//String product = cell.getStringCellValue();
-		
+
     	row_index = 6;
     	while(col_index < numCols){
-			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();		
+			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String plan_id = cell.getStringCellValue();
@@ -129,10 +129,10 @@ public class NEPA_Parser {
 			}
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index+1);
-			tobacco_dict.put("65+", cell.getNumericCellValue());	
-			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
+			tobacco_dict.put("65+", cell.getNumericCellValue());
+			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "",
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "", state, page_index, 
+					"", "", "", "", "", "", "", rating_area, "", state, page_index,
 					non_tobacco_dict, tobacco_dict);
 			products.add(page);
         	col_index+=2;
@@ -145,5 +145,5 @@ public class NEPA_Parser {
         return products;
 	}
 
-	
+
 }
