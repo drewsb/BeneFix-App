@@ -5,11 +5,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
+<<<<<<< HEAD
+import java.util.LinkedHashMap;
 
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
-import org.apache.poi.xssf.usermodel.XSSFCellStyle;
 import org.apache.poi.xssf.usermodel.XSSFFormulaEvaluator;
 import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -26,6 +26,7 @@ public class NJRates_Parser {
 	String startDate;
 	String endDate;
 	String quarter;
+
 	HashMap<String, String> results;
 	Carrier carrier;
 
@@ -106,6 +107,7 @@ public class NJRates_Parser {
 			XSSFRow row = sheet.getRow(i);
 			XSSFCell src = row.getCell(2);
 			String srcString = src.getStringCellValue();
+
 			srcString = srcString.replaceAll("\\s+","").toLowerCase();
 			srcString = srcString.replaceAll("\\.+", "");
 			if (carrier == Carrier.UHC && srcString.substring(srcString.length() - 3, 
