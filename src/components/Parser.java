@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import javax.swing.*;
+import javax.swing.JProgressBar;
+import javax.swing.JTextArea;
+import javax.swing.SwingWorker;
 
 import aetna.Aetna_Parser;
 import aetna.Aetna_Plan_Parser;
@@ -14,6 +16,8 @@ import amerihealth.Amerihealth_Parser;
 import cbc.CBC_Parser;
 import cbc.CBC_Plan_Parser;
 import components.FileChooser.Carrier;
+import components.FileChooser.State;
+import njrates.NJRates_Parser;
 import uhc.Oxford_NJ_Parser;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
@@ -27,18 +31,22 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 	final ArrayList<File> selectedPlans;
 
 	final ArrayList<File> selectedRates;
+	
+	final ArrayList<File> selectedOutputs;
 
 	final JTextArea textArea;
 
 	final JProgressBar bar;
+	
+	final State state;
 
 	public enum WPA {
 		HMK, HCA
 	}
 
-	public Parser(final Carrier type, final int sheetIndex, final String quarter, 
-			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates,
-			final JTextArea textArea, final JProgressBar bar) {
+	public Parser(final Carrier type, final int sheetIndex, State state, final String quarter,
+			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates, 
+			final ArrayList<File> selectedOutputs, final JTextArea textArea, final JProgressBar bar) {
 	    this.carrierType = type;
 	    this.sheetIndex = sheetIndex;
 	    this.quarter = quarter;
@@ -46,6 +54,8 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 	    this.selectedRates = selectedRates;
 	    this.textArea = textArea;
 	    this.bar = bar;
+	    this.state = state;
+	    this.selectedOutputs = selectedOutputs;
 	  }
 
 
@@ -136,52 +146,62 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 					end_date = "12/31/2017";
 				}
 				try {
-					switch (carrierType) {
-					case UPMC:
-						upmc.UPMC_Page[] UPMC_pages;
-						upmc.UPMC_Parser UPMC_parser = new upmc.UPMC_Parser(selectedRate, start_date, end_date);
-						UPMC_pages = UPMC_parser.parse();
-						upmc.UPMC_ExcelWriter.populateExcel(UPMC_pages, filename);
-						break;
-					case Aetna:
-						Page[] aetna_pages;
-						Aetna_Parser aetna_parser = new aetna.Aetna_Parser(selectedRate, start_date,
-								end_date);
-						pages.addAll(aetna_parser.parse());
-						break;
-					case WPA:
-						WPA_Parser wpa_parser = new WPA_Parser(selectedRate, sheetIndex, start_date, end_date);
-						switch (wpaType) {
-						case HCA:
-							pages.addAll(wpa_parser.parseHCA());
+					switch (state) {
+					case PA:
+						switch (carrierType) {
+						case UPMC:
+							upmc.UPMC_Page[] UPMC_pages;
+							upmc.UPMC_Parser UPMC_parser = new upmc.UPMC_Parser(selectedRate, start_date, end_date);
+							UPMC_pages = UPMC_parser.parse();
+							upmc.UPMC_ExcelWriter.populateExcel(UPMC_pages, filename);
 							break;
-						case HMK:
-							pages.addAll(wpa_parser.parseHMK());
+						case Aetna:
+							Page[] aetna_pages;
+							Aetna_Parser aetna_parser = new aetna.Aetna_Parser(selectedRate, start_date,
+									end_date);
+							pages.addAll(aetna_parser.parse());
+							break;
+						case WPA:
+							WPA_Parser wpa_parser = new WPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							switch (wpaType) {
+							case HCA:
+								pages.addAll(wpa_parser.parseHCA());
+								break;
+							case HMK:
+								pages.addAll(wpa_parser.parseHMK());
+								break;
+							}
+							break;
+						case NEPA:
+							NEPA_Parser nepa_parser = new NEPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							pages.addAll(nepa_parser.parse());
+							break;
+						case CPA:
+							CPA_Parser cpa_parser = new CPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							pages.addAll(cpa_parser.parse());
+							break;
+						case IBC:
+							Page ibc_page;
+							IBC_Parser ibc_parser = new IBC_Parser(selectedRate, start_date, end_date);
+							ibc_page = ibc_parser.parse();
+							pages.add(ibc_page);
+							break;
+						case CBC:
+							Page cbc_page = null;
+							CBC_Parser cbc_parser = new CBC_Parser(selectedRate, cbc_page, sheetIndex, quarter, quarter);
+							cbc_page = cbc_parser.parse();
+							pages.add(cbc_page);
 							break;
 						}
 						break;
-					case NEPA:
-						NEPA_Parser nepa_parser = new NEPA_Parser(selectedRate, sheetIndex, start_date, end_date);
-						pages.addAll(nepa_parser.parse());
+					case NJ:
+						NJRates_Parser parser = new NJRates_Parser(selectedRate, selectedOutputs.get(0), 
+								carrierType, quarter, start_date, end_date);
 						break;
-					case CPA:
-						CPA_Parser cpa_parser = new CPA_Parser(selectedRate, sheetIndex, start_date, end_date);
-						pages.addAll(cpa_parser.parse());
-						break;
-					case IBC:
-						Page ibc_page;
-						IBC_Parser ibc_parser = new IBC_Parser(selectedRate, start_date, end_date);
-						ibc_page = ibc_parser.parse();
-						pages.add(ibc_page);
-					case CBC:
-						Page cbc_page = null;
-						CBC_Parser cbc_parser = new CBC_Parser(selectedRate, cbc_page, sheetIndex, quarter, quarter);
-						cbc_page = cbc_parser.parse();
-						pages.add(cbc_page);
 					}
 					publish("File parsed\n");
-					index++;
 					setProgress(100 * (index+1) / size);
+					index++;
 
 				} catch (IOException e1) {
 					publish("Invalid file.\n");

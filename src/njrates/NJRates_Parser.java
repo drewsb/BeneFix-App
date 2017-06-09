@@ -5,6 +5,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+<<<<<<< HEAD
 import java.util.LinkedHashMap;
 
 import org.apache.poi.ss.usermodel.CellType;
@@ -25,7 +26,8 @@ public class NJRates_Parser {
 	String startDate;
 	String endDate;
 	String quarter;
-	LinkedHashMap<String, String> results;
+
+	HashMap<String, String> results;
 	Carrier carrier;
 
 	public NJRates_Parser(File file, File outputFile, Carrier carrier, 
@@ -37,20 +39,24 @@ public class NJRates_Parser {
 		this.endDate = endDate;
 		this.quarter = quarter;
 		this.carrier = carrier;
-		results = new LinkedHashMap<String, String>();
+		this.results = new HashMap<String, String>();
 		parse();
 		writeToOutputFile();
 	}
 	
 	public void parse() throws IOException {
-		String text = pdfmanager.ToText(1, 1);
+		String text = pdfmanager.ToText(1, pdfmanager.getNumPages());
 		System.out.println(text);
 		String[] lines = text.split("\n");
 		for (int i = 0; i < lines.length; i++) {
 			String currLine = lines[i];
 			String[] tokens = currLine.split(" ");
 			
-			if (tokens.length == 0 || !tokens[0].equals("NJ")) {
+			if (tokens.length == 0 || (!tokens[0].equals("NJ") && !tokens[0].equals("State")
+					&& !tokens[0].equals("SEH") && !tokens[0].equals("HMO") && !tokens[0].equals("POS")
+					&& !tokens[0].equals("Direct") && !tokens[0].equals("Advantage") && !tokens[0].equals("OMNIA")
+					&& !tokens[0].equals("PPO") && !tokens[0].equals("EPO") && !tokens[0].equals("Prim")
+					&& !tokens[0].equals("Primary"))) {
 				continue;
 			}
 
@@ -59,27 +65,32 @@ public class NJRates_Parser {
 				sb.append(tokens[j] + " ");
 			}
 			String planName = sb.toString();
-			String q1 = tokens[tokens.length - 3];
-			String q2 = tokens[tokens.length - 2];
-			String q3 = tokens[tokens.length - 1];
+			planName = planName.replaceAll("\\s+","").toLowerCase();
+			planName = planName.replaceAll("\\.+", "");
+			System.out.println("Name in map: " + planName);
+			String q1str = tokens[tokens.length - 3];
+			String q2str = tokens[tokens.length - 2];
+			String q3str = tokens[tokens.length - 1];
 			
-			System.out.println(planName);
-
 			if (quarter.equals("Q1")) {
-				results.put(planName, q1);
+				results.put(planName, q1str);
 			} else if (quarter.equals("Q2")) {
-				results.put(planName, q2);
+				results.put(planName, q2str);
 			} else if (quarter.equals("Q3")) {
-				results.put(planName, q3);
+				results.put(planName, q3str);
 			} else {
 				//Put Q4 rates in here
 			}
 		}
 	}
 	
-	public void writeToOutputFile() throws IOException {
+	public void writeToOutputFile() throws IOException {;
 		FileInputStream fis = new FileInputStream(outputFile);
 		XSSFWorkbook workbook = new XSSFWorkbook(fis);
+		
+		XSSFCellStyle styleCurrencyFormat = workbook.createCellStyle();
+		styleCurrencyFormat.setDataFormat((short) 8);
+		
 		int numSheets = workbook.getNumberOfSheets();
 		XSSFSheet sheet = workbook.getSheetAt(0);
 		for (int i = 0; i < numSheets; i++) {
@@ -96,14 +107,30 @@ public class NJRates_Parser {
 			XSSFRow row = sheet.getRow(i);
 			XSSFCell src = row.getCell(2);
 			String srcString = src.getStringCellValue();
+
+			srcString = srcString.replaceAll("\\s+","").toLowerCase();
+			srcString = srcString.replaceAll("\\.+", "");
+			if (carrier == Carrier.UHC && srcString.substring(srcString.length() - 3, 
+					srcString.length()).equals("(6)")) {
+				srcString = srcString.substring(0, srcString.length() - 3);
+			} else if (carrier == Carrier.UHC && srcString.contains("primaryadvantage")) {
+				srcString = srcString.replace("primaryadvantage", "primadv");
+				srcString = srcString + "(primaryadvantage)";
+			}
+			
+			System.out.println("Name in excel: " + srcString);
 			String input = results.get(srcString);
+			System.out.println(input);
+			if (input == null) {
+				input = "0000";
+			}
+			double dInput = Double.parseDouble(input.substring(1));
 			XSSFCell des = row.getCell(12);
-			des.setCellValue(input);
-			des.setCellType(CellType.NUMERIC);
-			System.out.println("Row: " + i);
-			System.out.println("Col: " + des.getColumnIndex());
-			System.out.println("Input: " + input);
-			System.out.println("--------------------------");
+			des.setCellValue(dInput);
+//			System.out.println("Row: " + i);
+//			System.out.println("Col: " + des.getColumnIndex());
+//			System.out.println("Input: " + input);
+//			System.out.println("--------------------------");
 		}
 		XSSFFormulaEvaluator.evaluateAllFormulaCells(workbook);
         FileOutputStream outputStream;
