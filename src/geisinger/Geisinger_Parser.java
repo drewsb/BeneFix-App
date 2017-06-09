@@ -7,14 +7,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ListIterator;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
 import org.apache.pdfbox.multipdf.Splitter;
-import org.apache.pdfbox.multipdf.PDFMergerUtility;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import components.Page;
-
-import geisinger.Geisinger_Page;
 
 public class Geisinger_Parser {
 	
@@ -84,7 +79,6 @@ public class Geisinger_Parser {
 		// convert rate pages to text in page range, add to array list
 		for (int i = start_page; i < (end_page + 1); i++) {
 			text = pdfManager.ToText(pages_arraylist.get(i));
-			System.out.println(text);
 			String lines[] = text.split("\n"); // split page into strings
 			
 			// rating area bools
@@ -123,44 +117,35 @@ public class Geisinger_Parser {
 					rating6 = false;
 					rating7 = false;
 					rating9 = false;
-					System.out.println(lines[x]);
-					System.out.println(lines[x + 1]);
-					System.out.println(lines[x + 2]);
 					for (int q = 0; q < 3; q++) {
 						for (int p = 0; p < ra2.length; p++) {
 							if (lines[x + q].contains(ra2[p])) {
 								rating2 = true;
-								//System.out.println("rating 2 is true");
 							}
 						}
 						for (int p = 0; p < ra3.length; p++) {
 							if (lines[x + q].contains(ra3[p])) {
 								rating3 = true;
-								//System.out.println("rating 3 is true");
 							}
 						}
 						for (int p = 0; p < ra5.length; p++) {
 							if (lines[x + q].contains(ra5[p])) {
 								rating5 = true;
-								//System.out.println("rating 5 is true");
 							}
 						}	
 						for (int p = 0; p < ra6.length; p++) {
 							if (lines[x + q].contains(ra6[p])) {
 								rating6 = true;
-								//System.out.println("rating 6 is true");
 							}
 						}	
 						for (int p = 0; p < ra7.length; p++) {
 							if (lines[x + q].contains(ra7[p])) {
 								rating7 = true;
-								//System.out.println("rating 7 is true");
 							}
 						}
 						for (int p = 0; p < ra9.length; p++) {
 							if (lines[x + q].contains(ra9[p])) {
 								rating9 = true;
-								//System.out.println("rating 9 is true");
 							}
 						}
 					}
@@ -182,48 +167,36 @@ public class Geisinger_Parser {
 						Double tob_2 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict2.put(token_list.get(0), non_2); //format string to get rid of any commas
 						tobacco_dict2.put(token_list.get(0), tob_2);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating3 == true) {
 						Double non_3 = Double.parseDouble(formatString(it.next()));
 						Double tob_3 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict3.put(token_list.get(0), non_3);
 						tobacco_dict3.put(token_list.get(0), tob_3);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating5 == true) {
 						Double non_5 = Double.parseDouble(formatString(it.next()));
 						Double tob_5 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict5.put(token_list.get(0), non_5);
 						tobacco_dict5.put(token_list.get(0), tob_5);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating6 == true) {
 						Double non_6 = Double.parseDouble(formatString(it.next()));
 						Double tob_6 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict6.put(token_list.get(0), non_6);
 						tobacco_dict6.put(token_list.get(0), tob_6);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating7 == true) {
 						Double non_7 = Double.parseDouble(formatString(it.next()));
 						Double tob_7 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict7.put(token_list.get(0), non_7);
 						tobacco_dict7.put(token_list.get(0), tob_7);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating9 == true) {
 						Double non_9 = Double.parseDouble(formatString(it.next()));
 						Double tob_9 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict9.put(token_list.get(0), non_9);
 						tobacco_dict9.put(token_list.get(0), tob_9);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 				} 
 				else if (!token_list.get(0).contains("65")) {
@@ -234,110 +207,85 @@ public class Geisinger_Parser {
 						Double tob_2 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict2.put(token_list.get(0), non_2); //format string to get rid of any commas
 						tobacco_dict2.put(token_list.get(0), tob_2);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating3 == true) {
 						Double non_3 = Double.parseDouble(formatString(it.next()));
 						Double tob_3 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict3.put(token_list.get(0), non_3);
 						tobacco_dict3.put(token_list.get(0), tob_3);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating5 == true) {
 						Double non_5 = Double.parseDouble(formatString(it.next()));
 						Double tob_5 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict5.put(token_list.get(0), non_5);
 						tobacco_dict5.put(token_list.get(0), tob_5);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating6 == true) {
 						Double non_6 = Double.parseDouble(formatString(it.next()));
 						Double tob_6 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict6.put(token_list.get(0), non_6);
 						tobacco_dict6.put(token_list.get(0), tob_6);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating7 == true) {
 						Double non_7 = Double.parseDouble(formatString(it.next()));
 						Double tob_7 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict7.put(token_list.get(0), non_7);
 						tobacco_dict7.put(token_list.get(0), tob_7);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 					if (rating9 == true) {
 						Double non_9 = Double.parseDouble(formatString(it.next()));
 						Double tob_9 = Double.parseDouble(formatString(it.next()));
 						non_tobacco_dict9.put(token_list.get(0), non_9);
 						tobacco_dict9.put(token_list.get(0), tob_9);
-//						System.out.println(it.next());
-//						System.out.println(it.next());
 					}
 				}
 			}
 			
 			if (rating2 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "2", "", product, state, i,
-						non_tobacco_dict2, tobacco_dict2));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating3 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "3", "", product, state, i,
-						non_tobacco_dict3, tobacco_dict3));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating5 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "5", "", product, state, i,
-						non_tobacco_dict5, tobacco_dict5));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating6 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "6", "", product, state, i,
-						non_tobacco_dict6, tobacco_dict6));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating7 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "7", "", product, state, i,
-						non_tobacco_dict7, tobacco_dict7));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating9 == true) {
-				System.out.println("adding page");
-				page_counter++;
-				products.add(new Page(carrier_id, "", start_date, end_date,
-						product, "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "", "",
-						"1", "", "", "", "", "", "", "9", "", product, state, i,
-						non_tobacco_dict9, tobacco_dict9));
+				products.add(new Page(carrier_id, "", start_date, end_date, 
+						product, "", 
+						"", "", "", "", "", "", "", "", "",
+						"", "", "", "", "", "", "", "", "", "", "", "", "2",
+						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			// skip benefits page
 			i++; 
 		}
-		System.out.println(page_counter);
 		return products;
 	}
 

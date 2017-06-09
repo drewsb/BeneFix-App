@@ -132,7 +132,7 @@ public class WPA_Parser {
 			tobacco_dict.put("65+", cell.getNumericCellValue());
 			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "", plan_name, state, page_index, non_tobacco_dict, tobacco_dict);
+					"", "", "", "", "", "", "", rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 	        products.add(page);
         	col_index+=2;
     		row_index = 1;
@@ -229,7 +229,7 @@ public class WPA_Parser {
 			tobacco_dict.put("65+", cell.getNumericCellValue());
 			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "", plan_name, state, page_index, non_tobacco_dict, tobacco_dict);
+					"", "", "", "", "", "", "", rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 	        products.add(page);
         	col_index+=2;
     		row_index = 1;
