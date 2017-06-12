@@ -10,15 +10,19 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
-import aetna.Aetna_Parser;
-import aetna.Aetna_Plan_Parser;
-import amerihealth.Amerihealth_Parser;
-import cbc.CBC_Parser;
-import cbc.CBC_Plan_Parser;
-import components.FileChooser.Carrier;
-import components.FileChooser.State;
-import njrates.NJRates_Parser;
-import uhc.Oxford_NJ_Parser;
+import components.Main.Carrier;
+import components.Main.State;
+import nj.NJ_All_Carriers_Rates;
+import nj.NJ_Amerihealth_Rates;
+import nj.NJ_Oxford_Parser_Temp;
+import pa.PA_Aetna_Rates;
+import pa.PA_CBC_Rates;
+import pa.PA_WPA_Rates;
+import pa.PA_CBC_Benefits;
+import pa.PA_CPA_Rates;
+import pa.PA_IBC_Rates;
+import pa.PA_NEPA_Rates;
+import pa.PA_Aetna_Benefits;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
@@ -77,7 +81,7 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						break;
 					case Aetna:
 						Page aetna_page;
-						Aetna_Plan_Parser aetna_plan_parser = new Aetna_Plan_Parser(selectedPlan);
+						PA_Aetna_Benefits aetna_plan_parser = new PA_Aetna_Benefits(selectedPlan);
 						aetna_page = aetna_plan_parser.parse(filename);
 						pages.add(aetna_page);
 						pageMap.put(aetna_page.product_name, aetna_page);
@@ -86,18 +90,18 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						break;
 					case CBC:
 						Page cbc_page;
-						CBC_Plan_Parser cbc_plan_parser = new CBC_Plan_Parser(selectedPlan);
+						PA_CBC_Benefits cbc_plan_parser = new PA_CBC_Benefits(selectedPlan);
 						cbc_page = cbc_plan_parser.parse(filename);
 						pages.add(cbc_page);
 						break;
 					case AmeriHealth:
 						Page amerihealth;
-						Amerihealth_Parser ap = new Amerihealth_Parser(selectedPlan, 1);
+						NJ_Amerihealth_Rates ap = new NJ_Amerihealth_Rates(selectedPlan, 1);
 						ap.printText();
 						break;
 					case UHC: 
 						Page oxford;
-						Oxford_NJ_Parser op = new Oxford_NJ_Parser(selectedPlan);
+						NJ_Oxford_Parser_Temp op = new NJ_Oxford_Parser_Temp(selectedPlan);
 						ArrayList<Page> UHCPages = op.getParsed();
 						pages.addAll(UHCPages);
 						break;
@@ -150,19 +154,19 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 					case PA:
 						switch (carrierType) {
 						case UPMC:
-							upmc.UPMC_Page[] UPMC_pages;
-							upmc.UPMC_Parser UPMC_parser = new upmc.UPMC_Parser(selectedRate, start_date, end_date);
+							pa.PA_UPMC_Page[] UPMC_pages;
+							pa.PA_UPMC_Rates UPMC_parser = new pa.PA_UPMC_Rates(selectedRate, start_date, end_date);
 							UPMC_pages = UPMC_parser.parse();
-							upmc.UPMC_ExcelWriter.populateExcel(UPMC_pages, filename);
+							pa.PA_UPMC_ExcelWriter.populateExcel(UPMC_pages, filename);
 							break;
 						case Aetna:
 							Page[] aetna_pages;
-							Aetna_Parser aetna_parser = new aetna.Aetna_Parser(selectedRate, start_date,
+							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
 									end_date);
 							pages.addAll(aetna_parser.parse());
 							break;
 						case WPA:
-							WPA_Parser wpa_parser = new WPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							PA_WPA_Rates wpa_parser = new PA_WPA_Rates(selectedRate, sheetIndex, start_date, end_date);
 							switch (wpaType) {
 							case HCA:
 								pages.addAll(wpa_parser.parseHCA());
@@ -173,35 +177,35 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 							}
 							break;
 						case NEPA:
-							NEPA_Parser nepa_parser = new NEPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							PA_NEPA_Rates nepa_parser = new PA_NEPA_Rates(selectedRate, sheetIndex, start_date, end_date);
 							pages.addAll(nepa_parser.parse());
 							break;
 						case CPA:
-							CPA_Parser cpa_parser = new CPA_Parser(selectedRate, sheetIndex, start_date, end_date);
+							PA_CPA_Rates cpa_parser = new PA_CPA_Rates(selectedRate, sheetIndex, start_date, end_date);
 							pages.addAll(cpa_parser.parse());
 							break;
 						case IBC:
 							Page ibc_page;
-							IBC_Parser ibc_parser = new IBC_Parser(selectedRate, start_date, end_date);
+							PA_IBC_Rates ibc_parser = new PA_IBC_Rates(selectedRate, start_date, end_date);
 							ibc_page = ibc_parser.parse();
 							pages.add(ibc_page);
 							break;
 						case CBC:
 							Page cbc_page = null;
-							CBC_Parser cbc_parser = new CBC_Parser(selectedRate, cbc_page, sheetIndex, quarter, quarter);
+							PA_CBC_Rates cbc_parser = new PA_CBC_Rates(selectedRate, cbc_page, sheetIndex, quarter, quarter);
 							cbc_page = cbc_parser.parse();
 							pages.add(cbc_page);
 							break;
 						case Geisinger:
 							String s_page = "25";
 							String e_page = "97";
-							geisinger.Geisinger_Parser geisinger_parser = new geisinger.Geisinger_Parser();
+							pa.PA_Geisinger_Rates geisinger_parser = new pa.PA_Geisinger_Rates();
 							pages.addAll(geisinger_parser.parse(selectedRate, start_date, end_date, s_page, e_page));
 							break;
 						}
 						break;
 					case NJ:
-						NJRates_Parser parser = new NJRates_Parser(selectedRate, selectedOutputs.get(0), 
+						NJ_All_Carriers_Rates parser = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
 								carrierType, quarter, start_date, end_date);
 						break;
 					}
