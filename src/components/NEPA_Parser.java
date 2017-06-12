@@ -64,7 +64,6 @@ public class NEPA_Parser {
 		r = sheet.getRow(row_index);
 		cell = r.getCell(col_index);
     	//String product = cell.getStringCellValue();
-
     	row_index = 6;
     	while(col_index < numCols){
 			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();

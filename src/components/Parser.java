@@ -192,6 +192,12 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 							cbc_page = cbc_parser.parse();
 							pages.add(cbc_page);
 							break;
+						case Geisinger:
+							String s_page = "25";
+							String e_page = "97";
+							geisinger.Geisinger_Parser geisinger_parser = new geisinger.Geisinger_Parser();
+							pages.addAll(geisinger_parser.parse(selectedRate, start_date, end_date, s_page, e_page));
+							break;
 						}
 						break;
 					case NJ:

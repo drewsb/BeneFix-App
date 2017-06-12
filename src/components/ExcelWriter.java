@@ -1,5 +1,4 @@
 package components;
-
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -11,20 +10,20 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import components.FileChooser.Carrier;
 
+
 /*
  * Uses Apache Poi package found at https://www.apache.org. 
  */
 public class ExcelWriter {
-
-	public static void main(String[] args) {
+	
+	public static void main(String[] args){
 
 	}
 
 	/*
-	 * Input: Array of page objects. Creates a new workbook sheet every
-	 * compilation. First populates the excel sheet with template data, then the
-	 * necessary data from the array of pages. Output file is called
-	 * "BenefixData.xlsx".
+	 * Input: Array of page objects. 
+	 * Creates a new workbook sheet every compilation. First populates the excel sheet with template data,
+	 * then the necessary data from the array of pages. Output file is called "BenefixData.xlsx". 
 	 */
 	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type) throws IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -161,5 +160,5 @@ public class ExcelWriter {
 		}
 		workbook.close();
 	}
-
+	
 }

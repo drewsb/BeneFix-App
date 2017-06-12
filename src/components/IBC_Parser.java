@@ -2,8 +2,8 @@ package components;
 
 import java.io.File;
 
-
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /*
@@ -33,71 +33,52 @@ public class IBC_Parser {
 
 	public Page parse() {
 		String[] tokens = text.split(" |\n"); // Split pdf text by spaces and
-											// new line chars
-		for(String s : tokens){
-			System.out.println(s);
-		}
-		int carrier_id = 12;
+												// new line chars
 		int token_length = tokens.length;
 		String product_name = "";
 		String plan_code = "";
 		String rating_area = "";
+		String plan_name = "";
 		String state = "PA";
 		int age_count = 20;
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
 		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
-		int product_token_length = 0;
-		int temp_index = 30;
-		while(!tokens[temp_index].contains("Region:")){
-			product_name += tokens[temp_index] + " ";
-			product_token_length++;
+		int temp_index = 27;
+		while(!tokens[temp_index].contains("$")){
+			product_name += tokens[temp_index];
 			temp_index++;
 		}
-		rating_area = tokens[temp_index+1];
-		temp_index+= product_token_length + 1;
+		temp_index+=plan_name.length() + 3;
 		while(!tokens[temp_index].equals("Age")){
-			//product_name+=tokens[temp_index] + " ";
+			plan_name+=tokens[temp_index];
 			temp_index++;
 		}
 		temp_index+=10;
-		non_tobacco_dict.put("0-20",  valueToDouble(tokens[temp_index+1]));
-		non_tobacco_dict.put("0-20",  valueToDouble(tokens[temp_index+2]));
-		temp_index+=3;
-		while(!tokens[temp_index].equals("Age")){
+		non_tobacco_dict.put("0-20",  Double.valueOf(tokens[temp_index]+1));
+		non_tobacco_dict.put("0-20",  Double.valueOf(tokens[temp_index]+2));
+		temp_index+=13;
+		while(tokens[temp_index].equals("Age")){
 			age_count++;
-			System.out.println(temp_index);
-			non_tobacco_dict.put(tokens[temp_index],  valueToDouble(tokens[temp_index+1]));
-			tobacco_dict.put(tokens[temp_index],  valueToDouble(tokens[temp_index+2]));
+			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+1));
+			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+2));
 			temp_index+=3;
 		}
 		age_count++;
 		temp_index+=8;
 		while(age_count < 65){
-			non_tobacco_dict.put(tokens[temp_index],  valueToDouble(tokens[temp_index+1]));
-			tobacco_dict.put(tokens[temp_index],  valueToDouble(tokens[temp_index+2]));
+			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+1));
+			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+2));
 			temp_index+=3;
-			age_count++;
 		}
 		
-		Page page = new Page(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
-				"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "", 
-				state, 0, non_tobacco_dict, tobacco_dict);
-		
-		page.printPage();
+//		Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", deductible, "", "", "",
+//				coinsurance, "", "", "", "", "", "", oop_maximum, "", "", "", "", "", "", "", "", "", rating_area, "",
+//				plan_name, state, page_index, non_tobacco_dict, tobacco_dict);
 
 		// System.out.println("*****************************************************");
-		return page;
+		return null;
 
-	}
-	
-	
-	public Double valueToDouble(String input){
-		if(input.contains(",")){
-			int index = input.indexOf(",");
-			input = input.substring(0,index) + input.substring(index+1,input.length());
-		}
-		return Double.parseDouble(input.substring(1, input.length()));
 	}
 
 }

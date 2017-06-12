@@ -62,8 +62,8 @@ public class WPA_Parser {
 			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();		
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-//			String product = cell.getStringCellValue();
-//			System.out.println(product);
+			String product = cell.getStringCellValue();
+			System.out.println(product);
 			row_index++;
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String plan_id = cell.getStringCellValue();
@@ -81,7 +81,7 @@ public class WPA_Parser {
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String metal = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String product = cell.getStringCellValue();
+			String plan_name = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String deductible = "";
 			switch(cell.getCellTypeEnum()){
@@ -159,8 +159,8 @@ public class WPA_Parser {
 			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();		
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			//String product = cell.getStringCellValue();
-			//System.out.println(product);
+			String product = cell.getStringCellValue();
+			System.out.println(product);
 			row_index+=2;
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String plan_id = cell.getStringCellValue();
@@ -178,7 +178,7 @@ public class WPA_Parser {
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String metal = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String product = cell.getStringCellValue();
+			String plan_name = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String deductible = "";
 			switch(cell.getCellTypeEnum()){

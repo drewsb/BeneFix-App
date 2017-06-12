@@ -1,4 +1,4 @@
-package uhc;
+package components;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 
 
 /*
@@ -140,7 +141,7 @@ public class UHC_Parser {
 			tobacco_dict.put("65+", cell.getNumericCellValue());	
 			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "", plan_name, state, page_index, 
+					"", "", "", "", "", "", "", rating_area, "", state, page_index, 
 					non_tobacco_dict, tobacco_dict);
         	col_index+=2;
     		row_index = 6;

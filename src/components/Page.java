@@ -33,10 +33,12 @@ public class Page {
 	public String outpatient_diagnostic_lab;
 	public String outpatient_surgery;
 	public String outpatient_diagnostic_x_ray;
+	public String outpatient_diagnostic;
 	public String outpatient_complex_imaging;
 	public String physical_occupational_therapy;
 	public String group_rating_area;
 	public String service_zones;
+	public String plan_name;
 	public String state;
 	public HashMap<String,Double> non_tobacco_dict;
 	public HashMap<String,Double> tobacco_dict;
@@ -47,7 +49,7 @@ public class Page {
 	String coinsurance, String dr_visit_copay, String specialist_visit_copay, String er_copay, String urgent_care_copay,
 	String rx_copay, String rx_mail_copay, String oop_max_indiv, String oop_max_family, String oon_oop_max_indiv,
 	String oon_oop_max_family, String in_patient_hospital, String outpatient_diagnostic_lab, String outpatient_surgery,
-	String outpatient_diagnostic_x_ray, String outpatient_complex_imaging, String physical_occupational_therapy, String group_rating_area,
+	String outpatient_diagnostic, String outpatient_complex_imaging, String physical_occupupational_therapy, String group_rating_area,
 	String service_zones, String state, int page,  HashMap<String,Double> non_tob_dict, HashMap<String,Double> tob_dict){
 		this.carrier_id = carrier_id;
 		this.carrier_plan_id = carrier_plan_id;
@@ -73,9 +75,9 @@ public class Page {
 		this.in_patient_hospital = in_patient_hospital;
 		this.outpatient_diagnostic_lab = outpatient_diagnostic_lab;
 		this.outpatient_surgery =  outpatient_surgery;
-		this.outpatient_diagnostic_x_ray =  outpatient_diagnostic_x_ray;
+		this.outpatient_diagnostic =  outpatient_diagnostic;
 		this.outpatient_complex_imaging = outpatient_complex_imaging;
-		this.physical_occupational_therapy = physical_occupational_therapy;
+		this.physical_occupational_therapy = physical_occupupational_therapy;
 		this.group_rating_area = group_rating_area;
 		this.service_zones = service_zones;
 		this.state = state;
@@ -153,7 +155,6 @@ public class Page {
 		System.out.printf("Outpatient Diagnostic Complex Imaging: %s\n", this.outpatient_complex_imaging);
 		System.out.printf("Physical Occupational Therapy: %s\n", this.physical_occupational_therapy);
 		System.out.printf("Service Zones: %s\n", this.service_zones);
-		
 		System.out.printf("Non-Tobacco Rates\n");
 		for( Map.Entry<String, Double> key : this.non_tobacco_dict.entrySet()){
 			System.out.printf("Key: %s  |  Value: %.2f\n", key.getKey(), key.getValue());

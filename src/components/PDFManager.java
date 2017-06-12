@@ -7,6 +7,7 @@ import org.apache.pdfbox.io.RandomAccessFile;
 import org.apache.pdfbox.pdfparser.PDFParser;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
+import org.apache.pdfbox.multipdf.Splitter; 
 
 public class PDFManager {
     
@@ -20,22 +21,22 @@ public class PDFManager {
    private File file;
    
    private int numPages;
-
-    public PDFManager() {
+   
+   public PDFManager() {
   
-    }
+   }
     
-    public PDFManager(File srcFile) throws FileNotFoundException, IOException {
-    	filePath = srcFile.getAbsolutePath();
-        file = new File(filePath);
-        parser = new PDFParser(new RandomAccessFile(file,"r")); 
-        parser.parse();
+   public PDFManager(File srcFile) throws FileNotFoundException, IOException {
+	   filePath = srcFile.getAbsolutePath();
+	   file = new File(filePath);
+	   parser = new PDFParser(new RandomAccessFile(file,"r")); 
+	   parser.parse();
 
-        cosDoc = parser.getDocument();
-        pdfStripper = new PDFTextStripper();
-        pdDoc = new PDDocument(cosDoc);
-        numPages = pdDoc.getNumberOfPages();
-    }
+	   cosDoc = parser.getDocument();
+	   pdfStripper = new PDFTextStripper();
+	   pdDoc = new PDDocument(cosDoc);
+	   numPages = pdDoc.getNumberOfPages();
+   }
     
    public String ToText() throws IOException
    {
@@ -59,32 +60,47 @@ public class PDFManager {
        pdDoc.close();
        return Text;
    }
-   
-   public String ToText(int startPage, int endPage) throws IOException
+
+   public String ToText(PDDocument current_document) throws IOException
    {
        this.pdfStripper = null;
        this.pdDoc = null;
        this.cosDoc = null;
        
-       file = new File(filePath);
-       parser = new PDFParser(new RandomAccessFile(file,"r")); 
-       
-       parser.parse();
-       cosDoc = parser.getDocument();
        pdfStripper = new PDFTextStripper();
-       pdDoc = new PDDocument(cosDoc);
-       pdfStripper.setStartPage(startPage);
-       pdfStripper.setEndPage(endPage);
-  
-       
+       pdDoc = current_document;
        Text = pdfStripper.getText(pdDoc);
        pdDoc.close();
        return Text;
    }
    
-   public int getNumPages(){
-	   return numPages;
-   }
+   
+
+    public String ToText(int startPage, int endPage) throws IOException
+    {
+		this.pdfStripper = null;
+		this.pdDoc = null;
+		this.cosDoc = null;
+		
+		file = new File(filePath);
+		parser = new PDFParser(new RandomAccessFile(file,"r")); 
+		
+		parser.parse();
+		cosDoc = parser.getDocument();
+		pdfStripper = new PDFTextStripper();
+		pdDoc = new PDDocument(cosDoc);
+		pdfStripper.setStartPage(startPage);
+		pdfStripper.setEndPage(endPage);
+		
+		
+		Text = pdfStripper.getText(pdDoc);
+		pdDoc.close();
+		return Text;
+	}
+    
+    public int getNumPages(){
+ 	   return numPages;
+    }
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;

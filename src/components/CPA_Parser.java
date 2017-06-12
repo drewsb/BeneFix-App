@@ -1,6 +1,5 @@
 package components;
 import java.io.*;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,6 +8,8 @@ import java.util.Map;
 //import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -28,8 +29,6 @@ public class CPA_Parser {
 	static String start_date;
 	
 	static String end_date;
-
-	private Workbook workbook;
 	
 	public CPA_Parser(File file, int sheet_index, String s_date, String e_date) throws IOException{
 		start_date = s_date;
@@ -37,7 +36,7 @@ public class CPA_Parser {
 		products = new ArrayList<Page>();
 		try {
             FileInputStream excelFile = new FileInputStream(file);
-            workbook = new XSSFWorkbook(excelFile);
+            Workbook workbook = new XSSFWorkbook(excelFile);
             sheet = workbook.getSheetAt(sheet_index);
             iterator = sheet.iterator();
         } catch (FileNotFoundException e) {
@@ -55,6 +54,7 @@ public class CPA_Parser {
 		int col_index = 2;
 		int row_index = 1;
 		Row r = sheet.getRow(row_index);
+        int numRows = sheet.getPhysicalNumberOfRows();
 		int numCols = r.getPhysicalNumberOfCells();
 		
     	String start_date = "07/01/2017";
@@ -124,7 +124,7 @@ public class CPA_Parser {
 			}
 			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "",  state, page_index, non_tobacco_dict, tobacco_dict);
+					"", "", "", "", "", "", "", rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 	        products.add(page);
         	col_index+=2;
     		row_index = 1;

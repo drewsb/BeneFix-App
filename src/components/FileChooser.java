@@ -1,5 +1,6 @@
 package components;
 
+
 import java.awt.BorderLayout;
 
 import java.awt.Component;
@@ -73,7 +74,7 @@ public class FileChooser extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> carriersInState;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Cigna, Horizon
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Cigna, Horizon, Geisinger
 	}
 	
 	public enum State{
@@ -123,7 +124,7 @@ public class FileChooser extends JPanel implements ActionListener {
 		outputButton.addActionListener(this);
 
 		// Options for the JComboBox
-		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC"};
+		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger"};
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
 		carriersInState.put("PA", PAcarriers);
 		
@@ -239,6 +240,7 @@ public class FileChooser extends JPanel implements ActionListener {
 				break;
 			}
 			checkCarrier();
+
 			parser = new Parser(carrierType, progress, selectedState, 
 					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log, progressBar);
 			parser.addPropertyChangeListener(new PropertyChangeListener() {
@@ -325,6 +327,8 @@ public class FileChooser extends JPanel implements ActionListener {
 			this.carrierType = Carrier.Cigna;
 		} else if (carrierBox.getSelectedItem().equals("Horizon")) {
 			this.carrierType = Carrier.Horizon;
+		} else if (carrierBox.getSelectedItem().equals("Geisinger")) {
+			this.carrierType = Carrier.Geisinger;
 		}
 	}
 
