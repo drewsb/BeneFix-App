@@ -122,7 +122,9 @@ public class Main extends JPanel implements ActionListener {
 		outputButton.addActionListener(this);
 
 		// Options for the JComboBox
-		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger"};
+
+		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger", "UHC"};
+
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
 		carriersInState.put("PA", PAcarriers);
 		
@@ -300,7 +302,7 @@ public class Main extends JPanel implements ActionListener {
 			else{
 				filename = removeFileExtension(selectedPlans.get(0).getName());
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType);
+			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
 			log.append(output);
 		} catch (IOException e1) {

@@ -8,9 +8,8 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import components.Main.Carrier;
-
+import components.Main.State;
 
 /*
  * Uses Apache Poi package found at https://www.apache.org. 
@@ -26,7 +25,7 @@ public class ExcelWriter {
 	 * Creates a new workbook sheet every compilation. First populates the excel sheet with template data,
 	 * then the necessary data from the array of pages. Output file is called "BenefixData.xlsx". 
 	 */
-	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type) throws IOException {
+	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type, State state) throws IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("BenefixData");
 
@@ -50,7 +49,7 @@ public class ExcelWriter {
 		int colCount = 0;
 		int max_age;
 
-		if (type == Carrier.IBC) {
+		if (type == Carrier.IBC || (type == Carrier.Aetna && state == State.NJ)) {
 			max_age = 64;
 		} else {
 			max_age = 65;
@@ -68,6 +67,7 @@ public class ExcelWriter {
 			if (p == null) {
 				continue;
 			}
+			p.printPage();
 			colCount = 0;
 			row = sheet.createRow(++rowCount);
 			Cell cell = row.createCell(colCount++);
@@ -138,11 +138,12 @@ public class ExcelWriter {
 				for (int i = 0; i < max_age - 21; i++) {
 					cell = row.createCell(colCount++);
 					String index = String.format("%d", i + 21);
-					System.out.println(index);
 					cell.setCellValue(p.non_tobacco_dict.get(index));
 				}
+				
 				cell = row.createCell(colCount++);
 				String max_age_string = String.format("%d+", max_age);
+				System.out.println(max_age_string);
 				cell.setCellValue(p.non_tobacco_dict.get(max_age_string));
 				if (max_age < 65) {
 					int diff = 65 - max_age;

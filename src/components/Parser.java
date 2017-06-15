@@ -98,6 +98,7 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						pages.add(oxford);
 						pageMap.put(filename, oxford);
 						break;
+
 					}
 
 				} catch (IOException e1) {
@@ -198,9 +199,21 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						}
 						break;
 					case NJ:
-						NJ_All_Carriers_Rates parser = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
-								carrierType, quarter, start_date, end_date);
-						break;
+						switch (carrierType) {
+						case Aetna:
+//							Page[] aetna_pages;
+//							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
+//									end_date);
+//							pages.addAll(aetna_parser.parse());							
+//							break;
+							NJ_Aetna_Q2_Rates nj_aetna = new NJ_Aetna_Q2_Rates(selectedRate, start_date, end_date);
+							pages.addAll(nj_aetna.getResults());
+							break;
+						default:
+							NJ_All_Carriers_Rates parser_nj = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
+									carrierType, quarter, start_date, end_date);
+							break;
+						}
 					}
 					publish("File parsed\n");
 					setProgress(100 * (index+1) / size);
