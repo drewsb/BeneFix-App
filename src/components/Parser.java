@@ -10,6 +10,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JTextArea;
 import javax.swing.SwingWorker;
 
+<<<<<<< Updated upstream
 import aetna.Aetna_Parser;
 import aetna.Aetna_Plan_Parser;
 import amerihealth.Amerihealth_Parser;
@@ -19,6 +20,23 @@ import components.FileChooser.Carrier;
 import components.FileChooser.State;
 import njrates.NJRates_Parser;
 import uhc.Oxford_NJ_Parser;
+=======
+import components.Main.Carrier;
+import components.Main.State;
+import nj.NJ_Aetna_Q2_Rates;
+import nj.NJ_All_Carriers_Rates;
+import nj.NJ_Amerihealth_Rates;
+import nj.NJ_Oxford_Parser_Temp;
+import pa.PA_Aetna_Benefits;
+import pa.PA_Aetna_Rates;
+import pa.PA_CBC_Benefits;
+import pa.PA_CBC_Rates;
+import pa.PA_CPA_Rates;
+import pa.PA_IBC_Rates;
+import pa.PA_NEPA_Rates;
+import pa.PA_UHC_Benefits;
+import pa.PA_WPA_Rates;
+>>>>>>> Stashed changes
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
@@ -102,11 +120,26 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						ap.printText();
 						break;
 					case UHC: 
+<<<<<<< Updated upstream
 						Page oxford;
 						Oxford_NJ_Parser op = new Oxford_NJ_Parser(selectedPlan);
 						ArrayList<Page> UHCPages = op.getParsed();
 						pages.addAll(UHCPages);
 						break;
+=======
+						switch (state) {
+						case NJ: 
+	 						Page oxford;
+							NJ_Oxford_Parser_Temp op = new NJ_Oxford_Parser_Temp(selectedPlan);
+							ArrayList<Page> UHCPages = op.getParsed();
+							pages.addAll(UHCPages);
+							break;
+						case PA:
+							PA_UHC_Benefits pa_benefits = new PA_UHC_Benefits(selectedPlan);
+							break;
+						}
+
+>>>>>>> Stashed changes
 					}
 
 				} catch (IOException e1) {
@@ -197,9 +230,27 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						}
 						break;
 					case NJ:
+<<<<<<< Updated upstream
 						NJRates_Parser parser = new NJRates_Parser(selectedRate, selectedOutputs.get(0), 
 								carrierType, quarter, start_date, end_date);
 						break;
+=======
+						switch (carrierType) {
+						case Aetna:
+//							Page[] aetna_pages;
+//							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
+//									end_date);
+//							pages.addAll(aetna_parser.parse());							
+//							break;
+							NJ_Aetna_Q2_Rates nj_aetna = new NJ_Aetna_Q2_Rates(selectedRate, start_date, end_date);
+							pages.addAll(nj_aetna.getResults());
+							break;
+						default:
+							NJ_All_Carriers_Rates parser_nj = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
+									carrierType, quarter, start_date, end_date);
+							break;
+						}
+>>>>>>> Stashed changes
 					}
 					publish("File parsed\n");
 					setProgress(100 * (index+1) / size);

@@ -123,7 +123,11 @@ public class FileChooser extends JPanel implements ActionListener {
 		outputButton.addActionListener(this);
 
 		// Options for the JComboBox
+<<<<<<< Updated upstream:src/components/FileChooser.java
 		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC"};
+=======
+		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger", "UHC"};
+>>>>>>> Stashed changes:src/components/Main.java
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
 		carriersInState.put("PA", PAcarriers);
 		
@@ -292,7 +296,7 @@ public class FileChooser extends JPanel implements ActionListener {
 				filename = String.format("%s_%s_%s", carrierType.toString(),
 						(String) dateBox.getSelectedItem(), year);
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType);
+			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
 			log.append(output);
 		} catch (IOException e1) {
@@ -326,6 +330,13 @@ public class FileChooser extends JPanel implements ActionListener {
 			this.carrierType = Carrier.Cigna;
 		} else if (carrierBox.getSelectedItem().equals("Horizon")) {
 			this.carrierType = Carrier.Horizon;
+<<<<<<< Updated upstream:src/components/FileChooser.java
+=======
+		} else if (carrierBox.getSelectedItem().equals("Geisinger")) {
+			this.carrierType = Carrier.Geisinger;
+		} else if (carrierBox.getSelectedItem().equals("UHC")) {
+			this.carrierType = Carrier.UHC;
+>>>>>>> Stashed changes:src/components/Main.java
 		}
 	}
 
