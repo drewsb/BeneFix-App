@@ -1,6 +1,7 @@
 package components;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,17 +13,8 @@ import javax.swing.SwingWorker;
 
 import components.Main.Carrier;
 import components.Main.State;
-import nj.NJ_All_Carriers_Rates;
-import nj.NJ_Amerihealth_Rates;
-import nj.NJ_Oxford_Parser_Temp;
-import pa.PA_Aetna_Rates;
-import pa.PA_CBC_Rates;
-import pa.PA_WPA_Rates;
-import pa.PA_CBC_Benefits;
-import pa.PA_CPA_Rates;
-import pa.PA_IBC_Rates;
-import pa.PA_NEPA_Rates;
-import pa.PA_Aetna_Benefits;
+import nj.*;
+import pa.*;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
@@ -99,11 +91,12 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						NJ_Amerihealth_Rates ap = new NJ_Amerihealth_Rates(selectedPlan, 1);
 						ap.printText();
 						break;
-					case UHC: 
+					case Oxford: 
 						Page oxford;
-						NJ_Oxford_Parser_Temp op = new NJ_Oxford_Parser_Temp(selectedPlan);
-						ArrayList<Page> UHCPages = op.getParsed();
-						pages.addAll(UHCPages);
+						NJ_Oxford_Benefits op = new NJ_Oxford_Benefits(selectedPlan);
+						oxford = op.parse(filename);
+						pages.add(oxford);
+						pageMap.put(filename, oxford);
 						break;
 					}
 
