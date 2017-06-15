@@ -1,6 +1,6 @@
 package components;
-
 import java.io.FileOutputStream;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -8,29 +8,22 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-<<<<<<< Updated upstream
-import components.FileChooser.Carrier;
-=======
 import components.Main.Carrier;
 import components.Main.State;
-
->>>>>>> Stashed changes
 
 /*
  * Uses Apache Poi package found at https://www.apache.org. 
  */
 public class ExcelWriter {
-
-	public static void main(String[] args) {
+	
+	public static void main(String[] args){
 
 	}
 
 	/*
-	 * Input: Array of page objects. Creates a new workbook sheet every
-	 * compilation. First populates the excel sheet with template data, then the
-	 * necessary data from the array of pages. Output file is called
-	 * "BenefixData.xlsx".
+	 * Input: Array of page objects. 
+	 * Creates a new workbook sheet every compilation. First populates the excel sheet with template data,
+	 * then the necessary data from the array of pages. Output file is called "BenefixData.xlsx". 
 	 */
 	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type, State state) throws IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
@@ -94,7 +87,7 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.deductible_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue((String) p.oon_deductible_individual);
+			cell.setCellValue((String) p.oon_deductible_indiv);
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.oon_deductible_family);
 			cell = row.createCell(colCount++);
@@ -116,7 +109,7 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.oop_max_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue(p.oon_oop_max_individual);
+			cell.setCellValue(p.oon_oop_max_indiv);
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.oon_oop_max_family);
 			cell = row.createCell(colCount++);
@@ -169,5 +162,5 @@ public class ExcelWriter {
 		}
 		workbook.close();
 	}
-
+	
 }
