@@ -1,6 +1,7 @@
 package components;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,17 +13,8 @@ import javax.swing.SwingWorker;
 
 import components.Main.Carrier;
 import components.Main.State;
-import nj.NJ_All_Carriers_Rates;
-import nj.NJ_Amerihealth_Rates;
-import nj.NJ_Oxford_Parser_Temp;
-import pa.PA_Aetna_Rates;
-import pa.PA_CBC_Rates;
-import pa.PA_WPA_Rates;
-import pa.PA_CBC_Benefits;
-import pa.PA_CPA_Rates;
-import pa.PA_IBC_Rates;
-import pa.PA_NEPA_Rates;
-import pa.PA_Aetna_Benefits;
+import nj.*;
+import pa.*;
 
 public class Parser extends SwingWorker<ArrayList<Page>, String> {
 
@@ -99,12 +91,14 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						NJ_Amerihealth_Rates ap = new NJ_Amerihealth_Rates(selectedPlan, 1);
 						ap.printText();
 						break;
-					case UHC: 
+					case Oxford: 
 						Page oxford;
-						NJ_Oxford_Parser_Temp op = new NJ_Oxford_Parser_Temp(selectedPlan);
-						ArrayList<Page> UHCPages = op.getParsed();
-						pages.addAll(UHCPages);
+						NJ_Oxford_Benefits op = new NJ_Oxford_Benefits(selectedPlan);
+						oxford = op.parse(filename);
+						pages.add(oxford);
+						pageMap.put(filename, oxford);
 						break;
+
 					}
 
 				} catch (IOException e1) {
@@ -205,9 +199,21 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 						}
 						break;
 					case NJ:
-						NJ_All_Carriers_Rates parser = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
-								carrierType, quarter, start_date, end_date);
-						break;
+						switch (carrierType) {
+						case Aetna:
+//							Page[] aetna_pages;
+//							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
+//									end_date);
+//							pages.addAll(aetna_parser.parse());							
+//							break;
+							NJ_Aetna_Q2_Rates nj_aetna = new NJ_Aetna_Q2_Rates(selectedRate, start_date, end_date);
+							pages.addAll(nj_aetna.getResults());
+							break;
+						default:
+							NJ_All_Carriers_Rates parser_nj = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
+									carrierType, quarter, start_date, end_date);
+							break;
+						}
 					}
 					publish("File parsed\n");
 					setProgress(100 * (index+1) / size);

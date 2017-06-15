@@ -109,10 +109,10 @@ public class NJ_All_Carriers_Rates {
 
 			srcString = srcString.replaceAll("\\s+","").toLowerCase();
 			srcString = srcString.replaceAll("\\.+", "");
-			if (carrier == Carrier.UHC && srcString.substring(srcString.length() - 3, 
+			if (carrier == Carrier.Oxford && srcString.substring(srcString.length() - 3, 
 					srcString.length()).equals("(6)")) {
 				srcString = srcString.substring(0, srcString.length() - 3);
-			} else if (carrier == Carrier.UHC && srcString.contains("primaryadvantage")) {
+			} else if (carrier == Carrier.Oxford && srcString.contains("primaryadvantage")) {
 				srcString = srcString.replace("primaryadvantage", "primadv");
 				srcString = srcString + "(primaryadvantage)";
 			}

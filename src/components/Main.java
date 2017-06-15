@@ -72,7 +72,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> carriersInState;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Cigna, Horizon, Geisinger
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger
 	}
 	
 	public enum State{
@@ -122,11 +122,13 @@ public class Main extends JPanel implements ActionListener {
 		outputButton.addActionListener(this);
 
 		// Options for the JComboBox
-		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger"};
+
+		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger", "UHC"};
+
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
 		carriersInState.put("PA", PAcarriers);
 		
-		String[] NJcorps = {"AmeriHealth", "Aetna", "Cigna", "Horizon", "UHC Oxford"};
+		String[] NJcorps = {"AmeriHealth", "Aetna", "Cigna", "Horizon", "Oxford"};
 		Set<String> NJcarriers = new HashSet<String>(Arrays.asList(NJcorps));
 		carriersInState.put("NJ", NJcarriers);
 
@@ -176,6 +178,12 @@ public class Main extends JPanel implements ActionListener {
 		add(progressPanel, BorderLayout.PAGE_START);
 		add(buttonPanel, BorderLayout.CENTER);
 		add(logScrollPane, BorderLayout.SOUTH);
+		
+		
+		//Remember to delete default settings
+		dateBox.setSelectedItem("Q3");
+		stateBox.setSelectedItem("NJ");
+		carrierBox.setSelectedItem("Oxford");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -291,7 +299,10 @@ public class Main extends JPanel implements ActionListener {
 			if (pages.size() > 1) {
 				filename = String.format("%s_%s_%s", carrierType.toString(), (String) dateBox.getSelectedItem(), year);
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType);
+			else{
+				filename = removeFileExtension(selectedPlans.get(0).getName());
+			}
+			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
 			log.append(output);
 		} catch (IOException e1) {
@@ -318,9 +329,7 @@ public class Main extends JPanel implements ActionListener {
 		} else if (carrierBox.getSelectedItem().equals("AmeriHealth")) {
 			this.carrierType = Carrier.AmeriHealth;
 		} else if (carrierBox.getSelectedItem().equals("Oxford")) {
-			this.carrierType = Carrier.UHC;
-		} else if (carrierBox.getSelectedItem().equals("UHC Oxford")) {
-			this.carrierType = Carrier.UHC;
+			this.carrierType = Carrier.Oxford;
 		} else if (carrierBox.getSelectedItem().equals("Cigna")) {
 			this.carrierType = Carrier.Cigna;
 		} else if (carrierBox.getSelectedItem().equals("Horizon")) {
