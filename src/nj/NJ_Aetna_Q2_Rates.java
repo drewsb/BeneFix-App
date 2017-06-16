@@ -1,10 +1,13 @@
 package nj;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import components.PDFManager;
 import components.Page;
@@ -12,6 +15,8 @@ import components.Page;
 public class NJ_Aetna_Q2_Rates {
 	
 	final String output = "nj_aetna_q2.xlsx";
+	final String otherWorkbook = "NJ Q2 Aetna.xlsx";
+
 	PDFManager pdfmanager;
 	String start_date;
 	String end_date;
@@ -78,4 +83,14 @@ public class NJ_Aetna_Q2_Rates {
 		p.non_tobacco_dict = non_tob_dict;
 		result.add(p);
 	}
+	
+	public void compareWorkbooks() throws IOException {
+		FileInputStream fis = new FileInputStream(output);
+		FileInputStream fis2 = new FileInputStream(otherWorkbook);
+		XSSFWorkbook workbook = new XSSFWorkbook(fis);
+		XSSFWorkbook workbook2 = new XSSFWorkbook(fis2);
+		
+		
+	}
+	
 }

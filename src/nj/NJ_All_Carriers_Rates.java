@@ -28,6 +28,8 @@ public class NJ_All_Carriers_Rates {
 
 	HashMap<String, String> results;
 	Carrier carrier;
+	
+	final String otherWorkbook = "NJ Q2 Aetna.xlsx";
 
 	public NJ_All_Carriers_Rates(File file, File outputFile, Carrier carrier, 
 			String quarter, String startDate, String endDate) throws FileNotFoundException, IOException {
