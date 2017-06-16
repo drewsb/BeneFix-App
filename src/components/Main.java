@@ -50,7 +50,7 @@ public class Main extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	JButton planButton, rateButton, parseButton, outputButton;
+	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, compareButtonF2, compareButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
@@ -62,6 +62,8 @@ public class Main extends JPanel implements ActionListener {
 	ArrayList<File> selectedPlans;
 	ArrayList<File> selectedRates;
 	ArrayList<File> selectedOutputs;
+	ArrayList<File> compareFiles1;
+	ArrayList<File> compareFiles2;
 	ArrayList<Page> pages;
 	String filename;
 	Boolean done;
@@ -72,7 +74,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> carriersInState;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Compare
 	}
 	
 	public enum State{
@@ -86,6 +88,8 @@ public class Main extends JPanel implements ActionListener {
 
 		selectedPlans = new ArrayList<File>();
 		selectedRates = new ArrayList<File>();
+		compareFiles1 = new ArrayList<File>();
+		compareFiles2 = new ArrayList<File>();
 
 		// Create the log first, because the action listeners
 		// need to refer to it.
@@ -120,6 +124,16 @@ public class Main extends JPanel implements ActionListener {
 		outputButton = new JButton("Output file",
 				createImageIcon("directory"));
 		outputButton.addActionListener(this);
+		
+		compareButtonF1 = new JButton("First file");
+		compareButtonF1.addActionListener(this);
+		
+		compareButtonF2 = new JButton("Second file");
+		compareButtonF2.addActionListener(this);
+		
+		compareButton = new JButton("Compare the two files");
+		compareButton.addActionListener(this);
+		
 
 		// Options for the JComboBox
 
@@ -173,10 +187,20 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel.add(quarterLbl);
 		buttonPanel.add(dateBox);
 		buttonPanel.add(parseButton);
+		
+		JPanel buttonPanel2 = new JPanel();
+		buttonPanel2.add(compareButtonF1);
+		buttonPanel2.add(compareButtonF2);
+		buttonPanel2.add(compareButton);
+		
+		JPanel overall = new JPanel(new GridLayout(3, 1));
+		overall.add(progressPanel);
+		overall.add(buttonPanel);
+		overall.add(buttonPanel2);
+		
 
 		// Add the buttons and the log to this panel.
-		add(progressPanel, BorderLayout.PAGE_START);
-		add(buttonPanel, BorderLayout.CENTER);
+		add(overall, BorderLayout.PAGE_START);
 		add(logScrollPane, BorderLayout.SOUTH);
 		
 		
@@ -263,7 +287,9 @@ public class Main extends JPanel implements ActionListener {
 						case DONE:
 							try {
 								pages = parser.get();
-								createExcel();
+								if (carrierType != Carrier.Compare) {
+									createExcel();
+								}
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -290,6 +316,52 @@ public class Main extends JPanel implements ActionListener {
 			Set<String> c = carriersInState.get(state);
 			for (String carrier: c) {
 				carrierBox.addItem(carrier);
+			}
+		} else if (e.getSource() == compareButtonF1) {
+			int returnVal = fc.showOpenDialog(Main.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				compareFiles1 = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+
+				// This is where a real application would open the file.
+				if (compareFiles1.size() == 1) {
+					log.append("Opening: " + compareFiles1.get(0).getName() + "." + newline);
+				} else {
+					log.append("Please enter only one file");
+					compareFiles1.clear();
+				}
+			} else {
+				log.append("Open command cancelled by user." + newline);
+			}
+			log.setCaretPosition(log.getDocument().getLength());
+		} else if (e.getSource() == compareButtonF2) {
+			int returnVal = fc.showOpenDialog(Main.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				compareFiles2 = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+
+				// This is where a real application would open the file.
+				if (compareFiles2.size() == 1) {
+					log.append("Opening: " + compareFiles2.get(0).getName() + "." + newline);
+				} else {
+					log.append("Please enter only one file");
+					compareFiles2.clear();
+				}
+			} else {
+				log.append("Open command cancelled by user." + newline);
+			}
+			log.setCaretPosition(log.getDocument().getLength());
+		} else if (e.getSource() == compareButton) {
+			if (compareFiles1.size() == 0 && compareFiles2.size() == 0) {
+				log.append("Make sure you choose both of your files to compare!");
+			}
+			File f1 = compareFiles1.get(0);
+			File f2 = compareFiles2.get(0);
+			String path1 = f1.getAbsolutePath();
+			String path2 = f2.getAbsolutePath();
+			try {
+				Parser.compareAetnaWorkbooks(path1, path2);
+			} catch (IOException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
 		}
 	}

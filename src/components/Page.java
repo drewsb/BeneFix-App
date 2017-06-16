@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Page class for a PDF page. Holds necessary data to populate an excel sheet.
  */
-public class Page {
+public class Page implements Comparable {
 	public int carrier_id;
 	public String carrier_plan_id;
 	public String start_date;
@@ -164,5 +164,11 @@ public class Page {
 			System.out.printf("Key: %s  |  Value: %.2f\n", key.getKey(), key.getValue());
 		}
 
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		Page otherObj = (Page) o;
+		return (this.product_name.compareTo(otherObj.product_name));
 	}
 }
