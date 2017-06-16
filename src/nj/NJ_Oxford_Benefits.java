@@ -120,6 +120,7 @@ public class NJ_Oxford_Benefits {
 			}
 			temp_index++;
 		}
+		System.out.println(outpatient_diagnostic_x_ray.toString());
 		while (!tokens[temp_index + 1].contains("Imaging")) {
 			temp_index++;
 		}
@@ -215,12 +216,12 @@ public class NJ_Oxford_Benefits {
 		oon_oop_max_family = formatString(oon_oop_max_family);
 		in_patient_hospital = formatInpatientHospital(in_patient_hospital);
 		// in_patient_hospital = formatString(in_patient_hospital);
-		outpatient_diagnostic_lab = formatString(outpatient_diagnostic_lab);
 		outpatient_surgery = formatString(outpatient_surgery);
 		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
+		outpatient_diagnostic_lab = outpatient_diagnostic_x_ray;
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
-
+		System.out.println(outpatient_diagnostic_x_ray.toString());
 		Page new_page = new Page(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
 				plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
 				oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
@@ -260,6 +261,9 @@ public class NJ_Oxford_Benefits {
 		if (!input.toString().equals("N/A")) {
 			input = removeString(input, "/");
 		}
+		if(input.charAt(0) == ' '){
+			input.deleteCharAt(0);
+		}
 		return new StringBuilder(input);
 	}
 
@@ -271,18 +275,6 @@ public class NJ_Oxford_Benefits {
 			return new StringBuilder(s.subSequence(0, x));
 		}
 		return s;
-	}
-
-	public StringBuilder formatXRay(StringBuilder s) {
-		int a = s.indexOf("/");
-		int b = s.indexOf("(");
-		if (a == -1) {
-			return new StringBuilder(s.subSequence(0, b));
-		} else if (b == -1) {
-			return new StringBuilder(s.subSequence(0, b));
-		}
-		int x = Math.min(a, b);
-		return new StringBuilder(s.subSequence(0, x));
 	}
 
 	public static Boolean isPercentage(String s) {
