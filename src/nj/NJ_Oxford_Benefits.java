@@ -152,7 +152,6 @@ public class NJ_Oxford_Benefits {
 			}
 			temp_index++;
 		}
-		System.out.println(outpatient_diagnostic_x_ray.toString());
 		while (!tokens[temp_index + 1].contains("Imaging")) {
 			temp_index++;
 		}
@@ -253,7 +252,6 @@ public class NJ_Oxford_Benefits {
 		outpatient_diagnostic_lab = outpatient_diagnostic_x_ray;
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
-		System.out.println(outpatient_diagnostic_x_ray.toString());
 		Page new_page = new Page(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
 				plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
 				oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
