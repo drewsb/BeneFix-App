@@ -51,7 +51,8 @@ public class Main extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, compareButtonF2, compareButton;
+	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, 
+	compareButtonF2, compareButton , tokenizeButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
