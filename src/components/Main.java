@@ -8,6 +8,7 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -50,7 +51,7 @@ public class Main extends JPanel implements ActionListener {
 	 */
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	JButton planButton, rateButton, parseButton, outputButton;
+	JButton planButton, rateButton, parseButton, outputButton, tokenizeButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
@@ -61,6 +62,7 @@ public class Main extends JPanel implements ActionListener {
 	Parser parser;
 	ArrayList<File> selectedPlans;
 	ArrayList<File> selectedRates;
+	ArrayList<File> selectedTokenFiles;
 	ArrayList<File> selectedOutputs;
 	ArrayList<Page> pages;
 	String filename;
@@ -120,6 +122,7 @@ public class Main extends JPanel implements ActionListener {
 		outputButton = new JButton("Output file",
 				createImageIcon("directory"));
 		outputButton.addActionListener(this);
+		
 
 		// Options for the JComboBox
 
@@ -143,6 +146,9 @@ public class Main extends JPanel implements ActionListener {
 		// Graphics Repository (but we extracted it from the jar).
 		parseButton = new JButton("Parse", createImageIcon("images/Save16.gif"));
 		parseButton.addActionListener(this);
+		
+		tokenizeButton = new JButton("Tokenize", createImageIcon("directory"));
+		tokenizeButton.addActionListener(this);
 
 		JLabel carrierLbl = new JLabel("Carrier:");
 		JLabel sheetLbl = new JLabel("Sheet:");
@@ -172,6 +178,7 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel.add(sheetBox);
 		buttonPanel.add(quarterLbl);
 		buttonPanel.add(dateBox);
+		buttonPanel.add(tokenizeButton);
 		buttonPanel.add(parseButton);
 
 		// Add the buttons and the log to this panel.
@@ -231,7 +238,36 @@ public class Main extends JPanel implements ActionListener {
 			}
 			log.setCaretPosition(log.getDocument().getLength());
 
-		} else if (e.getSource() == parseButton) {
+		} 
+		else if (e.getSource() == tokenizeButton) {
+			progressBar.setValue(0);
+			if(!selectedPlans.isEmpty()){
+				Tokenizer tokenizer = new Tokenizer(selectedPlans);
+				try {
+					tokenizer.tokenize();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				log.append("Output file: Tokens.xlsx");
+				log.setCaretPosition(log.getDocument().getLength());
+			}
+			else if(!selectedRates.isEmpty()){
+				Tokenizer tokenizer = new Tokenizer(selectedPlans);
+				try {
+					tokenizer.tokenize();
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				log.append("Output file: Tokens.xlsx");
+				log.setCaretPosition(log.getDocument().getLength());
+			}
+			else{
+				log.append("No files selected");
+			}
+		}
+		else if (e.getSource() == parseButton) {
 			if (selectedPlans == null && selectedRates == null) {
 				log.append("No files selected." + newline);
 				return;

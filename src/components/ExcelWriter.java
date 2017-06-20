@@ -67,7 +67,6 @@ public class ExcelWriter {
 			if (p == null) {
 				continue;
 			}
-			p.printPage();
 			colCount = 0;
 			row = sheet.createRow(++rowCount);
 			Cell cell = row.createCell(colCount++);

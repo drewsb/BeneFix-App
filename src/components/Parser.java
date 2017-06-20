@@ -27,13 +27,13 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 	final ArrayList<File> selectedPlans;
 
 	final ArrayList<File> selectedRates;
-	
+
 	final ArrayList<File> selectedOutputs;
 
 	final JTextArea textArea;
 
 	final JProgressBar bar;
-	
+
 	final State state;
 
 	public enum WPA {
@@ -41,19 +41,18 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 	}
 
 	public Parser(final Carrier type, final int sheetIndex, State state, final String quarter,
-			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates, 
+			final ArrayList<File> selectedPlans, final ArrayList<File> selectedRates,
 			final ArrayList<File> selectedOutputs, final JTextArea textArea, final JProgressBar bar) {
-	    this.carrierType = type;
-	    this.sheetIndex = sheetIndex;
-	    this.quarter = quarter;
-	    this.selectedPlans = selectedPlans;
-	    this.selectedRates = selectedRates;
-	    this.textArea = textArea;
-	    this.bar = bar;
-	    this.state = state;
-	    this.selectedOutputs = selectedOutputs;
-	  }
-
+		this.carrierType = type;
+		this.sheetIndex = sheetIndex;
+		this.quarter = quarter;
+		this.selectedPlans = selectedPlans;
+		this.selectedRates = selectedRates;
+		this.textArea = textArea;
+		this.bar = bar;
+		this.state = state;
+		this.selectedOutputs = selectedOutputs;
+	}
 
 	@Override
 	protected ArrayList<Page> doInBackground() throws Exception {
@@ -63,40 +62,54 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 		int index = 0;
 		String filename;
 		if (!selectedPlans.isEmpty()) {
-			System.out.println(carrierType.toString());
 			for (File selectedPlan : selectedPlans) {
 				filename = removeFileExtension(selectedPlan.getName());
 				publish("Parsing: " + selectedPlan.getName() + ".\n");
 				try {
-					switch (carrierType) {
-					case UPMC:
+					switch (state) {
+					case NJ:
+						switch (carrierType) {
+						case AmeriHealth:
+							Page amerihealth;
+							NJ_Amerihealth_Rates ap = new NJ_Amerihealth_Rates(selectedPlan, 1);
+							ap.printText();
+							break;
+						case Oxford:
+							Page oxford;
+							NJ_Oxford_Benefits op = new NJ_Oxford_Benefits(selectedPlan);
+							oxford = op.parse(filename);
+							pages.add(oxford);
+							pageMap.put(filename, oxford);
+							break;
+						case Aetna:
+							Page aetna;
+							NJ_Aetna_Benefits aetna_parser = new NJ_Aetna_Benefits(selectedPlan);
+							aetna = aetna_parser.parse(filename);
+							pages.add(aetna);
+							pageMap.put(filename, aetna);
+							break;
+						}
 						break;
-					case Aetna:
-						Page aetna_page;
-						PA_Aetna_Benefits aetna_plan_parser = new PA_Aetna_Benefits(selectedPlan);
-						aetna_page = aetna_plan_parser.parse(filename);
-						pages.add(aetna_page);
-						pageMap.put(aetna_page.product_name, aetna_page);
-						break;
-					case WPA:
-						break;
-					case CBC:
-						Page cbc_page;
-						PA_CBC_Benefits cbc_plan_parser = new PA_CBC_Benefits(selectedPlan);
-						cbc_page = cbc_plan_parser.parse(filename);
-						pages.add(cbc_page);
-						break;
-					case AmeriHealth:
-						Page amerihealth;
-						NJ_Amerihealth_Rates ap = new NJ_Amerihealth_Rates(selectedPlan, 1);
-						ap.printText();
-						break;
-					case Oxford: 
-						Page oxford;
-						NJ_Oxford_Benefits op = new NJ_Oxford_Benefits(selectedPlan);
-						oxford = op.parse(filename);
-						pages.add(oxford);
-						pageMap.put(filename, oxford);
+					case PA:
+						switch (carrierType) {
+						case UPMC:
+							break;
+						case Aetna:
+							Page aetna_page;
+							PA_Aetna_Benefits aetna_plan_parser = new PA_Aetna_Benefits(selectedPlan);
+							aetna_page = aetna_plan_parser.parse(filename);
+							pages.add(aetna_page);
+							pageMap.put(aetna_page.product_name, aetna_page);
+							break;
+						case WPA:
+							break;
+						case CBC:
+							Page cbc_page;
+							PA_CBC_Benefits cbc_plan_parser = new PA_CBC_Benefits(selectedPlan);
+							cbc_page = cbc_plan_parser.parse(filename);
+							pages.add(cbc_page);
+							break;
+						}
 						break;
 
 					}
@@ -121,8 +134,7 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 				WPA wpaType;
 				if (filename.contains("HCA")) {
 					wpaType = WPA.HCA;
-				}
-				else{
+				} else {
 					wpaType = WPA.HMK;
 				}
 				String start_date = "";
@@ -155,8 +167,7 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 							break;
 						case Aetna:
 							Page[] aetna_pages;
-							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
-									end_date);
+							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date, end_date);
 							pages.addAll(aetna_parser.parse());
 							break;
 						case WPA:
@@ -171,7 +182,8 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 							}
 							break;
 						case NEPA:
-							PA_NEPA_Rates nepa_parser = new PA_NEPA_Rates(selectedRate, sheetIndex, start_date, end_date);
+							PA_NEPA_Rates nepa_parser = new PA_NEPA_Rates(selectedRate, sheetIndex, start_date,
+									end_date);
 							pages.addAll(nepa_parser.parse());
 							break;
 						case CPA:
@@ -186,7 +198,8 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 							break;
 						case CBC:
 							Page cbc_page = null;
-							PA_CBC_Rates cbc_parser = new PA_CBC_Rates(selectedRate, cbc_page, sheetIndex, quarter, quarter);
+							PA_CBC_Rates cbc_parser = new PA_CBC_Rates(selectedRate, cbc_page, sheetIndex, quarter,
+									quarter);
 							cbc_page = cbc_parser.parse();
 							pages.add(cbc_page);
 							break;
@@ -201,22 +214,23 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 					case NJ:
 						switch (carrierType) {
 						case Aetna:
-//							Page[] aetna_pages;
-//							PA_Aetna_Rates aetna_parser = new pa.PA_Aetna_Rates(selectedRate, start_date,
-//									end_date);
-//							pages.addAll(aetna_parser.parse());							
-//							break;
+							// Page[] aetna_pages;
+							// PA_Aetna_Rates aetna_parser = new
+							// pa.PA_Aetna_Rates(selectedRate, start_date,
+							// end_date);
+							// pages.addAll(aetna_parser.parse());
+							// break;
 							NJ_Aetna_Q2_Rates nj_aetna = new NJ_Aetna_Q2_Rates(selectedRate, start_date, end_date);
 							pages.addAll(nj_aetna.getResults());
 							break;
 						default:
-							NJ_All_Carriers_Rates parser_nj = new NJ_All_Carriers_Rates(selectedRate, selectedOutputs.get(0), 
-									carrierType, quarter, start_date, end_date);
+							NJ_All_Carriers_Rates parser_nj = new NJ_All_Carriers_Rates(selectedRate,
+									selectedOutputs.get(0), carrierType, quarter, start_date, end_date);
 							break;
 						}
 					}
 					publish("File parsed\n");
-					setProgress(100 * (index+1) / size);
+					setProgress(100 * (index + 1) / size);
 					index++;
 
 				} catch (IOException e1) {
@@ -228,23 +242,21 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 		return pages;
 	}
 
-
 	public static String removeFileExtension(String input) {
 		return input.substring(0, input.lastIndexOf("."));
 	}
 
 	public ArrayList<Page> getValue() throws Exception {
-	    return this.get();
+		return this.get();
 	}
 
-
-	 @Override
-	  protected void process(final List<String> chunks) {
-	    // Updates the messages text area
-		//System.out.println("WHEWHHEW");
-	    for (final String string : chunks) {
-	      textArea.append(string);
-	    }
-	  }
+	@Override
+	protected void process(final List<String> chunks) {
+		// Updates the messages text area
+		// System.out.println("WHEWHHEW");
+		for (final String string : chunks) {
+			textArea.append(string);
+		}
+	}
 
 }

@@ -40,8 +40,8 @@ public class NJ_Oxford_Benefits {
 		StringBuilder plan_pdf_file_name = new StringBuilder(filename);
 		StringBuilder deductible_indiv = new StringBuilder("");
 		StringBuilder deductible_family = new StringBuilder("");
-		StringBuilder oon_deductible_indiv = new StringBuilder("N/A");
-		StringBuilder oon_deductible_family = new StringBuilder("N/A");
+		StringBuilder oon_deductible_indiv = new StringBuilder("");
+		StringBuilder oon_deductible_family = new StringBuilder("");
 		StringBuilder coinsurance = new StringBuilder("");
 		StringBuilder dr_visit_copay = new StringBuilder("");
 		StringBuilder specialist_visit_copay = new StringBuilder("");
@@ -51,8 +51,8 @@ public class NJ_Oxford_Benefits {
 		StringBuilder rx_mail_copay = new StringBuilder("");
 		StringBuilder oop_max_indiv = new StringBuilder("");
 		StringBuilder oop_max_family = new StringBuilder("");
-		StringBuilder oon_oop_max_indiv = new StringBuilder("N/A");
-		StringBuilder oon_oop_max_family = new StringBuilder("N/A");
+		StringBuilder oon_oop_max_indiv = new StringBuilder("");
+		StringBuilder oon_oop_max_family = new StringBuilder("");
 		StringBuilder in_patient_hospital = new StringBuilder("");
 		StringBuilder outpatient_diagnostic_lab = new StringBuilder("");
 		StringBuilder outpatient_surgery = new StringBuilder("");
@@ -75,12 +75,33 @@ public class NJ_Oxford_Benefits {
 		if (isDollarValue(tokens[temp_index])) {
 			deductible_indiv.append(tokens[temp_index]);
 			deductible_family.append(tokens[temp_index]);
+			oon_deductible_indiv.append("N/A");
+			oon_deductible_family.append("N/A");
 		} else {
 			while (!tokens[temp_index - 1].equals("Network:") & !tokens[temp_index - 1].equals("Non-Network:")) {
 				temp_index++;
 			}
-			deductible_indiv.append(tokens[temp_index++]);
-			deductible_family.append(tokens[temp_index]);
+			if (tokens[temp_index - 1].equals("Non-Network:")) {
+				deductible_indiv.append("N/A");
+				deductible_family.append("N/A");
+				oon_deductible_indiv.append(tokens[temp_index++]);
+				oon_deductible_family.append(tokens[temp_index]);
+			} else {
+				deductible_indiv.append(tokens[temp_index++]);
+				deductible_family.append(tokens[temp_index]);
+				oon_deductible_indiv.append("N/A");
+				oon_deductible_family.append("N/A");
+
+				int temp_index2 = temp_index;
+				while (temp_index2 < temp_index + 10) {
+					if (tokens[temp_index2 - 1].equals("Non-Network:")) {
+						oon_deductible_indiv = new StringBuilder(tokens[temp_index2++]);
+						oon_deductible_family = new StringBuilder(tokens[temp_index2]);
+						break;
+					}
+					temp_index2++;
+				}
+			}
 		}
 
 		while (!tokens[temp_index].equals("out-of-pocket")) {
@@ -92,7 +113,18 @@ public class NJ_Oxford_Benefits {
 		}
 		oop_max_indiv.append(tokens[temp_index++]);
 		oop_max_family.append(tokens[temp_index]);
+		oon_oop_max_indiv.append("N/A");
+		oon_oop_max_family.append("N/A");
 
+		int temp_index2 = temp_index;
+		while (temp_index2 < temp_index + 10) {
+			if (tokens[temp_index2 - 1].equals("Non-Network:")) {
+				oon_oop_max_indiv = new StringBuilder(tokens[temp_index2++]);
+				oon_oop_max_family = new StringBuilder(tokens[temp_index2]);
+				break;
+			}
+			temp_index2++;
+		}
 		while (!tokens[temp_index + 1].contains("Primary")) {
 			temp_index++;
 		}
@@ -125,7 +157,7 @@ public class NJ_Oxford_Benefits {
 			temp_index++;
 		}
 
-		while (!isPercentage(tokens[temp_index+1]) & !isDollarValue(tokens[temp_index+1])) {
+		while (!isPercentage(tokens[temp_index + 1]) & !isDollarValue(tokens[temp_index + 1])) {
 			outpatient_complex_imaging.insert(0, tokens[temp_index] + " ");
 			temp_index--;
 		}
@@ -258,11 +290,14 @@ public class NJ_Oxford_Benefits {
 		input = removeString(input, "after");
 		input = removeString(input, "ded");
 		input = removeString(input, "admission");
+		input = removeString(input, "co-ins");
 		if (!input.toString().equals("N/A")) {
 			input = removeString(input, "/");
 		}
-		if(input.charAt(0) == ' '){
-			input.deleteCharAt(0);
+		if (input.length() > 0) {
+			if (input.charAt(0) == ' ') {
+				input.deleteCharAt(0);
+			}
 		}
 		return new StringBuilder(input);
 	}
@@ -297,8 +332,12 @@ public class NJ_Oxford_Benefits {
 
 	public StringBuilder formatInpatientHospital(StringBuilder s) {
 		s = removeString(s, "Not");
+		s = removeString(s, "No");
 		s = removeString(s, "covered");
-		s = removeString(s, "after ded");
+		s = removeString(s, "ded");
+		s = removeString(s, "co-ins");
+		s = removeString(s, "after");
+		s = removeString(s, ".");
 		return s;
 	}
 
