@@ -44,6 +44,7 @@ public class Main extends JPanel implements ActionListener {
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
 	JComboBox<String> stateBox;
+	JComboBox<String> selectionBox;
 	JProgressBar progressBar;
 	public JTextArea log;
 	JFileChooser fc;
@@ -59,6 +60,7 @@ public class Main extends JPanel implements ActionListener {
 	Boolean done;
 	String year;
 	State selectedState;
+	String selectedOperation;
 	int progress;
 	Carrier carrierType;
 	HashMap<String, Set<String>> carriersInState;
@@ -142,6 +144,8 @@ public class Main extends JPanel implements ActionListener {
 		
 		Set<String> states = carriersInState.keySet();
 		
+		String[] selection = { "Compare", "Merge" };
+		
 		// Create the save button. We use the image from the JLF
 		// Graphics Repository (but we extracted it from the jar).
 		parseButton = new JButton("Parse", createImageIcon("images/Save16.gif"));
@@ -154,12 +158,15 @@ public class Main extends JPanel implements ActionListener {
 		JLabel sheetLbl = new JLabel("Sheet:");
 		JLabel quarterLbl = new JLabel("Quarter:");
 		JLabel stateLbl = new JLabel("State:");
+		JLabel selectionLbl = new JLabel("Operation: ");
 		carrierBox = new JComboBox<String>(carriersInState.get("PA").toArray
 				(new String[carriersInState.get("PA").size()]));
 		sheetBox = new JComboBox<String>(sheets);
 		dateBox = new JComboBox<String>(quarters);
 		stateBox = new JComboBox<String>(states.toArray(new String[states.size()]));
 		stateBox.addActionListener(this);
+		selectionBox = new JComboBox<String>(selection);
+		selectionBox.addActionListener(this);
 		
 
 		JPanel progressPanel = new JPanel();
@@ -182,6 +189,8 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel.add(parseButton);
 		
 		JPanel buttonPanel2 = new JPanel();
+		buttonPanel2.add(selectionLbl);
+		buttonPanel2.add(selectionBox);
 		buttonPanel2.add(compareButtonF1);
 		buttonPanel2.add(compareButtonF2);
 		buttonPanel2.add(compareButton);
@@ -372,6 +381,7 @@ public class Main extends JPanel implements ActionListener {
 			}
 			log.setCaretPosition(log.getDocument().getLength());
 		} else if (e.getSource() == compareButton) {
+			checkCarrier();
 			if (compareFiles1.size() == 0 && compareFiles2.size() == 0) {
 				log.append("Make sure you choose both of your files to compare!");
 			}
@@ -380,12 +390,17 @@ public class Main extends JPanel implements ActionListener {
 			String path1 = f1.getAbsolutePath();
 			String path2 = f2.getAbsolutePath();
 			try {
-				//Parser.compareAetnaWorkbooks(path1, path2);
-				Merger.mergeAmeriHealthSpreadsheets(path1, path2);
+				if (this.selectedOperation.equals("Merge")) {
+					Merger.merge(path1, path2, carrierType);
+				} else if (this.selectedOperation.equals("Compare")) {
+					Parser.compareAetnaWorkbooks(path1, path2);
+				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
+		} else if (e.getSource() == selectionBox) {
+			this.selectedOperation = (String) selectionBox.getSelectedItem();
 		}
 	}
 

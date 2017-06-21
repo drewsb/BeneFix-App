@@ -3,7 +3,6 @@ package components;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.text.Format;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,10 +19,125 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.Main.Carrier;
+
 public class Merger {
 	
+	public static ArrayList<Page> merge(String path1, String path2, Carrier carrier) throws IOException {
+		ArrayList<Page> result;
+		switch (carrier) {
+		case AmeriHealth: 
+			result = mergeAmeriHealthSpreadsheets(path1, path2);
+			break;
+		case Oxford:
+			result = mergeOxfordSpreadsheets(path1, path2);
+			break;
+		default:
+			result = new ArrayList<Page>();
+		}
+		return result;
+	}
 	
+	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<Page> result = new ArrayList<Page>();
+		FileInputStream master_fis = new FileInputStream(path1);
+		FileInputStream benefits_fis = new FileInputStream(path2);
+		XSSFWorkbook master = new XSSFWorkbook(master_fis);
+		XSSFWorkbook benefits = new XSSFWorkbook(benefits_fis);
+		
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
 
+		XSSFCellStyle highlighter = master.createCellStyle();
+		highlighter.setFillForegroundColor(xred);
+	    highlighter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlighter = master.createCellStyle();
+	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
+	    
+	    XSSFSheet sheet = master.getSheetAt(7);
+	    
+		//Store all benefits plans and its row number into a map
+		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
+		int numBenefits = benefits_sheet.getLastRowNum();
+		DataFormatter df = new DataFormatter();
+		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
+		Map<Integer, String> rx_map = new HashMap<Integer, String>();
+		for (int i = 0; i <= numBenefits; i++) {
+			XSSFRow row = benefits_sheet.getRow(i);
+			XSSFCell cell = row.getCell(4);
+			String plan = cell.getStringCellValue().toLowerCase();
+			plan = plan.replaceAll(",", "");
+			benefits_map.put(i, plan);
+			XSSFCell rx_cell = row.getCell(15);
+			String rx_val = df.formatCellValue(rx_cell);
+			rx_map.put(i, rx_val);
+		}
+		
+		int numRows = sheet.getLastRowNum();
+		for (int i = 1; i <= numRows; i++) {
+			XSSFRow row = sheet.getRow(i);
+			XSSFCell cell = row.getCell(2);
+			String name = cell.getStringCellValue().toLowerCase();
+			name = name.replaceAll(",", "");
+			String[] tokens = name.split(" ");
+			boolean matched = false;
+			for (int k = 0; k <= numBenefits; k++) {
+				String s = benefits_map.get(k);
+				String rx_copay_str = rx_map.get(k);
+				if (matchesOxford(s, tokens, rx_copay_str)) {
+					System.out.println("matched!");
+					Page p = null; //Grant's method here
+					result.add(p);		
+					matched = true;
+					cell.setCellStyle(noHighlighter);
+					break;
+				}
+			}
+			if (!matched) {
+				System.out.println("no result: " + name);
+				cell.setCellStyle(highlighter);
+			}
+		}
+		FileOutputStream fos = new FileOutputStream(path1);
+		master.write(fos);
+		fos.flush();
+		fos.close();
+		master.close();
+		benefits.close();
+		return result;
+	}
+	
+	public static boolean matchesOxford(String str, String[] tokens, String rx_copay) {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			
+			if (token.equals("non-gated")) {
+				if (!str.contains("ng") && !str.contains("non-gated")) {
+					return false;
+				}
+			} else if (token.equals("w/")) {
+				return true;
+//				token = tokens[i + 1];
+//				if (!rx_copay.contains(token)) {
+//					return false;
+//				}
+//				i++;
+			} else if (token.equals("primary")) {
+				if (!str.contains("prim adv")) {
+					return false;
+				} else {
+					i++;
+				}
+			}
+			else {
+				if (!str.contains(token)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+ 	
 	public static ArrayList<Page> mergeAmeriHealthSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
 		
@@ -75,7 +189,7 @@ public class Merger {
 			for (int k = 0; k <= numBenefits; k++) {
 				String s = benefits_map.get(k);
 				String rx_copay_str = rx_map.get(k);
-				if (matches(s, tokens, map, rx_copay_str)) {
+				if (matchesAmerihealth(s, tokens, map, rx_copay_str)) {
 					System.out.println("matched!");
 					Page p = null; //Grant's method here
 					result.add(p);		
@@ -99,7 +213,7 @@ public class Merger {
 	}
 	
 	//Tests if all potential tokens in a String array are contained within a source string
-	private static boolean matches(String str, String[] tokens, HashMap<String, Set<String>> map, String rx_copay) {
+	private static boolean matchesAmerihealth(String str, String[] tokens, HashMap<String, Set<String>> map, String rx_copay) {
 		for (int i = 0; i < tokens.length; i++) {
 			String token = tokens[i];
 			token = token.replaceAll(",", "");
@@ -245,4 +359,7 @@ public class Merger {
 		//pos plt pos+ val $20/$40/90% 
 		return map;
 	}
+	
+	
+	
 }
