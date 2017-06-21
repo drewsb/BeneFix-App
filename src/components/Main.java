@@ -39,7 +39,7 @@ public class Main extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
 	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, 
-	compareButtonF2, compareButton , tokenizeButton;
+	compareButtonF2, compareButton , tokenizeButton, clearButton;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
@@ -82,6 +82,9 @@ public class Main extends JPanel implements ActionListener {
 		selectedRates = new ArrayList<File>();
 		compareFiles1 = new ArrayList<File>();
 		compareFiles2 = new ArrayList<File>();
+		selectedOutputs = new ArrayList<File>();
+		selectedTokenFiles = new ArrayList<File>();
+		pages = new ArrayList<Page>();
 
 		// Create the log first, because the action listeners
 		// need to refer to it.
@@ -125,6 +128,9 @@ public class Main extends JPanel implements ActionListener {
 		
 		compareButton = new JButton("Compare the two files");
 		compareButton.addActionListener(this);
+		
+		clearButton = new JButton("Clear plans");
+		clearButton.addActionListener(this);
 		
 		// Options for the JComboBox
 
@@ -187,6 +193,7 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel.add(dateBox);
 		buttonPanel.add(tokenizeButton);
 		buttonPanel.add(parseButton);
+		buttonPanel.add(clearButton);
 		
 		JPanel buttonPanel2 = new JPanel();
 		buttonPanel2.add(selectionLbl);
@@ -384,6 +391,7 @@ public class Main extends JPanel implements ActionListener {
 			checkCarrier();
 			if (compareFiles1.size() == 0 && compareFiles2.size() == 0) {
 				log.append("Make sure you choose both of your files to compare!");
+				return;
 			}
 			File f1 = compareFiles1.get(0);
 			File f2 = compareFiles2.get(0);
@@ -401,6 +409,13 @@ public class Main extends JPanel implements ActionListener {
 			}
 		} else if (e.getSource() == selectionBox) {
 			this.selectedOperation = (String) selectionBox.getSelectedItem();
+		} else if (e.getSource() == clearButton) {
+			selectedPlans.clear();
+			selectedRates.clear();
+			selectedOutputs.clear();
+			compareFiles1.clear();
+			compareFiles2.clear();
+			pages.clear();
 		}
 	}
 
