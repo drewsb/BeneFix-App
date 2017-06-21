@@ -128,6 +128,10 @@ public class Merger {
 				} else {
 					i++;
 				}
+			} else if (token.equals("gated"))  {
+				if (!str.contains("gated") && !str.contains(" g ")) {
+					return false;
+				}
 			}
 			else {
 				if (!str.contains(token)) {
