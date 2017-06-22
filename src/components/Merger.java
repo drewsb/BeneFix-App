@@ -32,11 +32,220 @@ public class Merger {
 		case Oxford:
 			result = mergeOxfordSpreadsheets(path1, path2);
 			break;
+		case Aetna:
+			result = mergeAetnaSpreadsheets(path1, path2);
+			break;
+		case Horizon:
+			result = mergeHorizonSpreadsheets(path1, path2);
 		default:
 			result = new ArrayList<Page>();
 		}
 		return result;
 	}
+	
+	public static ArrayList<Page> mergeHorizonSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<Page> result = new ArrayList<Page>();
+		FileInputStream master_fis = new FileInputStream(path1);
+		FileInputStream benefits_fis = new FileInputStream(path2);
+		XSSFWorkbook master = new XSSFWorkbook(master_fis);
+		XSSFWorkbook benefits = new XSSFWorkbook(benefits_fis);
+		
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
+
+		XSSFCellStyle highlighter = master.createCellStyle();
+		highlighter.setFillForegroundColor(xred);
+	    highlighter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlighter = master.createCellStyle();
+	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
+	    
+	    XSSFSheet sheet = master.getSheetAt(6);
+	    
+		//Store all benefits plans and its row number into a map
+		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
+		int numBenefits = benefits_sheet.getLastRowNum();
+		DataFormatter df = new DataFormatter();
+		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
+		Map<Integer, String> rx_map = new HashMap<Integer, String>();
+		for (int i = 0; i <= numBenefits; i++) {
+			XSSFRow row = benefits_sheet.getRow(i);
+			XSSFCell cell = row.getCell(4);
+			String plan = cell.getStringCellValue().toLowerCase();
+			plan = plan.replaceAll(",", "");
+			benefits_map.put(i, plan);
+			XSSFCell rx_cell = row.getCell(15);
+			String rx_val = df.formatCellValue(rx_cell);
+			rx_map.put(i, rx_val);
+		}
+		
+		int numRows = sheet.getLastRowNum();
+		for (int i = 1; i <= numRows; i++) {
+			XSSFRow row = sheet.getRow(i);
+			XSSFCell cell = row.getCell(2);
+			if (cell == null) {
+				break;
+			}
+			String name = cell.getStringCellValue().toLowerCase();
+			name = name.replaceAll(",", "");
+			System.out.println("Testing..." + name + " at line " + i);
+			String[] tokens = name.split(" ");
+			boolean matched = false;
+			for (int k = 0; k <= numBenefits; k++) {
+				String s = benefits_map.get(k);
+				String rx_copay_str = rx_map.get(k);
+				if (matchesHorizon(s, tokens, rx_copay_str)) {
+					System.out.println("matched with: " + s);
+					Page p = null; //Grant's method here
+					//result.add(p);		
+					matched = true;
+					cell.setCellStyle(noHighlighter);
+					break;
+				}
+			}
+			if (!matched) {
+				System.out.println("no result: " + name);
+				cell.setCellStyle(highlighter);
+			}
+		}
+
+		FileOutputStream fos = new FileOutputStream(path1);
+		master.write(fos);
+		fos.flush();
+		fos.close();
+		master.close();
+		benefits.close();
+		
+		
+		return result;
+	}
+	
+	public static boolean matchesHorizon(String str, String[] tokens, String rx_copay) {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token.contains("/")) {
+				String[] token_comps = token.split("/");
+				for (int j = 0; j < token_comps.length; j++) {
+					if (!str.contains(token_comps[j])) {
+						return false;
+					}
+				}
+			} else if (token.equals("bluecard")) {
+				if (!str.contains("bluecard") && !str.contains("blue card")) {
+					return false;
+				} else {
+					i++;
+				}
+			} else {
+				if (!str.contains(token)) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	public static ArrayList<Page> mergeAetnaSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<Page> result = new ArrayList<Page>();
+		FileInputStream master_fis = new FileInputStream(path1);
+		FileInputStream benefits_fis = new FileInputStream(path2);
+		XSSFWorkbook master = new XSSFWorkbook(master_fis);
+		XSSFWorkbook benefits = new XSSFWorkbook(benefits_fis);
+		
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
+
+		XSSFCellStyle highlighter = master.createCellStyle();
+		highlighter.setFillForegroundColor(xred);
+	    highlighter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlighter = master.createCellStyle();
+	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
+	    
+	    XSSFSheet sheet = master.getSheetAt(3);
+	    
+		//Store all benefits plans and its row number into a map
+		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
+		int numBenefits = benefits_sheet.getLastRowNum();
+		DataFormatter df = new DataFormatter();
+		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
+		Map<Integer, String> rx_map = new HashMap<Integer, String>();
+		for (int i = 0; i <= numBenefits; i++) {
+			XSSFRow row = benefits_sheet.getRow(i);
+			XSSFCell cell = row.getCell(4);
+			String plan = cell.getStringCellValue().toLowerCase();
+			plan = plan.replaceAll(",", "");
+			benefits_map.put(i, plan);
+			XSSFCell rx_cell = row.getCell(15);
+			String rx_val = df.formatCellValue(rx_cell);
+			rx_map.put(i, rx_val);
+		}
+		
+		int numRows = sheet.getLastRowNum();
+		for (int i = 1; i <= numRows; i++) {
+			XSSFRow row = sheet.getRow(i);
+			XSSFCell cell = row.getCell(2);
+			if (cell == null) {
+				break;
+			}
+			String name = cell.getStringCellValue().toLowerCase();
+			name = name.replaceAll(",", "");
+			System.out.println("Testing..." + name + " at line " + i);
+			String[] tokens = name.split(" ");
+			boolean matched = false;
+			for (int k = 0; k <= numBenefits; k++) {
+				String s = benefits_map.get(k);
+				String rx_copay_str = rx_map.get(k);
+				if (matchesAetna(s, tokens, rx_copay_str)) {
+					System.out.println("matched with: " + s);
+					Page p = null; //Grant's method here
+					//result.add(p);		
+					matched = true;
+					cell.setCellStyle(noHighlighter);
+					break;
+				}
+			}
+			if (!matched) {
+				System.out.println("no result: " + name);
+				cell.setCellStyle(highlighter);
+			}
+		}
+
+		FileOutputStream fos = new FileOutputStream(path1);
+		master.write(fos);
+		fos.flush();
+		fos.close();
+		master.close();
+		benefits.close();
+		return result;
+	}
+	
+	public static boolean matchesAetna(String str, String[] tokens, String rx_copay) {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token.contains("/")) {
+				String[] token_comps = token.split("/");
+				for (int j = 0; j < token_comps.length; j++) {
+					if (!str.contains(token_comps[j] + " ")) {
+						return false;
+					}
+				}
+			} else if (token.contains("%")) {
+				token = token.replaceAll("%", "_");
+				if (!str.contains(token)) {
+					return false;
+				}
+			} else if (token.equals("(6)") || token.equals("(7)")) {
+				continue;
+			}
+			else {
+				if (!str.contains(token)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	
 	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
