@@ -86,7 +86,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesOxford(s, tokens, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = null; //Grant's method here
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -160,7 +160,7 @@ public class Merger {
 	    XSSFCellStyle noHighlighter = master.createCellStyle();
 	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
 	    
-	    XSSFSheet sheet = master.getSheetAt(4);
+	    XSSFSheet sheet = master.getSheetAt(0);
 	    //TODO: Later on make sure that the sheet is the right one programmatically
 	    
 		//Store all benefits plans and its row number into a map
@@ -195,7 +195,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesAmerihealth(s, tokens, map, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = null; //Grant's method here
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -362,6 +362,330 @@ public class Merger {
 		map.put("advantage", advantage);
 		//pos plt pos+ val $20/$40/90% 
 		return map;
+	}
+
+	public static Page mergeSheets(XSSFWorkbook benefits, XSSFWorkbook rates, int benefits_line,
+			int rates_line, int benefits_sheet_number, int rates_sheet_number) throws IOException {
+		
+		System.out.println("at least the method is being called");
+		
+		int carrier_id;
+		String carrier_plan_id;
+		String start_date;
+		String end_date;
+		String product_name;
+		String plan_pdf_file_name;
+		String deductible_indiv;
+		String deductible_family;
+		String oon_deductible_indiv;
+		String oon_deductible_family;
+		String coinsurance;
+		String dr_visit_copay;
+		String specialist_visit_copay;
+		String er_copay; 
+		String urgent_care_copay;
+		String rx_copay; 
+		String rx_mail_copay; 
+		String oop_max_indiv; 
+		String oop_max_family; 
+		String oon_oop_max_indiv;
+		String oon_oop_max_family; 
+		String in_patient_hospital; 
+		String outpatient_diagnostic_lab; 
+		String outpatient_surgery;
+		String outpatient_diagnostic_x_ray; 
+		String outpatient_complex_imaging; 
+		String physical_occupational_therapy; 
+		String group_rating_area = "";
+		String service_zones;
+		String state;
+		int pages = 0;  
+		HashMap<String,Double> non_tob_dict = new HashMap<String, Double>(); 
+		HashMap<String,Double> tob_dict = new HashMap<String, Double>();
+		
+        XSSFWorkbook benefits_workbook = benefits;
+        XSSFWorkbook rates_workbook = rates;
+        XSSFSheet benefits_sheet = benefits_workbook.getSheetAt(benefits_sheet_number);
+        XSSFSheet rates_sheet = rates_workbook.getSheetAt(rates_sheet_number);
+        XSSFCell benefits_cell;
+        XSSFCell rates_cell;
+        XSSFRow benefits_row = benefits_sheet.getRow(benefits_line);
+        XSSFRow rates_row = rates_sheet.getRow(rates_line);
+        XSSFRow rates_row_zero = rates_sheet.getRow(0);
+        
+        int benefits_column = 0;
+        int rates_name_column = 0;
+        int rates_base_column = 0;
+        int rates_gra_column = 0;
+        
+        //get benefits 
+        benefits_cell = benefits_row.getCell(benefits_column);
+        Double carrier_id_double = benefits_cell.getNumericCellValue();
+        carrier_id =  carrier_id_double.intValue();
+        benefits_column++;
+        benefits_column++;
+        benefits_column++;
+        benefits_column++;
+        benefits_column++;
+        benefits_column++;
+        
+        benefits_cell = benefits_row.getCell(benefits_column);
+        deductible_indiv = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        deductible_family = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oon_deductible_indiv = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oon_deductible_family = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        coinsurance = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        dr_visit_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        specialist_visit_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        er_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        urgent_care_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        rx_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        rx_mail_copay = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oop_max_indiv = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oop_max_family = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oon_oop_max_indiv = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        oon_oop_max_family = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        in_patient_hospital = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        outpatient_diagnostic_lab = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        outpatient_surgery = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        outpatient_diagnostic_x_ray = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        outpatient_complex_imaging = benefits_cell.getStringCellValue();
+        benefits_column++;
+        benefits_cell = benefits_row.getCell(benefits_column);
+        physical_occupational_therapy = benefits_cell.getStringCellValue();
+        
+        
+        //get rates
+        rates_row = rates_sheet.getRow(0);
+        rates_cell = rates_row.getCell(0);
+        
+        while (!(rates_cell.getStringCellValue().toLowerCase().contains("group"))) {
+        	rates_gra_column++;
+        	rates_cell = rates_row.getCell(rates_gra_column);
+        }
+        rates_row = rates_sheet.getRow(rates_line);
+        rates_cell = rates_row.getCell(rates_gra_column);
+        
+        if (rates_cell.getCellTypeEnum() == CellType.NUMERIC) {
+        	group_rating_area = Double.toString(rates_cell.getNumericCellValue());
+        } else if (rates_cell.getCellTypeEnum() == CellType.STRING) {
+        	group_rating_area = rates_cell.getStringCellValue();
+        }
+        
+        rates_row = rates_sheet.getRow(0);
+        rates_cell = rates_row.getCell(0);
+        
+        while (!(rates_cell.getStringCellValue().toLowerCase().contains("base"))) {
+        	rates_base_column++;
+        	rates_cell = rates_row.getCell(rates_base_column);
+        }
+        rates_row = rates_sheet.getRow(rates_line);
+        
+        rates_cell = rates_row.getCell(2);
+        product_name = rates_cell.getStringCellValue();
+        
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("0-20", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("19-20", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        double twenty_one = Double.parseDouble(rates_cell.getStringCellValue());
+        non_tob_dict.put("21", twenty_one);
+//        String temp_value3 = rates_cell.getStringCellValue();
+//        System.out.println(temp_value3);
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("22", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("23", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("24", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("25", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("26", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("27", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("28", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("29", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("30", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("31", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("32", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("33", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("34", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("35", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("36", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("37", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("38", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("39", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("40", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("41", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("42", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("43", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("44", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("45", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("46", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("47", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("48", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("49", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("50", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("51", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("52", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("53", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("54", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("55", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("56", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("57", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("58", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("59", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("60", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("61", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("62", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("63", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("64", rates_cell.getNumericCellValue());
+        rates_base_column++;
+        rates_cell = rates_row.getCell(rates_base_column);
+        non_tob_dict.put("65+", rates_cell.getNumericCellValue());
+        
+        
+        
+        
+        
+        
+        
+        
+        Page page = new Page(carrier_id, "", "", "", product_name, "",
+    			deductible_indiv, deductible_family, oon_deductible_indiv, oon_deductible_family,
+    	coinsurance, dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay,
+    	rx_copay, rx_mail_copay, oop_max_indiv, oop_max_family, oon_oop_max_indiv,
+    	oon_oop_max_family, in_patient_hospital, outpatient_diagnostic_lab, outpatient_surgery,
+    	outpatient_diagnostic_x_ray, outpatient_complex_imaging, physical_occupational_therapy, group_rating_area,
+    	"", "NJ", pages, non_tob_dict, tob_dict);
+        
+        page.printPage();
+           
+		
+		return page;
 	}
 	
 	
