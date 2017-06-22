@@ -389,6 +389,7 @@ public class Main extends JPanel implements ActionListener {
 			log.setCaretPosition(log.getDocument().getLength());
 		} else if (e.getSource() == compareButton) {
 			checkCarrier();
+			checkSelectedOperation();
 			if (compareFiles1.size() == 0 && compareFiles2.size() == 0) {
 				log.append("Make sure you choose both of your files to compare!");
 				return;
@@ -409,6 +410,7 @@ public class Main extends JPanel implements ActionListener {
 			}
 		} else if (e.getSource() == selectionBox) {
 			this.selectedOperation = (String) selectionBox.getSelectedItem();
+			System.out.println(this.selectedOperation);
 		} else if (e.getSource() == clearButton) {
 			selectedPlans.clear();
 			selectedRates.clear();
@@ -417,6 +419,10 @@ public class Main extends JPanel implements ActionListener {
 			compareFiles2.clear();
 			pages.clear();
 		}
+	}
+	
+	public void checkSelectedOperation() {
+		this.selectedOperation = (String) selectionBox.getSelectedItem();
 	}
 
 	public void createExcel() {

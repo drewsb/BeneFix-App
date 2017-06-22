@@ -301,6 +301,11 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 		XSSFCellStyle style3 = workbook.createCellStyle();
 		style3.setFillForegroundColor(xblue);
 	    style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlight = workbook.createCellStyle();
+	    noHighlight.setFillPattern(FillPatternType.NO_FILL);
+	    XSSFCellStyle noHighlight2 = workbook2.createCellStyle();
+	    noHighlight2.cloneStyleFrom(noHighlight);
 
 				
 		XSSFSheet sheet = workbook.getSheetAt(0);
@@ -337,6 +342,8 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 			System.out.println("Compare to result: " + result);
 			if (result == 0) {
 				//49
+				cell.setCellStyle(noHighlight);
+				cell2.setCellStyle(noHighlight2);
 				System.out.println("Reaches here");
 				for (int j = 2; j < 49; j++) {
 					XSSFCell c1 = row.getCell(j);
@@ -345,6 +352,9 @@ public class Parser extends SwingWorker<ArrayList<Page>, String> {
 					if (c1.getNumericCellValue() != c2.getNumericCellValue()) {
 						c1.setCellStyle(style2);
 						c2.setCellStyle(style2a);
+					} else {
+						c1.setCellStyle(noHighlight);
+						c2.setCellStyle(noHighlight2);
 					}
 				}
 				index++;
