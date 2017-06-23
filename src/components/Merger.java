@@ -32,11 +32,221 @@ public class Merger {
 		case Oxford:
 			result = mergeOxfordSpreadsheets(path1, path2);
 			break;
+		case Aetna:
+			result = mergeAetnaSpreadsheets(path1, path2);
+			break;
+		case Horizon:
+			result = mergeHorizonSpreadsheets(path1, path2);
+			break;
 		default:
 			result = new ArrayList<Page>();
 		}
 		return result;
 	}
+	
+	public static ArrayList<Page> mergeHorizonSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<Page> result = new ArrayList<Page>();
+		FileInputStream master_fis = new FileInputStream(path1);
+		FileInputStream benefits_fis = new FileInputStream(path2);
+		XSSFWorkbook master = new XSSFWorkbook(master_fis);
+		XSSFWorkbook benefits = new XSSFWorkbook(benefits_fis);
+		
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
+
+		XSSFCellStyle highlighter = master.createCellStyle();
+		highlighter.setFillForegroundColor(xred);
+	    highlighter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlighter = master.createCellStyle();
+	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
+	    
+	    XSSFSheet sheet = master.getSheetAt(0);
+	    
+		//Store all benefits plans and its row number into a map
+		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
+		int numBenefits = benefits_sheet.getLastRowNum();
+		DataFormatter df = new DataFormatter();
+		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
+		Map<Integer, String> rx_map = new HashMap<Integer, String>();
+		for (int i = 0; i <= numBenefits; i++) {
+			XSSFRow row = benefits_sheet.getRow(i);
+			XSSFCell cell = row.getCell(4);
+			String plan = cell.getStringCellValue().toLowerCase();
+			plan = plan.replaceAll(",", "");
+			benefits_map.put(i, plan);
+			XSSFCell rx_cell = row.getCell(15);
+			String rx_val = df.formatCellValue(rx_cell);
+			rx_map.put(i, rx_val);
+		}
+		
+		int numRows = sheet.getLastRowNum();
+		for (int i = 1; i <= numRows; i++) {
+			XSSFRow row = sheet.getRow(i);
+			XSSFCell cell = row.getCell(2);
+			if (cell == null) {
+				break;
+			}
+			String name = cell.getStringCellValue().toLowerCase();
+			name = name.replaceAll(",", "");
+			System.out.println("Testing..." + name + " at line " + i);
+			String[] tokens = name.split(" ");
+			boolean matched = false;
+			for (int k = 0; k <= numBenefits; k++) {
+				String s = benefits_map.get(k);
+				String rx_copay_str = rx_map.get(k);
+				if (matchesHorizon(s, tokens, rx_copay_str)) {
+					System.out.println("matched with: " + s);
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					result.add(p);		
+					matched = true;
+					cell.setCellStyle(noHighlighter);
+					break;
+				}
+			}
+			if (!matched) {
+				System.out.println("no result: " + name);
+				cell.setCellStyle(highlighter);
+			}
+		}
+
+		FileOutputStream fos = new FileOutputStream(path1);
+		master.write(fos);
+		fos.flush();
+		fos.close();
+		master.close();
+		benefits.close();
+		
+		
+		return result;
+	}
+	
+	public static boolean matchesHorizon(String str, String[] tokens, String rx_copay) {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token.contains("/")) {
+				String[] token_comps = token.split("/");
+				for (int j = 0; j < token_comps.length; j++) {
+					if (!str.contains(token_comps[j])) {
+						return false;
+					}
+				}
+			} else if (token.equals("bluecard")) {
+				if (!str.contains("bluecard") && !str.contains("blue card")) {
+					return false;
+				} else {
+					i++;
+				}
+			} else {
+				if (!str.contains(token)) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	public static ArrayList<Page> mergeAetnaSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<Page> result = new ArrayList<Page>();
+		FileInputStream master_fis = new FileInputStream(path1);
+		FileInputStream benefits_fis = new FileInputStream(path2);
+		XSSFWorkbook master = new XSSFWorkbook(master_fis);
+		XSSFWorkbook benefits = new XSSFWorkbook(benefits_fis);
+		
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
+
+		XSSFCellStyle highlighter = master.createCellStyle();
+		highlighter.setFillForegroundColor(xred);
+	    highlighter.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+	    
+	    XSSFCellStyle noHighlighter = master.createCellStyle();
+	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
+	    
+	    XSSFSheet sheet = master.getSheetAt(0);
+	    
+		//Store all benefits plans and its row number into a map
+		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
+		int numBenefits = benefits_sheet.getLastRowNum();
+		DataFormatter df = new DataFormatter();
+		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
+		Map<Integer, String> rx_map = new HashMap<Integer, String>();
+		for (int i = 0; i <= numBenefits; i++) {
+			XSSFRow row = benefits_sheet.getRow(i);
+			XSSFCell cell = row.getCell(4);
+			String plan = cell.getStringCellValue().toLowerCase();
+			plan = plan.replaceAll(",", "");
+			benefits_map.put(i, plan);
+			XSSFCell rx_cell = row.getCell(15);
+			String rx_val = df.formatCellValue(rx_cell);
+			rx_map.put(i, rx_val);
+		}
+		
+		int numRows = sheet.getLastRowNum();
+		for (int i = 1; i <= numRows; i++) {
+			XSSFRow row = sheet.getRow(i);
+			XSSFCell cell = row.getCell(2);
+			if (cell == null) {
+				break;
+			}
+			String name = cell.getStringCellValue().toLowerCase();
+			name = name.replaceAll(",", "");
+			System.out.println("Testing..." + name + " at line " + i);
+			String[] tokens = name.split(" ");
+			boolean matched = false;
+			for (int k = 0; k <= numBenefits; k++) {
+				String s = benefits_map.get(k);
+				String rx_copay_str = rx_map.get(k);
+				if (matchesAetna(s, tokens, rx_copay_str)) {
+					System.out.println("matched with: " + s);
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					result.add(p);		
+					matched = true;
+					cell.setCellStyle(noHighlighter);
+					break;
+				}
+			}
+			if (!matched) {
+				System.out.println("no result: " + name);
+				cell.setCellStyle(highlighter);
+			}
+		}
+
+		FileOutputStream fos = new FileOutputStream(path1);
+		master.write(fos);
+		fos.flush();
+		fos.close();
+		master.close();
+		benefits.close();
+		return result;
+	}
+	
+	public static boolean matchesAetna(String str, String[] tokens, String rx_copay) {
+		for (int i = 0; i < tokens.length; i++) {
+			String token = tokens[i];
+			if (token.contains("/")) {
+				String[] token_comps = token.split("/");
+				for (int j = 0; j < token_comps.length; j++) {
+					if (!str.contains(token_comps[j] + " ")) {
+						return false;
+					}
+				}
+			} else if (token.contains("%")) {
+				token = token.replaceAll("%", "_");
+				if (!str.contains(token)) {
+					return false;
+				}
+			} else if (token.equals("(6)") || token.equals("(7)")) {
+				continue;
+			}
+			else {
+				if (!str.contains(token)) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	
 	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
@@ -54,7 +264,7 @@ public class Merger {
 	    XSSFCellStyle noHighlighter = master.createCellStyle();
 	    noHighlighter.setFillPattern(FillPatternType.NO_FILL);
 	    
-	    XSSFSheet sheet = master.getSheetAt(7);
+	    XSSFSheet sheet = master.getSheetAt(0);
 	    
 		//Store all benefits plans and its row number into a map
 		XSSFSheet benefits_sheet = benefits.getSheetAt(0);
@@ -367,7 +577,7 @@ public class Merger {
 	public static Page mergeSheets(XSSFWorkbook benefits, XSSFWorkbook rates, int benefits_line,
 			int rates_line, int benefits_sheet_number, int rates_sheet_number) throws IOException {
 		
-		System.out.println("at least the method is being called");
+		DataFormatter df = new DataFormatter();
 		
 		int carrier_id;
 		String carrier_plan_id;
@@ -430,67 +640,67 @@ public class Merger {
         benefits_column++;
         
         benefits_cell = benefits_row.getCell(benefits_column);
-        deductible_indiv = benefits_cell.getStringCellValue();
+        deductible_indiv = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        deductible_family = benefits_cell.getStringCellValue();
+        deductible_family = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oon_deductible_indiv = benefits_cell.getStringCellValue();
+        oon_deductible_indiv = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oon_deductible_family = benefits_cell.getStringCellValue();
+        oon_deductible_family = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        coinsurance = benefits_cell.getStringCellValue();
+        coinsurance = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        dr_visit_copay = benefits_cell.getStringCellValue();
+        dr_visit_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        specialist_visit_copay = benefits_cell.getStringCellValue();
+        specialist_visit_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        er_copay = benefits_cell.getStringCellValue();
+        er_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        urgent_care_copay = benefits_cell.getStringCellValue();
+        urgent_care_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        rx_copay = benefits_cell.getStringCellValue();
+        rx_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        rx_mail_copay = benefits_cell.getStringCellValue();
+        rx_mail_copay = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oop_max_indiv = benefits_cell.getStringCellValue();
+        oop_max_indiv = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oop_max_family = benefits_cell.getStringCellValue();
+        oop_max_family = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oon_oop_max_indiv = benefits_cell.getStringCellValue();
+        oon_oop_max_indiv = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        oon_oop_max_family = benefits_cell.getStringCellValue();
+        oon_oop_max_family = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        in_patient_hospital = benefits_cell.getStringCellValue();
+        in_patient_hospital = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        outpatient_diagnostic_lab = benefits_cell.getStringCellValue();
+        outpatient_diagnostic_lab = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        outpatient_surgery = benefits_cell.getStringCellValue();
+        outpatient_surgery = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        outpatient_diagnostic_x_ray = benefits_cell.getStringCellValue();
+        outpatient_diagnostic_x_ray = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        outpatient_complex_imaging = benefits_cell.getStringCellValue();
+        outpatient_complex_imaging = df.formatCellValue(benefits_cell);
         benefits_column++;
         benefits_cell = benefits_row.getCell(benefits_column);
-        physical_occupational_therapy = benefits_cell.getStringCellValue();
+        physical_occupational_therapy = df.formatCellValue(benefits_cell);
         
         
         //get rates
@@ -530,10 +740,14 @@ public class Merger {
         non_tob_dict.put("19-20", rates_cell.getNumericCellValue());
         rates_base_column++;
         rates_cell = rates_row.getCell(rates_base_column);
-        double twenty_one = Double.parseDouble(rates_cell.getStringCellValue());
-        non_tob_dict.put("21", twenty_one);
-//        String temp_value3 = rates_cell.getStringCellValue();
-//        System.out.println(temp_value3);
+        
+        if (rates_cell.getCellTypeEnum() == CellType.STRING) {
+        	double twenty_one = Double.parseDouble(rates_cell.getStringCellValue());
+            non_tob_dict.put("21", twenty_one);
+        } else {
+        	non_tob_dict.put("21", rates_cell.getNumericCellValue());
+        }
+        
         rates_base_column++;
         rates_cell = rates_row.getCell(rates_base_column);
         non_tob_dict.put("22", rates_cell.getNumericCellValue());
