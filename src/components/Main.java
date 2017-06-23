@@ -400,7 +400,9 @@ public class Main extends JPanel implements ActionListener {
 			String path2 = f2.getAbsolutePath();
 			try {
 				if (this.selectedOperation.equals("Merge")) {
-					Merger.merge(path1, path2, carrierType);
+					ArrayList<Page> result = Merger.merge(path1, path2, carrierType);
+					ExcelWriter merge_excel = new ExcelWriter();
+					merge_excel.populateExcel(result, filename, carrierType, selectedState);
 				} else if (this.selectedOperation.equals("Compare")) {
 					Parser.compareAetnaWorkbooks(path1, path2);
 				}
