@@ -494,9 +494,7 @@ public class Main extends JPanel implements ActionListener {
 			compareFiles1.clear();
 			compareFiles2.clear();
 			pages.clear();
-<<<<<<< HEAD
 			log.append("Cleared files.\n");
-=======
 		} else if (e.getSource() == typeBox) {
 			String type = (String) typeBox.getSelectedItem();
 			if (type.equals("Medical")) {
@@ -510,7 +508,6 @@ public class Main extends JPanel implements ActionListener {
 			for (String carrier: c) {
 				carrierBox.addItem(carrier);
 			}
->>>>>>> ece4804ab289496d1b72f2eeb3b65eee7451101a
 		}
 	}
 	
