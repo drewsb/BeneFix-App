@@ -40,6 +40,7 @@ public class Main extends JPanel implements ActionListener {
 	static private final String newline = "\n";
 	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, 
 	compareButtonF2, compareButton , tokenizeButton, clearButton;
+	JComboBox<String> typeBox;
 	JComboBox<String> carrierBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
@@ -63,10 +64,12 @@ public class Main extends JPanel implements ActionListener {
 	String selectedOperation;
 	int progress;
 	Carrier carrierType;
-	HashMap<String, Set<String>> carriersInState;
+	HashMap<String, Set<String>> medicalCarriers;
+	HashMap<String, Set<String>> dentalCarriers;
+	HashMap<String, Set<String>> sourceCarriers;
 
 	public enum Carrier {
-		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Compare
+		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta
 	}
 	
 	public enum State{
@@ -75,7 +78,9 @@ public class Main extends JPanel implements ActionListener {
 
 	public Main() {
 		super(new BorderLayout());
-		carriersInState = new HashMap<String, Set<String>>();
+		medicalCarriers = new HashMap<String, Set<String>>();
+		dentalCarriers = new HashMap<String, Set<String>>();
+		sourceCarriers = medicalCarriers;
 		year = "2017";
 
 		selectedPlans = new ArrayList<File>();
@@ -126,7 +131,7 @@ public class Main extends JPanel implements ActionListener {
 		compareButtonF2 = new JButton("Second file");
 		compareButtonF2.addActionListener(this);
 		
-		compareButton = new JButton("Compare the two files");
+		compareButton = new JButton("Perform the operation");
 		compareButton.addActionListener(this);
 		
 		clearButton = new JButton("Clear plans");
@@ -135,22 +140,31 @@ public class Main extends JPanel implements ActionListener {
 		// Options for the JComboBox
 
 		String[] PAcorps = { "Aetna", "UPMC", "CPA", "NEPA", "WPA", "IBC", "CBC", "Geisinger", "UHC"};
-
 		Set<String> PAcarriers = new HashSet<String>(Arrays.asList(PAcorps));
-		carriersInState.put("PA", PAcarriers);
+		medicalCarriers.put("PA", PAcarriers);
 		
 		String[] NJcorps = {"AmeriHealth", "Aetna", "Cigna", "Horizon", "Oxford"};
 		Set<String> NJcarriers = new HashSet<String>(Arrays.asList(NJcorps));
-		carriersInState.put("NJ", NJcarriers);
+		medicalCarriers.put("NJ", NJcarriers);
+		
+		String[] PA_dental = {"Delta" };
+		Set<String> PA_dental_carriers = new HashSet<String>(Arrays.asList(PA_dental));
+		dentalCarriers.put("PA", PA_dental_carriers);
+		
+		String[] NJ_dental = {};
+		Set<String> NJ_dental_carriers = new HashSet<String>(Arrays.asList(NJ_dental));
+		dentalCarriers.put("NJ", NJ_dental_carriers);
 
 		String[] sheets = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
 				,"11","12","13","14","15","16","17","18","19","20"};
 
 		String[] quarters = { "Q1", "Q2", "Q3", "Q4" };
 		
-		Set<String> states = carriersInState.keySet();
+		Set<String> states = medicalCarriers.keySet();
 		
 		String[] selection = { "Compare", "Merge" };
+		
+		String[] types = {"Medical", "Dental" };
 		
 		// Create the save button. We use the image from the JLF
 		// Graphics Repository (but we extracted it from the jar).
@@ -165,18 +179,27 @@ public class Main extends JPanel implements ActionListener {
 		JLabel quarterLbl = new JLabel("Quarter:");
 		JLabel stateLbl = new JLabel("State:");
 		JLabel selectionLbl = new JLabel("Operation: ");
-		carrierBox = new JComboBox<String>(carriersInState.get("PA").toArray
-				(new String[carriersInState.get("PA").size()]));
+		JLabel typeLbl = new JLabel("Type: ");
+		carrierBox = new JComboBox<String>(medicalCarriers.get("PA").toArray
+				(new String[medicalCarriers.get("PA").size()]));
 		sheetBox = new JComboBox<String>(sheets);
 		dateBox = new JComboBox<String>(quarters);
 		stateBox = new JComboBox<String>(states.toArray(new String[states.size()]));
 		stateBox.addActionListener(this);
 		selectionBox = new JComboBox<String>(selection);
 		selectionBox.addActionListener(this);
+		typeBox = new JComboBox<String>(types);
+		typeBox.addActionListener(this);
 		
 
 		JPanel progressPanel = new JPanel();
 		progressPanel.add(progressBar);
+		
+		JPanel typePanel = new JPanel();
+		typePanel.add(typeLbl);
+		typePanel.add(typeBox);
+		typePanel.add(tokenizeButton);
+		typePanel.add(clearButton);
 
 		// For layout purposes, put the buttons in a separate panel
 		JPanel buttonPanel = new JPanel(); // use FlowLayout
@@ -191,9 +214,7 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel.add(sheetBox);
 		buttonPanel.add(quarterLbl);
 		buttonPanel.add(dateBox);
-		buttonPanel.add(tokenizeButton);
 		buttonPanel.add(parseButton);
-		buttonPanel.add(clearButton);
 		
 		JPanel buttonPanel2 = new JPanel();
 		buttonPanel2.add(selectionLbl);
@@ -202,8 +223,9 @@ public class Main extends JPanel implements ActionListener {
 		buttonPanel2.add(compareButtonF2);
 		buttonPanel2.add(compareButton);
 		
-		JPanel overall = new JPanel(new GridLayout(3, 1));
+		JPanel overall = new JPanel(new GridLayout(4, 1));
 		overall.add(progressPanel);
+		overall.add(typePanel);
 		overall.add(buttonPanel);
 		overall.add(buttonPanel2);
 		
@@ -217,6 +239,7 @@ public class Main extends JPanel implements ActionListener {
 		dateBox.setSelectedItem("Q3");
 		stateBox.setSelectedItem("NJ");
 		carrierBox.setSelectedItem("Oxford");
+		typeBox.setSelectedItem("Medical");
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -293,7 +316,7 @@ public class Main extends JPanel implements ActionListener {
 				log.append("No files selected");
 			}
 		}
-		else if (e.getSource() == parseButton) {
+		else if (e.getSource() == parseButton && typeBox.getSelectedItem().equals("Medical")) {
 			if (selectedPlans == null && selectedRates == null) {
 				log.append("No files selected." + newline);
 				return;
@@ -309,9 +332,9 @@ public class Main extends JPanel implements ActionListener {
 			}
 			checkCarrier();
 
-			parser = new Parser(carrierType, progress, selectedState, 
+			parser = new MedicalParser(carrierType, progress, selectedState, 
 					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log, progressBar);
-			parser.addPropertyChangeListener(new PropertyChangeListener() {
+			((MedicalParser) parser).addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(final PropertyChangeEvent event) {
 					switch (event.getPropertyName()) {
@@ -324,10 +347,8 @@ public class Main extends JPanel implements ActionListener {
 						switch ((StateValue) event.getNewValue()) {
 						case DONE:
 							try {
-								pages = parser.get();
-								if (carrierType != Carrier.Compare) {
-									createExcel();
-								}
+								pages = ((MedicalParser) parser).get();
+								createExcel();
 							} catch (InterruptedException e) {
 								// TODO Auto-generated catch block
 								e.printStackTrace();
@@ -347,11 +368,64 @@ public class Main extends JPanel implements ActionListener {
 
 
 			System.out.println("executing");
-			parser.execute();
+			((MedicalParser) parser).execute();
+		} else if (e.getSource() == parseButton && typeBox.getSelectedItem().equals("Dental")) {
+			if (selectedPlans == null && selectedRates == null) {
+				log.append("No files selected." + newline);
+				return;
+			}
+			String currState = (String) stateBox.getSelectedItem();
+			switch (currState) {
+			case "NJ": 
+				selectedState = State.NJ;
+				break;
+			case "PA":
+				selectedState = State.PA;
+				break;
+			}
+			checkCarrier();
+			parser = new DentalParser(carrierType, progress, selectedState, 
+					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log, progressBar);
+			((DentalParser) parser).addPropertyChangeListener(new PropertyChangeListener() {
+				@Override
+				public void propertyChange(final PropertyChangeEvent event) {
+					switch (event.getPropertyName()) {
+					case "progress":
+						progressBar.setIndeterminate(false);
+						progressBar.setValue((Integer) event.getNewValue());
+						// System.out.println(event.getNewValue());
+						break;
+					case "state":
+						switch ((StateValue) event.getNewValue()) {
+						case DONE:
+							try {
+								pages = ((DentalParser) parser).get();
+								createExcel();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (ExecutionException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							break;
+						case STARTED:
+						case PENDING:
+							break;
+						}
+						break;
+					}
+				}
+			});
+
+
+			System.out.println("executing");
+			((DentalParser) parser).execute();
+			
 		} else if (e.getSource() == stateBox) {
 			String state = (String) stateBox.getSelectedItem();
 			carrierBox.removeAllItems();
-			Set<String> c = carriersInState.get(state);
+			Set<String> c = sourceCarriers.get(state);
 			for (String carrier: c) {
 				carrierBox.addItem(carrier);
 			}
@@ -420,6 +494,19 @@ public class Main extends JPanel implements ActionListener {
 			compareFiles1.clear();
 			compareFiles2.clear();
 			pages.clear();
+		} else if (e.getSource() == typeBox) {
+			String type = (String) typeBox.getSelectedItem();
+			if (type.equals("Medical")) {
+				this.sourceCarriers = medicalCarriers;
+			} else if (type.equals("Dental")) {
+				this.sourceCarriers = dentalCarriers;
+			}
+			String state = (String) stateBox.getSelectedItem();
+			carrierBox.removeAllItems();
+			Set<String> c = sourceCarriers.get(state);
+			for (String carrier: c) {
+				carrierBox.addItem(carrier);
+			}
 		}
 	}
 	
@@ -428,6 +515,9 @@ public class Main extends JPanel implements ActionListener {
 	}
 
 	public void createExcel() {
+		if (pages.size() == 0) {
+			return;
+		}
 		try {
 			if (pages.size() > 1) {
 				filename = String.format("%s_%s_%s", carrierType.toString(), (String) dateBox.getSelectedItem(), year);
@@ -469,6 +559,8 @@ public class Main extends JPanel implements ActionListener {
 			this.carrierType = Carrier.Horizon;
 		} else if (carrierBox.getSelectedItem().equals("Geisinger")) {
 			this.carrierType = Carrier.Geisinger;
+		} else if (carrierBox.getSelectedItem().equals("Delta")) {
+			this.carrierType = Carrier.Delta;
 		}
 	}
 
