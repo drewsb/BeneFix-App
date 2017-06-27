@@ -420,6 +420,7 @@ public class Main extends JPanel implements ActionListener {
 			compareFiles1.clear();
 			compareFiles2.clear();
 			pages.clear();
+			log.append("Cleared files.\n");
 		}
 	}
 	
