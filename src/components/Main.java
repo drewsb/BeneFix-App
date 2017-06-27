@@ -494,6 +494,7 @@ public class Main extends JPanel implements ActionListener {
 			compareFiles1.clear();
 			compareFiles2.clear();
 			pages.clear();
+			log.append("Cleared files.\n");
 		} else if (e.getSource() == typeBox) {
 			String type = (String) typeBox.getSelectedItem();
 			if (type.equals("Medical")) {

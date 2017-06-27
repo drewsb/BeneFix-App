@@ -156,20 +156,20 @@ public class NJ_Oxford_Benefits {
 			temp_index++;
 		}
 
-		while (!isPercentage(tokens[temp_index + 1]) & !isDollarValue(tokens[temp_index + 1])) {
+		while (!tokens[temp_index+1].contains("Office:") & !tokens[temp_index].contains("Not")) {
 			outpatient_complex_imaging.insert(0, tokens[temp_index] + " ");
 			temp_index--;
 		}
 
 		for (int i = 0; i < 3; i++) {
-			while (!tokens[temp_index - 1].contains("Retail:")) {
+			while (!tokens[temp_index - 1].contains("Retail:") || tokens[temp_index].equals("Up")) {
 				temp_index++;
 			}
 			rx_copay.append(tokens[temp_index]);
 			if (i != 2) {
 				rx_copay.append("/");
 			}
-			while (tokens[temp_index - 2].equals("Mail")) {
+			while (!tokens[temp_index - 2].equals("Mail") || tokens[temp_index].equals("Up")) {
 				temp_index++;
 			}
 			rx_mail_copay.append(tokens[temp_index]);
@@ -207,13 +207,17 @@ public class NJ_Oxford_Benefits {
 		while (!tokens[temp_index - 2].equals("hospital") || !tokens[temp_index - 1].equals("stay")) {
 			temp_index++;
 		}
-		while (!isDollarValue(tokens[temp_index]) & !isPercentage(tokens[temp_index])) {
-			temp_index++;
-		}
 		while (!tokens[temp_index].contains("Facility")) {
-			in_patient_hospital.append(tokens[temp_index] + " ");
 			temp_index++;
 		}
+		while (!isDollarValue(tokens[temp_index+1]) & !isPercentage(tokens[temp_index+1])) {
+			if(tokens[temp_index].contains("Charge") || tokens[temp_index].contains("No")){
+				in_patient_hospital = new StringBuilder("No Charge");
+				break;
+			}
+			in_patient_hospital.insert(0,tokens[temp_index] + " ");
+			temp_index--;
+		}	
 		while (!tokens[temp_index].contains("Rehabilitation")) {
 			temp_index++;
 		}
@@ -246,7 +250,6 @@ public class NJ_Oxford_Benefits {
 		oon_oop_max_indiv = formatString(oon_oop_max_indiv);
 		oon_oop_max_family = formatString(oon_oop_max_family);
 		in_patient_hospital = formatInpatientHospital(in_patient_hospital);
-		// in_patient_hospital = formatString(in_patient_hospital);
 		outpatient_surgery = formatString(outpatient_surgery);
 		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
 		outpatient_diagnostic_lab = outpatient_diagnostic_x_ray;
@@ -301,6 +304,10 @@ public class NJ_Oxford_Benefits {
 	}
 
 	public StringBuilder formatRx(StringBuilder s) {
+		if(s.indexOf("Not")!=-1){
+			s = new StringBuilder("N/A");
+			return s;
+		}
 		int x = s.indexOf("/");
 		int y = s.lastIndexOf("/");
 		if (s.subSequence(0, x).equals(s.subSequence(x + 1, y))
@@ -330,12 +337,24 @@ public class NJ_Oxford_Benefits {
 
 	public StringBuilder formatInpatientHospital(StringBuilder s) {
 		s = removeString(s, "Not");
-		s = removeString(s, "No");
 		s = removeString(s, "covered");
 		s = removeString(s, "ded");
 		s = removeString(s, "co-ins");
 		s = removeString(s, "after");
 		s = removeString(s, ".");
+		s = removeString(s, "Facility");
+		System.out.println(s);
+		char[] arr = s.toString().toCharArray();
+		char c = arr[0];
+		System.out.println(c);
+		int index = 0;
+		while(c == ' ' & index < arr.length){
+			s.deleteCharAt(0);
+			System.out.println(s);
+			index++;
+			c = arr[index];
+			System.out.println(c);
+		}
 		return s;
 	}
 
