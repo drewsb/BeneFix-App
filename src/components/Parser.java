@@ -46,12 +46,11 @@ public interface Parser {
 		HMK, HCA
 	}
 
-
 	public static String removeFileExtension(String input) {
 		return input.substring(0, input.lastIndexOf("."));
 	}
 
-	public ArrayList<Page> getValue() throws Exception;
+	public ArrayList<PageInterface> getValue() throws Exception;
 	
 	public static void compareAetnaWorkbooks(String path1, String path2) throws IOException {
 		System.out.println(path1 + " " + path2);

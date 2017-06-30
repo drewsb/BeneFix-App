@@ -1,6 +1,6 @@
 package components;
 
-public class DentalPage {
+public class DentalPage implements PageInterface {
 	public String group;
 	public String carrier;
 	public int carrier_id;
@@ -75,6 +75,7 @@ public class DentalPage {
 		four_tier_f = "";
 	}
 	
+	@Override
 	public void printPage() {
 		System.out.println("Group: " + this.group);
 		System.out.println("Carrier: " + this.carrier);
