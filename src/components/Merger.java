@@ -23,8 +23,8 @@ import components.Main.Carrier;
 
 public class Merger {
 	
-	public static ArrayList<Page> merge(String path1, String path2, Carrier carrier) throws IOException {
-		ArrayList<Page> result;
+	public static ArrayList<PageInterface> merge(String path1, String path2, Carrier carrier) throws IOException {
+		ArrayList<PageInterface> result;
 		switch (carrier) {
 		case AmeriHealth: 
 			result = mergeAmeriHealthSpreadsheets(path1, path2);
@@ -39,13 +39,13 @@ public class Merger {
 			result = mergeHorizonSpreadsheets(path1, path2);
 			break;
 		default:
-			result = new ArrayList<Page>();
+			result = new ArrayList<PageInterface>();
 		}
 		return result;
 	}
 	
-	public static ArrayList<Page> mergeHorizonSpreadsheets(String path1, String path2) throws IOException {
-		ArrayList<Page> result = new ArrayList<Page>();
+	public static ArrayList<PageInterface> mergeHorizonSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<PageInterface> result = new ArrayList<PageInterface>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
 		XSSFWorkbook master = new XSSFWorkbook(master_fis);
@@ -96,7 +96,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesHorizon(s, tokens, rx_copay_str)) {
 					System.out.println("matched with: " + s);
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					PageInterface p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -146,8 +146,8 @@ public class Merger {
 		return true;
 	}
 	
-	public static ArrayList<Page> mergeAetnaSpreadsheets(String path1, String path2) throws IOException {
-		ArrayList<Page> result = new ArrayList<Page>();
+	public static ArrayList<PageInterface> mergeAetnaSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<PageInterface> result = new ArrayList<PageInterface>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
 		XSSFWorkbook master = new XSSFWorkbook(master_fis);
@@ -198,7 +198,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesAetna(s, tokens, rx_copay_str)) {
 					System.out.println("matched with: " + s);
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					PageInterface p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -248,8 +248,8 @@ public class Merger {
 	}
 	
 	
-	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
-		ArrayList<Page> result = new ArrayList<Page>();
+	public static ArrayList<PageInterface> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<PageInterface> result = new ArrayList<PageInterface>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
 		XSSFWorkbook master = new XSSFWorkbook(master_fis);
@@ -296,7 +296,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesOxford(s, tokens, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					PageInterface p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -352,8 +352,8 @@ public class Merger {
 		return true;
 	}
  	
-	public static ArrayList<Page> mergeAmeriHealthSpreadsheets(String path1, String path2) throws IOException {
-		ArrayList<Page> result = new ArrayList<Page>();
+	public static ArrayList<PageInterface> mergeAmeriHealthSpreadsheets(String path1, String path2) throws IOException {
+		ArrayList<PageInterface> result = new ArrayList<PageInterface>();
 		
 		HashMap<String, Set<String>> map = initAmerihealthMap();
 		FileInputStream master_fis = new FileInputStream(path1);
@@ -405,7 +405,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesAmerihealth(s, tokens, map, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0);
+					PageInterface p = mergeSheets(benefits, master, k, i, 0 , 0);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -574,7 +574,7 @@ public class Merger {
 		return map;
 	}
 
-	public static Page mergeSheets(XSSFWorkbook benefits, XSSFWorkbook rates, int benefits_line,
+	public static PageInterface mergeSheets(XSSFWorkbook benefits, XSSFWorkbook rates, int benefits_line,
 			int rates_line, int benefits_sheet_number, int rates_sheet_number) throws IOException {
 		
 		DataFormatter df = new DataFormatter();
@@ -888,7 +888,7 @@ public class Merger {
         
         
         
-        Page page = new Page(carrier_id, "", "", "", product_name, "",
+        PageInterface page = new Page(carrier_id, "", "", "", product_name, "",
     			deductible_indiv, deductible_family, oon_deductible_indiv, oon_deductible_family,
     	coinsurance, dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay,
     	rx_copay, rx_mail_copay, oop_max_indiv, oop_max_family, oon_oop_max_indiv,

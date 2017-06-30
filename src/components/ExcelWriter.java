@@ -25,7 +25,7 @@ public class ExcelWriter {
 	 * Creates a new workbook sheet every compilation. First populates the excel sheet with template data,
 	 * then the necessary data from the array of pages. Output file is called "BenefixData.xlsx". 
 	 */
-	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type, State state) throws IOException {
+	public static void populateExcelMedical(ArrayList<PageInterface> products, String filename, Carrier type, State state) throws IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("BenefixData");
 
@@ -63,10 +63,11 @@ public class ExcelWriter {
 		}
 
 		// Populate with data
-		for (Page p : products) {
-			if (p == null) {
+		for (PageInterface product : products) {
+			if (product == null) {
 				continue;
 			}
+			Page p = (Page) product;
 			colCount = 0;
 			row = sheet.createRow(++rowCount);
 			Cell cell = row.createCell(colCount++);
@@ -163,4 +164,107 @@ public class ExcelWriter {
 		workbook.close();
 	}
 	
+	public static void populateExcelDental(ArrayList<PageInterface> products, 
+			String filename, Carrier type, State state) throws IOException {
+		XSSFWorkbook workbook = new XSSFWorkbook();
+		XSSFSheet sheet = workbook.createSheet("BenefixData");
+		 String[] templateData = {"group", "carrier", "carrier_id", "product_name", "sic_level", "start_date", "end_date", "states", 
+				 "group_rating_areas", "zip_codes", "contribution_type", "minimum_enrolled", "minimum_participation", "class_I_diagnostic_&_preventive", 
+				 "class_II_basic", "class_III_major", "endodonitcs", "periodontics", "annual_max", "office_visit_copay", "deductible_ind_fam",
+				 "orthodontics", "orthodonitics_lifetime_maximum", "waiting_period", "R&C / MAC", "One Tier", "Two Tier E", "Two Tier F",
+				 "Three Tier E", "Three Tier ED", "Three Tier F", "Four Tier E", "Four Tier EA", "Four Tier EC", "Four Tier F"};
+		 
+		int rowCount = 0;
+		int colCount = 0;	
+		
+		Row row = sheet.createRow(rowCount);
+		for (String header : templateData) {
+			Cell cell = row.createCell(colCount++);
+			cell.setCellValue((String) header);
+		}
+		
+		for (PageInterface product: products) {
+			if (product == null) {
+				continue;
+			}
+			DentalPage p = (DentalPage) product;
+			colCount = 0;
+			row = sheet.createRow(++rowCount);
+			Cell cell = row.createCell(colCount++);
+			cell.setCellValue(p.group);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.carrier);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.carrier_id);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.product_name);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.sic_level);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.start_date);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.end_date);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.states);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.group_rating_areas);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.zip_codes);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.contribution_type);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.minimum_enrolled);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.minimum_participation);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.class_I_diagnostic_preventive);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.class_II_basic);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.class_III_major);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.endodonitcs);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.periodontics);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.annual_max);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.office_visit_copay);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.deductible_ind_fam);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.orthodontics);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.orthodonitics_lifetime_maximum);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.waiting_period);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.rc_mac);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.one_tier);
+			cell = row.createCell(colCount++);
+			cell.setCellValue((String) p.two_tier_e);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.two_tier_f);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.three_tier_e);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.three_tier_f);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.four_tier_e);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.four_tier_ea);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.four_tier_ec);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.four_tier_f);
+		}
+
+		String outputName = String.format("%s_data.xlsx", filename);
+		// Create output file
+		try (FileOutputStream outputStream = new FileOutputStream(outputName)) {
+			workbook.write(outputStream);
+		}
+		workbook.close();
+		}
 }

@@ -56,7 +56,7 @@ public class Main extends JPanel implements ActionListener {
 	ArrayList<File> selectedOutputs;
 	ArrayList<File> compareFiles1;
 	ArrayList<File> compareFiles2;
-	ArrayList<Page> pages;
+	ArrayList<PageInterface> pages;
 	String filename;
 	Boolean done;
 	String year;
@@ -67,6 +67,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> medicalCarriers;
 	HashMap<String, Set<String>> dentalCarriers;
 	HashMap<String, Set<String>> sourceCarriers;
+	String insuranceType;
 
 	public enum Carrier {
 		UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta
@@ -82,6 +83,7 @@ public class Main extends JPanel implements ActionListener {
 		dentalCarriers = new HashMap<String, Set<String>>();
 		sourceCarriers = medicalCarriers;
 		year = "2017";
+		insuranceType = "";
 
 		selectedPlans = new ArrayList<File>();
 		selectedRates = new ArrayList<File>();
@@ -89,7 +91,7 @@ public class Main extends JPanel implements ActionListener {
 		compareFiles2 = new ArrayList<File>();
 		selectedOutputs = new ArrayList<File>();
 		selectedTokenFiles = new ArrayList<File>();
-		pages = new ArrayList<Page>();
+		pages = new ArrayList<PageInterface>();
 
 		// Create the log first, because the action listeners
 		// need to refer to it.
@@ -474,9 +476,15 @@ public class Main extends JPanel implements ActionListener {
 			String path2 = f2.getAbsolutePath();
 			try {
 				if (this.selectedOperation.equals("Merge")) {
-					ArrayList<Page> result = Merger.merge(path1, path2, carrierType);
-					ExcelWriter merge_excel = new ExcelWriter();
-					merge_excel.populateExcel(result, filename, carrierType, selectedState);
+					ArrayList<PageInterface> result = Merger.merge(path1, path2, carrierType);
+					switch (insuranceType) {
+					case "Medical":
+						ExcelWriter.populateExcelMedical(result, filename, carrierType, selectedState);
+						break;
+					case "Dental":
+						ExcelWriter.populateExcelDental(result, filename, carrierType, selectedState);
+						break;
+					}
 				} else if (this.selectedOperation.equals("Compare")) {
 					Parser.compareAetnaWorkbooks(path1, path2);
 				}
@@ -498,8 +506,10 @@ public class Main extends JPanel implements ActionListener {
 			String type = (String) typeBox.getSelectedItem();
 			if (type.equals("Medical")) {
 				this.sourceCarriers = medicalCarriers;
+				this.insuranceType = "Medical";
 			} else if (type.equals("Dental")) {
 				this.sourceCarriers = dentalCarriers;
+				this.insuranceType = "Dental";
 			}
 			String state = (String) stateBox.getSelectedItem();
 			carrierBox.removeAllItems();
@@ -525,7 +535,13 @@ public class Main extends JPanel implements ActionListener {
 			else{
 				filename = removeFileExtension(selectedPlans.get(0).getName());
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState);
+			System.out.println(insuranceType);
+			if (insuranceType.equals("Medical")) {
+				ExcelWriter.populateExcelMedical(pages, filename, carrierType, selectedState);
+			} else if (insuranceType.equals("Dental")) {
+				System.out.println("Reaches here");
+				ExcelWriter.populateExcelDental(pages, filename, carrierType, selectedState);
+			}			
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
 			log.append(output);
 		} catch (IOException e1) {

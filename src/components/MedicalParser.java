@@ -40,7 +40,7 @@ import pa.PA_IBC_Rates;
 import pa.PA_NEPA_Rates;
 import pa.PA_WPA_Rates;
 
-public class MedicalParser extends SwingWorker<ArrayList<Page>, String> implements Parser {
+public class MedicalParser extends SwingWorker<ArrayList<PageInterface>, String> implements Parser {
 
 	final Carrier carrierType;
 
@@ -75,9 +75,9 @@ public class MedicalParser extends SwingWorker<ArrayList<Page>, String> implemen
 	}
 
 	@Override
-	protected ArrayList<Page> doInBackground() throws Exception {
-		ArrayList<Page> pages = new ArrayList<Page>();
-		HashMap<String, Page> pageMap = new HashMap<String, Page>();
+	protected ArrayList<PageInterface> doInBackground() throws Exception {
+		ArrayList<PageInterface> pages = new ArrayList<PageInterface>();
+		HashMap<String, PageInterface> pageMap = new HashMap<String, PageInterface>();
 		int size = selectedPlans.size() + selectedRates.size();
 		int index = 0;
 		String filename;
@@ -266,7 +266,7 @@ public class MedicalParser extends SwingWorker<ArrayList<Page>, String> implemen
 		return input.substring(0, input.lastIndexOf("."));
 	}
 
-	public ArrayList<Page> getValue() throws Exception {
+	public ArrayList<PageInterface> getValue() throws Exception {
 		return this.get();
 	}
 

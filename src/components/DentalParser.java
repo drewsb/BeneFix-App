@@ -12,8 +12,9 @@ import javax.swing.SwingWorker;
 import components.Main.Carrier;
 import components.Main.State;
 import pa.PA_Delta_Dental_Benefits;
+import pa.PA_Oxford_Dental_Benefits;
 
-public class DentalParser extends SwingWorker<ArrayList<Page>, String> implements Parser {
+public class DentalParser extends SwingWorker<ArrayList<PageInterface>, String> implements Parser {
 
 	final Carrier carrierType;
 
@@ -48,9 +49,9 @@ public class DentalParser extends SwingWorker<ArrayList<Page>, String> implement
 	}
 	
 	@Override
-	protected ArrayList<Page> doInBackground() throws Exception {
-		ArrayList<Page> pages = new ArrayList<Page>();
-		HashMap<String, Page> pageMap = new HashMap<String, Page>();
+	protected ArrayList<PageInterface> doInBackground() throws Exception {
+		ArrayList<PageInterface> pages = new ArrayList<PageInterface>();
+		HashMap<String, PageInterface> pageMap = new HashMap<String, PageInterface>();
 		int size = selectedPlans.size() + selectedRates.size();
 		int index = 0;
 		String filename;
@@ -71,16 +72,11 @@ public class DentalParser extends SwingWorker<ArrayList<Page>, String> implement
 					break;
 				case PA:
 					switch (carrierType) {
-					case UPMC:
-						break;
-					case Aetna:
-						break;
-					case WPA:
-						break;
-					case CBC:
-						break;
+					case Oxford:
+						PA_Oxford_Dental_Benefits oxford = new PA_Oxford_Dental_Benefits(selectedPlan);
 					case Delta:
 						PA_Delta_Dental_Benefits delta = new PA_Delta_Dental_Benefits(selectedPlan);
+						pages.add(delta.getPage());
 						break;
 					}
 					break;
@@ -149,7 +145,7 @@ public class DentalParser extends SwingWorker<ArrayList<Page>, String> implement
 		return input.substring(0, input.lastIndexOf("."));
 	}
 
-	public ArrayList<Page> getValue() throws Exception {
+	public ArrayList<PageInterface> getValue() throws Exception {
 		return this.get();
 	}
 

@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * Page class for a PDF page. Holds necessary data to populate an excel sheet.
  */
-public class Page implements Comparable {
+public class Page implements Comparable, PageInterface {
 	public int carrier_id;
 	public String carrier_plan_id;
 	public String start_date;
@@ -124,6 +124,7 @@ public class Page implements Comparable {
 	/*
 	 * Print method used for debugging purposes.
 	 */
+	@Override
 	public void printPage(){
 		System.out.printf("State: %s\n", this.state);
 		System.out.printf("Carrier id: %s\n", this.carrier_id);
