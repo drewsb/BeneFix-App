@@ -5,6 +5,7 @@ import java.util.HashMap;
 
 
 /*
+ * NEEDS TO BE CHANGED
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
 public class PA_UPMC_Rates {

@@ -2,32 +2,42 @@ package nj;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import components.PDFManager;
 import components.Page;
+import components.Parser;
+import components.MedicalPage;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class NJ_Horizon_Benefits {
+public class NJ_Horizon_Benefits implements Parser {
 
 	static String[] tokens;
 
 	static String text;
+	
+	static String start_date;
+	
+	static String end_date;
 
 	public enum docType {
 		tier, oon, in, DEFAULT
 	}
 
-	public NJ_Horizon_Benefits(File file) throws IOException {
-		PDFManager pdfManager = new PDFManager();
-		pdfManager.setFilePath(file.getAbsolutePath());
-		text = pdfManager.ToText();
+	public NJ_Horizon_Benefits(String s_date, String e_date) throws IOException {
+		start_date = s_date;
+		end_date = e_date;
 	}
 
 	@SuppressWarnings("unused")
-	public Page parse(String filename) {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		PDFManager pdfManager = new PDFManager();
+		pdfManager.setFilePath(file.getAbsolutePath());
+		text = pdfManager.ToText();
+		
 		this.tokens = text.split("[\\s\\r\\n]+"); // Split pdf text by spaces
 													// and new line chars
 		for (String s : tokens) {
@@ -42,8 +52,6 @@ public class NJ_Horizon_Benefits {
 		int temp_index = 2;
 		int carrier_id = 18;
 		StringBuilder carrier_plan_id = new StringBuilder("");
-		StringBuilder start_date = new StringBuilder("");
-		StringBuilder end_date = new StringBuilder("");
 		StringBuilder product_name = new StringBuilder(filename);
 		StringBuilder plan_pdf_file_name = new StringBuilder(filename);
 		StringBuilder deductible_indiv = new StringBuilder("");
@@ -356,7 +364,7 @@ public class NJ_Horizon_Benefits {
 		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
-		Page new_page = new Page(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
+		MedicalPage new_page = new MedicalPage(carrier_id, carrier_plan_id.toString(), start_date, end_date, product_name.toString(),
 				plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
 				oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
 				dr_visit_copay.toString(), specialist_visit_copay.toString(), er_copay.toString(),
@@ -367,7 +375,9 @@ public class NJ_Horizon_Benefits {
 				physical_occupational_therapy.toString(), "", service_zones.toString(), "", 0, non_tobacco_dict,
 				tobacco_dict);
 		new_page.printPage();
-		return new_page;
+		ArrayList<Page> pages = new ArrayList<Page>();
+		pages.add(new_page);
+		return pages;
 	}
 
 	public StringBuilder formatString(StringBuilder input) {

@@ -1,20 +1,33 @@
 package components;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import components.Main.Carrier;
+import components.Main.Plan;
 import components.Main.State;
 
 /*
  * Uses Apache Poi package found at https://www.apache.org. 
  */
 public class ExcelWriter {
+	
+	static XSSFWorkbook workbook;
+	
+	static XSSFSheet sheet;
+		
+	static String filename;
+	
+	static Carrier carrierType;
+	
+	static State state;
 	
 	public static void main(String[] args){
 
@@ -25,11 +38,39 @@ public class ExcelWriter {
 	 * Creates a new workbook sheet every compilation. First populates the excel sheet with template data,
 	 * then the necessary data from the array of pages. Output file is called "BenefixData.xlsx". 
 	 */
-	public static void populateExcel(ArrayList<Page> products, String filename, Carrier type, State state) throws IOException {
-		XSSFWorkbook workbook = new XSSFWorkbook();
-		XSSFSheet sheet = workbook.createSheet("BenefixData");
-
+	@SuppressWarnings("unchecked")
+	public static void populateExcel(ArrayList<Page> pages, String f_name, Carrier type, State stateType, Plan plan) throws IOException {
+		workbook = new XSSFWorkbook();
+		sheet = workbook.createSheet("BenefixData");
+		
+		filename = f_name;
+		carrierType = type;
+		state = stateType;
 		// Template data given by Benefix.
+		
+		switch(plan){
+		case Medical:
+			ArrayList<MedicalPage> medical_products = new ArrayList<MedicalPage>();
+			medical_products.addAll((Collection<? extends MedicalPage>) pages);
+			populateMedicalExcel(medical_products);
+			break;
+		case Dental:
+			ArrayList<MedicalPage> dental_products = new ArrayList<MedicalPage>();
+			dental_products.addAll((Collection<? extends MedicalPage>) pages);
+			populateMedicalExcel(dental_products);
+			break;
+		case Vision:
+			ArrayList<MedicalPage> vision_products = new ArrayList<MedicalPage>();
+			vision_products.addAll((Collection<? extends MedicalPage>) pages);
+			populateMedicalExcel(vision_products);
+			break;
+		}
+		
+		
+	}
+	
+	
+	public static void populateMedicalExcel(ArrayList<MedicalPage> products) throws FileNotFoundException, IOException{
 		String[] templateData = { "carrier_id", "carrier_plan_id", "start_date", "end_date", "product_name",
 				"plan_pdf_file_name", "deductible_indiv", "deductible_family", "oon_deductible_individual",
 				"oon_deductible_family", "coinsurance", "dr_visit_copay", "specialist_visits_copay", "er_copay",
@@ -49,7 +90,7 @@ public class ExcelWriter {
 		int colCount = 0;
 		int max_age;
 
-		if (type == Carrier.IBC || (type == Carrier.Aetna && state == State.NJ)) {
+		if (carrierType == Carrier.IBC || (carrierType == Carrier.Aetna && state == State.NJ)) {
 			max_age = 64;
 		} else {
 			max_age = 65;
@@ -63,7 +104,7 @@ public class ExcelWriter {
 		}
 
 		// Populate with data
-		for (Page p : products) {
+		for (MedicalPage p : products) {
 			if (p == null) {
 				continue;
 			}
@@ -161,6 +202,12 @@ public class ExcelWriter {
 			workbook.write(outputStream);
 		}
 		workbook.close();
+	}
+	
+	public static void populateDentalExcel(ArrayList<DentalPage> products) throws FileNotFoundException, IOException{
+	}
+	
+	public static void populateVisionExcel(ArrayList<VisionPage> products) throws FileNotFoundException, IOException{
 	}
 	
 }

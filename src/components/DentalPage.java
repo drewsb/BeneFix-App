@@ -1,6 +1,6 @@
 package components;
 
-public class DentalPage {
+public class DentalPage implements Page{
 	public String group;
 	public String carrier;
 	public int carrier_id;

@@ -6,13 +6,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import components.MedicalPage;
+import components.PDFManager;
 import components.Page;
+import components.Parser;
 
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown
  */
-public class PA_Aetna_Rates {
+public class PA_Aetna_Rates implements Parser {
 
 	static String text;
 
@@ -24,17 +27,19 @@ public class PA_Aetna_Rates {
 
 	static String end_date;
 
-	public PA_Aetna_Rates(File file, String s_date, String e_date) throws IOException{
+	public PA_Aetna_Rates(String s_date, String e_date) throws IOException{
 		start_date = s_date;
 		end_date = e_date;
-		components.PDFManager pdfManager = new components.PDFManager();
+	}
+
+	public ArrayList<Page> parse(File file, String filename) throws IOException{
+	    pages = new ArrayList<Page>();
+		PDFManager pdfManager = new components.PDFManager();
 	    pdfManager.setFilePath(file.getAbsolutePath());
 	    text = pdfManager.ToText();
 	    numPages = pdfManager.getNumPages();
-	    pages = new ArrayList<Page>();
-	}
-
-	public ArrayList<Page> parse(){
+	    
+	    
 		int base_row = 0;  //Denotes starting index for each page in the array of tokens
 		for(int page_index = 1; page_index <= numPages; page_index++){
 			String rating_area = "";
@@ -67,7 +72,7 @@ public class PA_Aetna_Rates {
 			}
 			base_row+=count+159;    //Update base_row to beginning of next page
 			state = tokens[base_row-1];
-			Page page = new Page(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
+			MedicalPage page = new MedicalPage(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
 					"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "",
 					state, 0, non_tob_dict, tob_dict);
 			pages.add(page);

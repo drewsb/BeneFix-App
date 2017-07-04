@@ -11,17 +11,21 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.MedicalPage;
 import components.Page;
+import components.Parser;
 
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class PA_CBC_Rates {
+public class PA_CBC_Rates implements Parser{
 	
 	Page page;
 	
-	static ArrayList<Page> products;
+	int sheet_index;
+	
+	static ArrayList<MedicalPage> products;
 	
 	Sheet sheet;
 	
@@ -33,11 +37,16 @@ public class PA_CBC_Rates {
 
 	private Workbook workbook;
 	
-	public PA_CBC_Rates(File file, Page input_page, int sheet_index, String s_date, String e_date) throws IOException{
+	public PA_CBC_Rates(Page input_page, int s_index, String s_date, String e_date) throws IOException{
 		this.page = input_page;
 		start_date = s_date;
 		end_date = e_date;
-		products = new ArrayList<Page>();
+		sheet_index = s_index;
+		products = new ArrayList<MedicalPage>();
+    }
+	
+	@SuppressWarnings({ "unused", "incomplete-switch" })
+	public ArrayList<Page> parse(File file, String filename){	
 		try {
             FileInputStream excelFile = new FileInputStream(file);
             workbook = new XSSFWorkbook(excelFile);
@@ -48,11 +57,8 @@ public class PA_CBC_Rates {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-    }
-	
-	@SuppressWarnings({ "unused", "incomplete-switch" })
-	public Page parse(){
+		
+		
 		Cell cell;
 		int page_index = 1;
 		int carrier_id = 14;
@@ -134,7 +140,7 @@ public class PA_CBC_Rates {
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index+1);
 			tobacco_dict.put("65+", cell.getNumericCellValue());	
-			page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
+			page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index, 
 					non_tobacco_dict, tobacco_dict);
@@ -142,10 +148,10 @@ public class PA_CBC_Rates {
     		row_index = 6;
         	page_index++;
         }
-//        for(CBC_Page p : products){
-//        	p.printPage();
-//        }
-        return page;
+
+    	ArrayList<Page> pages = new ArrayList<Page>();
+    	pages.add(page);
+        return pages;
 	}
 
 	

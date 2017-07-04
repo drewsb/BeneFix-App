@@ -3,20 +3,21 @@ package pa;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import components.DentalPage;
 import components.PDFManager;
+import components.Page;
+import components.Parser;
 
-public class PA_Delta_Dental_Benefits {
+public class PA_Delta_Dental_Benefits implements Parser{
 	
 	PDFManager pdfmanager;
 
-	public PA_Delta_Dental_Benefits(File file) throws FileNotFoundException, IOException {
-		this.pdfmanager = new PDFManager(file);
-		this.parse();
+	public PA_Delta_Dental_Benefits() throws FileNotFoundException, IOException {
 	}
 	
-	public DentalPage parse() throws IOException {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
 		DentalPage page = new DentalPage();
 		
 		String text = pdfmanager.ToText();
@@ -24,7 +25,9 @@ public class PA_Delta_Dental_Benefits {
 		text = text.replaceAll("\\s", ";");
 		String[] tokens = text.split(";");
 		
-		return page;
+		ArrayList<Page> pages = new ArrayList<Page>();
+		pages.add(page);
+		return pages;
 	}
 	
 }

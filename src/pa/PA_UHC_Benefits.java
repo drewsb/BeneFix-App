@@ -7,30 +7,36 @@ import java.util.ArrayList;
 
 import components.PDFManager;
 import components.Page;
+import components.Parser;
+import components.MedicalPage;
 
-public class PA_UHC_Benefits {
+public class PA_UHC_Benefits implements Parser {
+	
+	String start_date;
+	
+	String end_date;
 	
 	PDFManager pdfmanager;
+	
 	ArrayList<Page> results;
 	
-	public PA_UHC_Benefits(File file) throws FileNotFoundException, IOException {
-		pdfmanager = new PDFManager(file);
-		results = new ArrayList<Page>();
-		int numPages = pdfmanager.getNumPages();
-		Page p = parse(file.getName());
-		
+	public PA_UHC_Benefits(String s_date, String e_date) throws FileNotFoundException, IOException {
+		start_date = s_date;
+		end_date = e_date;
 	}
 	
 	public enum UHC_Benefits_Type {
 		ONE, TWO
 	}
 	
-	public Page parse(String filename) throws IOException {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		pdfmanager = new PDFManager(file);
+		int numPages = pdfmanager.getNumPages();
 		
 		UHC_Benefits_Type type;
 		String text = pdfmanager.ToText();
 		System.out.println(text);
-		Page page = new Page();
+		MedicalPage page = new MedicalPage();
 		page.plan_pdf_file_name = filename;
 		
 		text = text.replaceAll("\\s", ";");
@@ -170,7 +176,8 @@ public class PA_UHC_Benefits {
 			}
 		}
 		
- 		
-		return page;
+ 		ArrayList<Page> pages = new ArrayList<Page>();
+ 		pages.add(page);
+		return pages;
 	}
 }

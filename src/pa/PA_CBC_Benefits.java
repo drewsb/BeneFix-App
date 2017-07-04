@@ -2,19 +2,26 @@ package pa;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import components.PDFManager;
 import components.Page;
+import components.Parser;
+import components.MedicalPage;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class PA_CBC_Benefits {
+public class PA_CBC_Benefits implements Parser {
 
 	static String[] tokens;
 
 	static String text;
+	
+	String start_date;
+	
+	String end_date;
 
 	cbcType type;
 
@@ -22,14 +29,17 @@ public class PA_CBC_Benefits {
 		ONE, TWO, THREE, DEFAULT
 	}
 
-	public PA_CBC_Benefits(File file) throws IOException {
-		PDFManager pdfManager = new PDFManager();
-		pdfManager.setFilePath(file.getAbsolutePath());
-		text = pdfManager.ToText();
+	public PA_CBC_Benefits(String s_date, String e_date) {
+		start_date = s_date;
+		end_date = e_date;
 	}
 
 	@SuppressWarnings("unused")
-	public Page parse(String filename) {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		PDFManager pdfManager = new PDFManager();
+		pdfManager.setFilePath(file.getAbsolutePath());
+		text = pdfManager.ToText();
+		
 		this.tokens = text.split(" |\n"); // Split pdf text by spaces and
 											// new line chars
 //		 for(String s : tokens){
@@ -603,13 +613,16 @@ public class PA_CBC_Benefits {
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
 
-		Page new_page = new Page(carrier_id, carrier_plan_id, "", "", product_name, plan_pdf_file_name,
+		MedicalPage new_page = new MedicalPage(carrier_id, carrier_plan_id, "", "", product_name, plan_pdf_file_name,
 				deductible_indiv, deductible_family, oon_deductible_individual, oon_deductible_family, coinsurance,
 				dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay, rx_copay, rx_mail_copay,
 				oop_max_indiv, oop_max_family, oon_oop_max_individual, oon_oop_max_family, in_patient_hospital,
 				outpatient_diagnostic_lab, outpatient_surgery, outpatient_diagnostic_x_ray, outpatient_complex_imaging,
 				physical_occupational_therapy, "", service_zones, "", 0, non_tobacco_dict, tobacco_dict);
-		return new_page;
+		
+		ArrayList<Page> pages = new ArrayList<Page>();
+		pages.add(new_page);
+		return pages;
 	}
 
 	public String formatString(String input) {
