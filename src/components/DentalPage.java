@@ -75,6 +75,7 @@ public class DentalPage implements Page{
 		four_tier_f = "";
 	}
 	
+	@Override
 	public void printPage() {
 		System.out.println("Group: " + this.group);
 		System.out.println("Carrier: " + this.carrier);

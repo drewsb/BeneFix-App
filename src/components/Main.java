@@ -35,7 +35,7 @@ import javax.swing.UIManager;
 public class Main extends JPanel implements ActionListener {
 	private static final long serialVersionUID = 1L;
 	static private final String newline = "\n";
-	
+
 	JButton planButton, rateButton, parseButton, outputButton, compareButtonF1, compareButtonF2, compareButton,
 			tokenizeButton, clearButton;
 	JComboBox<String> typeBox;
@@ -66,7 +66,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> medicalCarriers;
 	HashMap<String, Set<String>> dentalCarriers;
 	HashMap<String, Set<String>> sourceCarriers;
-	
+
 	public enum Carrier {
 		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta
 	}
@@ -164,6 +164,10 @@ public class Main extends JPanel implements ActionListener {
 		String[] NJ_dental = {};
 		Set<String> NJ_dental_carriers = new HashSet<String>(Arrays.asList(NJ_dental));
 		dentalCarriers.put("NJ", NJ_dental_carriers);
+		
+		String[] OH_dental = {};
+		Set<String> OH_dental_carriers = new HashSet<String>(Arrays.asList(OH_dental));
+		dentalCarriers.put("OH", OH_dental_carriers);
 
 		String[] sheets = { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16",
 				"17", "18", "19", "20" };
@@ -325,7 +329,7 @@ public class Main extends JPanel implements ActionListener {
 				log.append("No files selected." + newline);
 				return;
 			}
-			
+
 			/*
 			 * Retrieve user inputs and set the according variables
 			 */
@@ -333,8 +337,9 @@ public class Main extends JPanel implements ActionListener {
 			checkCarrier();
 			checkPlan();
 
-			delegator = new Delegator(carrierType, planType, progress, selectedState, (String) dateBox.getSelectedItem(), selectedPlans,
-					selectedRates, selectedOutputs, log, progressBar);
+			delegator = new Delegator(carrierType, planType, progress, selectedState,
+					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log,
+					progressBar);
 			delegator.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(final PropertyChangeEvent event) {
@@ -443,17 +448,22 @@ public class Main extends JPanel implements ActionListener {
 			pages.clear();
 			log.append("Cleared files.\n");
 		} else if (e.getSource() == typeBox) {
-			String type = (String) typeBox.getSelectedItem();
-			if (type.equals("Medical")) {
+			checkState();
+			checkPlan();
+			switch (planType) {
+			case Medical:
 				this.sourceCarriers = medicalCarriers;
-			} else if (type.equals("Dental")) {
+				break;
+			case Dental:
 				this.sourceCarriers = dentalCarriers;
+				break;
 			}
-			String state = (String) stateBox.getSelectedItem();
 			carrierBox.removeAllItems();
-			Set<String> c = sourceCarriers.get(state);
-			for (String carrier : c) {
-				carrierBox.addItem(carrier);
+			Set<String> c = sourceCarriers.get(selectedState.toString());
+			if (!c.isEmpty()) {
+				for (String carrier : c) {
+					carrierBox.addItem(carrier);
+				}
 			}
 		}
 	}
@@ -569,7 +579,7 @@ public class Main extends JPanel implements ActionListener {
 	public static String removeFileExtension(String input) {
 		return input.substring(0, input.lastIndexOf("."));
 	}
-	
+
 	public static void main(String[] args) {
 		// Schedule a job for the event dispatch thread:
 		// creating and showing this application's GUI.
