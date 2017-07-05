@@ -3,6 +3,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 //import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
@@ -11,6 +12,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.Formatter;
 import components.MedicalPage;
 import components.Page;
 import components.Parser;
@@ -20,15 +22,11 @@ import components.Parser;
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
 public class PA_CBC_Rates implements Parser{
-	
-	Page page;
-	
-	int sheet_index;
-	
-	static ArrayList<MedicalPage> products;
-	
+		
 	Sheet sheet;
 	
+	static ArrayList<MedicalPage> products;
+		
 	static Iterator<Row> iterator;	
 	
 	static String start_date;
@@ -37,20 +35,19 @@ public class PA_CBC_Rates implements Parser{
 
 	private Workbook workbook;
 	
-	public PA_CBC_Rates(Page input_page, int s_index, String s_date, String e_date) throws IOException{
-		this.page = input_page;
+	public PA_CBC_Rates(String s_date, String e_date) throws IOException{
 		start_date = s_date;
 		end_date = e_date;
-		sheet_index = s_index;
 		products = new ArrayList<MedicalPage>();
     }
 	
 	@SuppressWarnings({ "unused", "incomplete-switch" })
 	public ArrayList<Page> parse(File file, String filename){	
+		ArrayList<Page> products = new ArrayList<Page>();
 		try {
             FileInputStream excelFile = new FileInputStream(file);
             workbook = new XSSFWorkbook(excelFile);
-            this.sheet = workbook.getSheetAt(sheet_index);
+            this.sheet = workbook.getSheetAt(0);
             iterator = sheet.iterator();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -58,100 +55,60 @@ public class PA_CBC_Rates implements Parser{
             e.printStackTrace();
         }
 		
-		
 		Cell cell;
+		StringBuilder temp;
 		int page_index = 1;
-		int carrier_id = 14;
-		int col_index = 2;
-		int row_index = 1;
-		Row r = sheet.getRow(7);
+		int carrier_id = 9;
+		int col_index = 1;
+		int row_index = 3;
+		Row r = sheet.getRow(row_index);
+        int numRows = getNumRows(sheet);
 		int numCols = r.getPhysicalNumberOfCells();
+		
 		String state = "PA";
 		
-		
-		row_index = 2;
-		col_index = 2;
-		r = sheet.getRow(row_index);
-		cell = r.getCell(col_index);
-    	String product = cell.getStringCellValue();
-		
-    	row_index = 6;
-    	while(col_index < numCols){
+        while(row_index < numRows){
+			r = sheet.getRow(row_index); 
 			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();		
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String plan_id = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String form_num = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String rating_area = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String counties = cell.getStringCellValue();
-			row_index++;
-			//String network = String.format("HIGHMARK-",cell.getStringCellValue());
-			String network = "HIGHMARK-Z";
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String metal = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String plan_name = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String deductible = "";
-			switch(cell.getCellTypeEnum()){
-			case STRING:
-				deductible = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				deductible = Double.toString(cell.getNumericCellValue());
-				break;
-			}
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String coinsurance = "";
-			switch(cell.getCellTypeEnum()){
-			case STRING:
-				coinsurance = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				coinsurance = Double.toString(cell.getNumericCellValue());
-				break;
-			}
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String copays = cell.getStringCellValue();
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String oop_maximum = "";
-			switch(cell.getCellTypeEnum()){
-			case STRING:
-				oop_maximum = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				oop_maximum = Double.toString(cell.getNumericCellValue());
-				break;
-			}
-			row_index+=2;
-			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			non_tobacco_dict.put("0-20", cell.getNumericCellValue());
-			cell = r.getCell(col_index+1);
-			tobacco_dict.put("0-20", cell.getNumericCellValue());
+			
+			cell = r.getCell(col_index++);
+			String plan_id = getCellValue(cell);
+			
+			cell = r.getCell(col_index);
+			String product = getCellValue(cell);
+			
+			cell = r.getCell(col_index+=6);
+			String rating_area = getCellValue(cell);
+			
+			cell = r.getCell(++col_index);
+			System.out.println(row_index);
+			System.out.println(col_index);
+			temp = new StringBuilder(getCellValue(cell));
+			non_tobacco_dict.put("0-20", Double.parseDouble(Formatter.formatValue(temp).toString()));
+			
+			cell = r.getCell(col_index+=3);
 			for(int i = 21; i < 65; i++){
-				r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-				non_tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
-				cell = r.getCell(col_index+1);
-				tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
+				temp = new StringBuilder(getCellValue(cell));
+				non_tobacco_dict.put(Integer.toString(i), Double.parseDouble(Formatter.formatValue(temp).toString()));
+				cell = r.getCell(++col_index);
 			}
-			non_tobacco_dict.put("65+", cell.getNumericCellValue());
-			cell = r.getCell(col_index+1);
-			tobacco_dict.put("65+", cell.getNumericCellValue());	
-			page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
-					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
-					"", "", "", "", "", "", "", rating_area, "", state, page_index, 
-					non_tobacco_dict, tobacco_dict);
-        	col_index+=2;
-    		row_index = 6;
-        	page_index++;
+			non_tobacco_dict.put("65+", Double.parseDouble(Formatter.formatValue(temp).toString()));
+			
+			for(Map.Entry<String, Double> entry : non_tobacco_dict.entrySet()){
+				System.out.println(entry.getKey());
+				System.out.println(entry.getValue());
+			}
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
+					"", "", "", "", "", "", "", "", "", "", "", "", "", "",
+					"", "", "", "", "", "", "", rating_area, "", state, row_index-3, non_tobacco_dict, tobacco_dict);
+			products.add(page);
+			
+			page.printPage();
+        	col_index = 1;
+    		row_index++;
         }
-
-    	ArrayList<Page> pages = new ArrayList<Page>();
-    	pages.add(page);
-        return pages;
+        return products;
 	}
 
 	

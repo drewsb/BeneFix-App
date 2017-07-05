@@ -177,7 +177,6 @@ public class ExcelWriter {
 				cell = row.createCell(colCount++);
 				cell.setCellValue(p.non_tobacco_dict.get("0-20"));
 				for (int i = 0; i < max_age - 21; i++) {
-					System.out.println("hey made it this far");
 					cell = row.createCell(colCount++);
 					String index = String.format("%d", i + 21);
 					cell.setCellValue(p.non_tobacco_dict.get(index));

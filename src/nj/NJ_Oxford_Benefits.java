@@ -1,14 +1,12 @@
 package nj;
 
 import java.io.File;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import components.PDFManager;
-import components.Page;
-import components.Parser;
-import components.MedicalPage;
+import components.*;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
@@ -281,29 +279,11 @@ public class NJ_Oxford_Benefits implements Parser {
 	}
 
 	public StringBuilder formatString(StringBuilder input) {
-		input = removeString(input, "covered");
-		input = removeString(input, "Not");
-		input = removeString(input, "Urgent");
-		input = removeString(input, "Emergency");
-		input = removeString(input, ",");
-		input = removeString(input, ".");
-		input = removeString(input, "*");
-		input = removeString(input, "person");
-		input = removeString(input, "copay");
-		input = removeString(input, "per");
-		input = removeString(input, "visit");
-		input = removeString(input, "Individual");
-		input = removeString(input, "Free Standing Provider");
-		input = removeString(input, "service");
-		input = removeString(input, "Rehabilitation");
-		input = removeString(input, "outpatient");
-		input = removeString(input, "Diagnostic");
-		input = removeString(input, "after");
-		input = removeString(input, "ded");
-		input = removeString(input, "admission");
-		input = removeString(input, "co-ins");
+		String[] delims = {"covered", "Not", "Urgent", "Emergency", ",",".", "*", "person", "copay", "per", "visit", "Individual",
+				"Free Standing Provider", "service", "Rehabilitation", "outpatient", "Diagnostic", "after", "ded", "admission", "co-ins"};
+		input = Formatter.removeStrings(input, delims);
 		if (!input.toString().equals("N/A")) {
-			input = removeString(input, "/");
+			input = Formatter.removeString(input, "/");
 		}
 		if (input.length() > 0) {
 			if (input.charAt(0) == ' ') {
@@ -346,13 +326,8 @@ public class NJ_Oxford_Benefits implements Parser {
 	}
 
 	public StringBuilder formatInpatientHospital(StringBuilder s) {
-		s = removeString(s, "Not");
-		s = removeString(s, "covered");
-		s = removeString(s, "ded");
-		s = removeString(s, "co-ins");
-		s = removeString(s, "after");
-		s = removeString(s, ".");
-		s = removeString(s, "Facility");
+		String[] delims = {"Not", "covered", "ded", "co-ins", "after", ".", "Facility"};
+		s = Formatter.removeStrings(s,delims);
 		System.out.println(s);
 		char[] arr = s.toString().toCharArray();
 		char c = arr[0];
@@ -368,13 +343,5 @@ public class NJ_Oxford_Benefits implements Parser {
 		return s;
 	}
 
-	public StringBuilder removeString(StringBuilder s, String r) {
-		while (s.indexOf(r) != -1) {
-			int index = s.indexOf(r);
-			s.replace(index, index + r.length(), "");
-		}
-		return s;
-
-	}
 
 }

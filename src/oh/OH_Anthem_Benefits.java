@@ -91,7 +91,7 @@ public class OH_Anthem_Benefits implements Parser{
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
 		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
-		while (row_index < 2) {
+		while (row_index < numRows) {
 			r = sheet.getRow(row_index);
 
 			// Contract code
@@ -247,20 +247,6 @@ public class OH_Anthem_Benefits implements Parser{
 		// p.printPage();
 		// }
 		return plans;
-	}
-
-	public String getCellValue(Cell cell) {
-		if (cell == null) {
-			return "";
-		}
-		switch (cell.getCellTypeEnum()) {
-		case NUMERIC:
-			return Double.toString(cell.getNumericCellValue());
-		case STRING:
-			return cell.getStringCellValue();
-		default:
-			return null;
-		}
 	}
 	
 	public String formatString(String s, String temp_coins){

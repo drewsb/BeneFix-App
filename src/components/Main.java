@@ -247,9 +247,9 @@ public class Main extends JPanel implements ActionListener {
 		add(logScrollPane, BorderLayout.SOUTH);
 
 		// Remember to delete default settings
-		dateBox.setSelectedItem("Q3");
-		stateBox.setSelectedItem("OH");
-		carrierBox.setSelectedItem("Anthem");
+		dateBox.setSelectedItem("Q4");
+		stateBox.setSelectedItem("PA");
+		carrierBox.setSelectedItem("CBC");
 		typeBox.setSelectedItem("Medical");
 	}
 

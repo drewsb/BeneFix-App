@@ -113,4 +113,8 @@ public class DentalPage implements Page{
 		System.out.println("Four Tier EC: " + this.four_tier_ec);
 		System.out.println("Four Tier F: " + this.four_tier_f);
 	}
+	
+	public void format(){
+		
+	}
 }
