@@ -157,7 +157,7 @@ public class Main extends JPanel implements ActionListener {
 		Set<String> OHcarriers = new HashSet<String>(Arrays.asList(OHcorps));
 		medicalCarriers.put("OH", OHcarriers);
 
-		String[] PA_dental = { "Delta" };
+		String[] PA_dental = { "Delta", "Oxford" };
 		Set<String> PA_dental_carriers = new HashSet<String>(Arrays.asList(PA_dental));
 		dentalCarriers.put("PA", PA_dental_carriers);
 

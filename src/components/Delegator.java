@@ -270,6 +270,18 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					break;
 				}
 			case Dental:
+				switch(state) {
+				case NJ:
+					break;
+				case PA:
+					switch (carrierType) {
+					case Delta:
+						return new PA_Delta_Dental_Benefits();
+					case Oxford:
+						return new PA_Oxford_Dental_Benefits();
+					}
+					break;
+				}
 				break;
 			case Vision:
 				break;
@@ -305,6 +317,10 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					}
 					break;
 				case NJ:
+					switch (carrierType) {
+					case Horizon:
+						return new NJ_Horizon_Rates();
+					}
 					/*
 					 * Needs to fit format of this program and use excel writer
 					 * return NJ_All_Carriers_Rates(start_date,end_date);
@@ -318,6 +334,12 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					break;
 				}
 			case Dental:
+				switch(state) {
+				case PA:
+					break;
+				case NJ:
+					break;
+				}
 				break;
 			case Vision:
 				break;
