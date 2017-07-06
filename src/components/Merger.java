@@ -75,12 +75,13 @@ public class Merger {
 		DataFormatter df = new DataFormatter();
 		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
 		Map<Integer, String> rx_map = new HashMap<Integer, String>();
-		for (int i = 0; i <= numBenefits; i++) {
+		for (int i = 1; i <= numBenefits; i++) {
 			XSSFRow row = benefits_sheet.getRow(i);
 			XSSFCell cell = row.getCell(4);
 			String plan = cell.getStringCellValue().toLowerCase();
 			plan = plan.replaceAll(",", "");
 			benefits_map.put(i, plan);
+			System.out.println("Plan: " + plan);
 			XSSFCell rx_cell = row.getCell(15);
 			String rx_val = df.formatCellValue(rx_cell);
 			rx_map.put(i, rx_val);
@@ -89,7 +90,7 @@ public class Merger {
 		int numRows = sheet.getLastRowNum();
 		for (int i = 1; i <= numRows; i++) {
 			XSSFRow row = sheet.getRow(i);
-			XSSFCell cell = row.getCell(2);
+			XSSFCell cell = row.getCell(4);
 			if (cell == null) {
 				break;
 			}
@@ -98,12 +99,12 @@ public class Merger {
 			System.out.println("Testing..." + name + " at line " + i);
 			String[] tokens = name.split(" ");
 			boolean matched = false;
-			for (int k = 0; k <= numBenefits; k++) {
+			for (int k = 1; k <= numBenefits; k++) {
 				String s = benefits_map.get(k);
 				String rx_copay_str = rx_map.get(k);
-				if (matchesHorizon(s, tokens, rx_copay_str)) {
+ 				if (matchesHorizon(s, tokens, rx_copay_str)) {
 					System.out.println("matched with: " + s);
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0, Carrier.Horizon);
+					Page p = mergeMedical(master, benefits, i, k);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -123,28 +124,37 @@ public class Merger {
 		master.close();
 		benefits.close();
 		
-		
 		return result;
 	}
 	
 	public static boolean matchesHorizon(String str, String[] tokens, String rx_copay) {
+//		System.out.println("String to match: " + str);
 		for (int i = 0; i < tokens.length; i++) {
 			String token = tokens[i];
 			if (token.contains("/")) {
-				String[] token_comps = token.split("/");
-				for (int j = 0; j < token_comps.length; j++) {
-					if (!str.contains(token_comps[j])) {
-						return false;
+				if (token.contains("(g")) {
+					return true;
+				} else {
+					String[] token_comps = token.split("/");
+					for (int j = 0; j < token_comps.length; j++) {
+						if (!str.contains(token_comps[j])) {
+//							System.out.println("Fails on split: " + token_comps[j]);
+							return false;
+						}
 					}
 				}
 			} else if (token.equals("bluecard")) {
 				if (!str.contains("bluecard") && !str.contains("blue card")) {
+//					System.out.println("Fails on bluecard");
 					return false;
 				} else {
 					i++;
 				}
-			} else {
+			} else if (token.contains("p") && token.contains(")")) {
+				return true;
+			}else {
 				if (!str.contains(token)) {
+//					System.out.println("Fails on " + token);
 					return false;
 				}
 			}
@@ -1043,6 +1053,32 @@ public class Merger {
 	    BigDecimal bd = new BigDecimal(value);
 	    bd = bd.setScale(decimal_place, RoundingMode.HALF_UP);
 	    return bd.doubleValue();
+	}
+	
+	public static Page mergeMedical(XSSFWorkbook rates, XSSFWorkbook benefits, int rates_line, int benefits_line) {
+		DataFormatter df = new DataFormatter();
+		Page page = new MedicalPage();
+		XSSFSheet ratesSheet = rates.getSheetAt(0);
+		XSSFSheet benefitsSheet = benefits.getSheetAt(0);
+		XSSFRow ratesRow = ratesSheet.getRow(rates_line);
+		XSSFRow benefitsRow = benefitsSheet.getRow(benefits_line);
+		
+		for (int i = 6; i < 27; i++) {
+			XSSFCell ratesCell = ratesRow.getCell(i);
+			XSSFCell benefitsCell = benefitsRow.getCell(i);
+			
+			String data = "";
+			if (benefitsCell.getCellTypeEnum() == CellType.NUMERIC) {
+				data = Formatter.formatValue(df.formatCellValue(benefitsCell));
+			} else {
+				data = benefitsCell.getStringCellValue();
+			}
+			
+			ratesCell.setCellValue(data);
+		}
+		
+		
+		return page;
 	}
 	
 	

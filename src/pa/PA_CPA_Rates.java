@@ -1,5 +1,6 @@
 package pa;
 import java.io.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,8 +9,6 @@ import java.util.Map;
 //import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -64,8 +63,6 @@ public class PA_CPA_Rates implements Parser{
         int numRows = sheet.getPhysicalNumberOfRows();
 		int numCols = r.getPhysicalNumberOfCells();
 		
-    	String start_date = "07/01/2017";
-		String end_date = "9/30/2017";
 		String state = "PA";
 		
         while(col_index < numCols){

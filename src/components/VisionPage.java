@@ -7,5 +7,9 @@ public class VisionPage implements Page {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
+	
+	public void format(){
+		
+	}
 }

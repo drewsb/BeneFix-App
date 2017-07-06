@@ -295,7 +295,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case Aetna:
 						return new PA_Aetna_Rates(start_date,end_date);
 					case UPMC:
-						//Need to finish
+						//Need to be finished
 						//return new PA_UPMC_Rates(start_date,end_date);
 						break;
 					case CPA:
@@ -307,7 +307,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case IBC:
 						return new PA_IBC_Rates(start_date,end_date);
 					case CBC:
-						return new PA_CBC_Benefits(start_date,end_date);
+						return new PA_CBC_Rates(start_date,end_date);
 					case Geisinger:
 						//Needs to be finished
 						//return new PA_Geisinger_Rates(start_date,end_date);

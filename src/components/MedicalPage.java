@@ -162,7 +162,11 @@ public class MedicalPage implements Comparable, Page {
 		for( Map.Entry<String, Double> key : this.tobacco_dict.entrySet()){
 			System.out.printf("Key: %s  |  Value: %.2f\n", key.getKey(), key.getValue());
 		}
-
+	}
+	
+	public void format(){
+		Formatter.removeCommas(new StringBuilder(deductible_indiv)).toString();
+		Formatter.removeCommas(new StringBuilder(coinsurance)).toString();
 	}
 
 	@Override
