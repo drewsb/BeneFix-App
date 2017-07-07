@@ -164,7 +164,7 @@ public class Main extends JPanel implements ActionListener {
 		String[] NJ_dental = {};
 		Set<String> NJ_dental_carriers = new HashSet<String>(Arrays.asList(NJ_dental));
 		dentalCarriers.put("NJ", NJ_dental_carriers);
-		
+
 		String[] OH_dental = {};
 		Set<String> OH_dental_carriers = new HashSet<String>(Arrays.asList(OH_dental));
 		dentalCarriers.put("OH", OH_dental_carriers);
@@ -312,7 +312,7 @@ public class Main extends JPanel implements ActionListener {
 				log.append("Output file: Tokens.xlsx");
 				log.setCaretPosition(log.getDocument().getLength());
 			} else if (!selectedRates.isEmpty()) {
-				Tokenizer tokenizer = new Tokenizer(selectedPlans);
+				Tokenizer tokenizer = new Tokenizer(selectedRates);
 				try {
 					tokenizer.tokenize();
 				} catch (IOException e1) {
@@ -478,7 +478,13 @@ public class Main extends JPanel implements ActionListener {
 		}
 		try {
 			if (pages.size() > 1) {
-				filename = String.format("%s_%s_%s", carrierType.toString(), (String) dateBox.getSelectedItem(), year);
+				if (selectedState.equals(State.CA)) {
+					filename = String.format("%s_%s_%s", selectedState.toString(), (String) dateBox.getSelectedItem(),
+							year);
+				} else {
+					filename = String.format("%s_%s_%s_%s", selectedState.toString(), carrierType.toString(),
+							(String) dateBox.getSelectedItem(), year);
+				}
 			} else {
 				filename = removeFileExtension(selectedPlans.get(0).getName());
 			}

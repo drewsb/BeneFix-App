@@ -7,13 +7,14 @@ import java.util.ArrayList;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Row;
 
 public interface Parser {
 	
-	public ArrayList<Page> parse(File file, String filename) throws EncryptedDocumentException, InvalidFormatException, IOException;
+	public ArrayList<Page> parse(File file, String filename) throws EncryptedDocumentException, InvalidFormatException, IOException, OpenXML4JException;
 	
 	
 	/*
@@ -54,8 +55,14 @@ public interface Parser {
 		while(getCellValue(cell).isEmpty()){
 			r = sheet.getRow(row_index++);  cell = r.getCell(col_index);
 		}
+		System.out.println(row_index);
 		while(getCellValue(cell) != null){
-			r = sheet.getRow(row_index++);  cell = r.getCell(col_index);
+			System.out.println(row_index);
+			r = sheet.getRow(row_index++);  
+			if(r == null){
+				return row_index;
+			}
+			cell = r.getCell(col_index);
 			if(cell == null){
 				return row_index;
 			}
