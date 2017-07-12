@@ -16,29 +16,17 @@ public class PA_Geisinger_Rates {
 	int page_counter = 0;
 
 	static String file_name = "pdf.txt";
-
 	static String text; 
-
 	static ArrayList<Page> products = new ArrayList<Page>();
-
 	static String[] pdfPagesText;
-
 	static int numPages;
-
 	static String start_date;
-
 	static String end_date;
-
 	static ArrayList<ArrayList<String>> tokenPages;
-
 	static String start_page_string, end_page_string;
-
 	static Integer start_page, end_page;
-
 	static components.PDFManager pdfManager;
-
 	public PA_Geisinger_Rates() throws IOException {}
-
 	static Integer number_of_age_bands = 46;
 
 	// rating area dictionaries
