@@ -1,5 +1,6 @@
 package pa;
 import java.io.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -8,21 +9,23 @@ import java.util.Map;
 //import org.apache.poi.sl.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.MedicalPage;
 import components.Page;
+import components.Parser;
 
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class PA_CPA_Rates {
+public class PA_CPA_Rates implements Parser{
 	
 	static ArrayList<Page> products;
+	
+	static int sheet_index;
 	
 	static Sheet sheet;
 	
@@ -32,10 +35,14 @@ public class PA_CPA_Rates {
 	
 	static String end_date;
 	
-	public PA_CPA_Rates(File file, int sheet_index, String s_date, String e_date) throws IOException{
+	public PA_CPA_Rates(int sheet_index, String s_date, String e_date) throws IOException{
 		start_date = s_date;
 		end_date = e_date;
 		products = new ArrayList<Page>();
+	
+    }
+	
+	public ArrayList<Page> parse(File file, String filename){
 		try {
             FileInputStream excelFile = new FileInputStream(file);
             Workbook workbook = new XSSFWorkbook(excelFile);
@@ -47,9 +54,6 @@ public class PA_CPA_Rates {
             e.printStackTrace();
         }
 
-    }
-	
-	public ArrayList<Page> parse(){
 		Cell cell;
 		int page_index = 1;
 		int carrier_id = 9;
@@ -59,8 +63,6 @@ public class PA_CPA_Rates {
         int numRows = sheet.getPhysicalNumberOfRows();
 		int numCols = r.getPhysicalNumberOfCells();
 		
-    	String start_date = "07/01/2017";
-		String end_date = "9/30/2017";
 		String state = "PA";
 		
         while(col_index < numCols){
@@ -77,7 +79,7 @@ public class PA_CPA_Rates {
 			String form_num = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String rating_area = cell.getStringCellValue();
-			rating_area = rating_area.substring(5, rating_area.length());
+			//rating_area = rating_area.substring(0, rating_area.length());
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String network = String.format("HIGHMARK-%s",cell.getStringCellValue());
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
@@ -124,7 +126,7 @@ public class PA_CPA_Rates {
 				System.out.println(entry.getKey());
 				System.out.println(entry.getValue());
 			}
-			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 	        products.add(page);

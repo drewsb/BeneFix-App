@@ -8,15 +8,20 @@ import java.util.HashMap;
 
 import components.PDFManager;
 import components.Page;
+import components.Parser;
+import components.MedicalPage;
+
+
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
+ * NEEDS TO BE FINISHED
  */
-public class PA_IBC_Rates {
+public class PA_IBC_Rates implements Parser {
 
 	static String text;
 
-	static Page[] pages;
+	static ArrayList<Page> pages;
 
 	static int numPages;
 
@@ -24,17 +29,19 @@ public class PA_IBC_Rates {
 
 	static String end_date;
 
-	public PA_IBC_Rates(File file, String s_date, String e_date) throws IOException {
+	public PA_IBC_Rates(String s_date, String e_date) throws IOException {
 		start_date = s_date;
 		end_date = e_date;
-		components.PDFManager pdfManager = new components.PDFManager();
+	}
+
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		pages = new ArrayList<Page>();
+		PDFManager pdfManager = new components.PDFManager();
 		pdfManager.setFilePath(file.getAbsolutePath());
 		text = pdfManager.ToText();
 		numPages = pdfManager.getNumPages();
-		pages = new Page[numPages];
-	}
-
-	public Page parse() {
+		
+		
 		String[] tokens = text.split(" |\n"); // Split pdf text by spaces and
 												// new line chars
 		int token_length = tokens.length;

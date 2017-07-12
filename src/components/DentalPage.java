@@ -1,6 +1,6 @@
 package components;
 
-public class DentalPage {
+public class DentalPage implements Page{
 	public String group;
 	public String carrier;
 	public int carrier_id;
@@ -75,6 +75,7 @@ public class DentalPage {
 		four_tier_f = "";
 	}
 	
+	@Override
 	public void printPage() {
 		System.out.println("Group: " + this.group);
 		System.out.println("Carrier: " + this.carrier);
@@ -111,5 +112,9 @@ public class DentalPage {
 		System.out.println("Four Tier EA: " + this.four_tier_ea);
 		System.out.println("Four Tier EC: " + this.four_tier_ec);
 		System.out.println("Four Tier F: " + this.four_tier_f);
+	}
+	
+	public void format(){
+		
 	}
 }

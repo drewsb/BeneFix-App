@@ -17,6 +17,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import components.Main.Carrier;
 import components.PDFManager;
 
+/*
+ * NEEDS TO BE CHANGED
+ * Must use excel writer class in main
+ */
 public class NJ_All_Carriers_Rates {
 	
 	PDFManager pdfmanager;

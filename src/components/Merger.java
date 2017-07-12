@@ -1,6 +1,7 @@
 package components;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,7 +25,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import components.Main.Carrier;
 
 public class Merger {
-	
 	/*
 	 * This class only handles single page Excel sheets, issues occur when giving it a multi-sheet Excel file and attempting to 
 	 * select the correct sheet.
@@ -34,16 +34,16 @@ public class Merger {
 		ArrayList<Page> result;
 		switch (carrier) {
 		case AmeriHealth: 
-			result = mergeAmeriHealthSpreadsheets(path1, path2, Carrier.AmeriHealth);
+			result = mergeAmeriHealthSpreadsheets(path1, path2);
 			break;
 		case Oxford:
-			result = mergeOxfordSpreadsheets(path1, path2, Carrier.Oxford);
+			result = mergeOxfordSpreadsheets(path1, path2);
 			break;
 		case Aetna:
-			result = mergeAetnaSpreadsheets(path1, path2, Carrier.Aetna);
+			result = mergeAetnaSpreadsheets(path1, path2);
 			break;
 		case Horizon:
-			result = mergeHorizonSpreadsheets(path1, path2, Carrier.Horizon);
+			result = mergeHorizonSpreadsheets(path1, path2);
 			break;
 		default:
 			result = new ArrayList<Page>();
@@ -51,7 +51,7 @@ public class Merger {
 		return result;
 	}
 	
-	public static ArrayList<Page> mergeHorizonSpreadsheets(String path1, String path2, Carrier carrier) throws IOException {
+	public static ArrayList<Page> mergeHorizonSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
@@ -75,12 +75,13 @@ public class Merger {
 		DataFormatter df = new DataFormatter();
 		Map<Integer, String> benefits_map = new HashMap<Integer, String>();
 		Map<Integer, String> rx_map = new HashMap<Integer, String>();
-		for (int i = 0; i <= numBenefits; i++) {
+		for (int i = 1; i <= numBenefits; i++) {
 			XSSFRow row = benefits_sheet.getRow(i);
 			XSSFCell cell = row.getCell(4);
 			String plan = cell.getStringCellValue().toLowerCase();
 			plan = plan.replaceAll(",", "");
 			benefits_map.put(i, plan);
+			System.out.println("Plan: " + plan);
 			XSSFCell rx_cell = row.getCell(15);
 			String rx_val = df.formatCellValue(rx_cell);
 			rx_map.put(i, rx_val);
@@ -89,7 +90,7 @@ public class Merger {
 		int numRows = sheet.getLastRowNum();
 		for (int i = 1; i <= numRows; i++) {
 			XSSFRow row = sheet.getRow(i);
-			XSSFCell cell = row.getCell(2);
+			XSSFCell cell = row.getCell(4);
 			if (cell == null) {
 				break;
 			}
@@ -98,12 +99,12 @@ public class Merger {
 			System.out.println("Testing..." + name + " at line " + i);
 			String[] tokens = name.split(" ");
 			boolean matched = false;
-			for (int k = 0; k <= numBenefits; k++) {
+			for (int k = 1; k <= numBenefits; k++) {
 				String s = benefits_map.get(k);
 				String rx_copay_str = rx_map.get(k);
-				if (matchesHorizon(s, tokens, rx_copay_str)) {
+ 				if (matchesHorizon(s, tokens, rx_copay_str)) {
 					System.out.println("matched with: " + s);
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0, carrier);
+					Page p = mergeMedical(master, benefits, i, k);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -123,28 +124,37 @@ public class Merger {
 		master.close();
 		benefits.close();
 		
-		
 		return result;
 	}
 	
 	public static boolean matchesHorizon(String str, String[] tokens, String rx_copay) {
+//		System.out.println("String to match: " + str);
 		for (int i = 0; i < tokens.length; i++) {
 			String token = tokens[i];
 			if (token.contains("/")) {
-				String[] token_comps = token.split("/");
-				for (int j = 0; j < token_comps.length; j++) {
-					if (!str.contains(token_comps[j])) {
-						return false;
+				if (token.contains("(g")) {
+					return true;
+				} else {
+					String[] token_comps = token.split("/");
+					for (int j = 0; j < token_comps.length; j++) {
+						if (!str.contains(token_comps[j])) {
+//							System.out.println("Fails on split: " + token_comps[j]);
+							return false;
+						}
 					}
 				}
 			} else if (token.equals("bluecard")) {
 				if (!str.contains("bluecard") && !str.contains("blue card")) {
+//					System.out.println("Fails on bluecard");
 					return false;
 				} else {
 					i++;
 				}
-			} else {
+			} else if (token.contains("p") && token.contains(")")) {
+				return true;
+			}else {
 				if (!str.contains(token)) {
+//					System.out.println("Fails on " + token);
 					return false;
 				}
 			}
@@ -153,7 +163,7 @@ public class Merger {
 		return true;
 	}
 	
-	public static ArrayList<Page> mergeAetnaSpreadsheets(String path1, String path2, Carrier carrier) throws IOException {
+	public static ArrayList<Page> mergeAetnaSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
@@ -205,7 +215,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesAetna(s, tokens, rx_copay_str)) {
 					System.out.println("matched with: " + s);
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0, carrier);
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0, Carrier.Aetna);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -255,7 +265,7 @@ public class Merger {
 	}
 	
 	
-	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2, Carrier carrier) throws IOException {
+	public static ArrayList<Page> mergeOxfordSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
 		FileInputStream master_fis = new FileInputStream(path1);
 		FileInputStream benefits_fis = new FileInputStream(path2);
@@ -303,7 +313,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesOxford(s, tokens, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0, carrier);
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0, Carrier.Oxford);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -359,7 +369,7 @@ public class Merger {
 		return true;
 	}
  	
-	public static ArrayList<Page> mergeAmeriHealthSpreadsheets(String path1, String path2, Carrier carrier) throws IOException {
+	public static ArrayList<Page> mergeAmeriHealthSpreadsheets(String path1, String path2) throws IOException {
 		ArrayList<Page> result = new ArrayList<Page>();
 		
 		HashMap<String, Set<String>> map = initAmerihealthMap();
@@ -412,7 +422,7 @@ public class Merger {
 				String rx_copay_str = rx_map.get(k);
 				if (matchesAmerihealth(s, tokens, map, rx_copay_str)) {
 					System.out.println("matched!");
-					Page p = mergeSheets(benefits, master, k, i, 0 , 0, carrier);
+					Page p = mergeSheets(benefits, master, k, i, 0 , 0, Carrier.AmeriHealth);
 					result.add(p);		
 					matched = true;
 					cell.setCellStyle(noHighlighter);
@@ -902,7 +912,9 @@ public class Merger {
         rates_cell = rates_row.getCell(rates_base_column);
         non_tob_dict.put("65+", round(rates_cell.getNumericCellValue(), 2));
         
-        Page page = new Page(carrier_id, "", start_date, end_date, product_name, "",
+        
+        
+        Page page = new MedicalPage(carrier_id, "", "", "", product_name, "",
     			deductible_indiv, deductible_family, oon_deductible_indiv, oon_deductible_family,
     	coinsurance, dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay,
     	rx_copay, rx_mail_copay, oop_max_indiv, oop_max_family, oon_oop_max_indiv,
@@ -914,6 +926,127 @@ public class Merger {
 		return page;
 	}
 	
+	public static void compareAetnaWorkbooks(String path1, String path2) throws IOException {
+		System.out.println(path1 + " " + path2);
+		final String output = path1;
+		final String otherWorkbook = path2;
+		FileInputStream fis = new FileInputStream(output);
+		FileInputStream fis2 = new FileInputStream(otherWorkbook);
+		XSSFWorkbook workbook = new XSSFWorkbook(fis);
+		XSSFWorkbook workbook2 = new XSSFWorkbook(fis2);
+
+		XSSFColor xred = new XSSFColor(new java.awt.Color(240, 128, 128));
+		XSSFColor xgreen = new XSSFColor(new java.awt.Color(0, 255, 127));
+		XSSFColor xblue = new XSSFColor(new java.awt.Color(135, 206, 250));
+
+		XSSFCellStyle style1 = workbook2.createCellStyle();
+		style1.setFillForegroundColor(xred);
+		style1.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		XSSFCellStyle style2 = workbook.createCellStyle();
+		style2.setFillForegroundColor(xgreen);
+		style2.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		XSSFCellStyle style2a = workbook2.createCellStyle();
+		style2a.cloneStyleFrom(style2);
+		style2a.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+		XSSFCellStyle style3 = workbook.createCellStyle();
+		style3.setFillForegroundColor(xblue);
+		style3.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+		XSSFCellStyle noHighlight = workbook.createCellStyle();
+		noHighlight.setFillPattern(FillPatternType.NO_FILL);
+		XSSFCellStyle noHighlight2 = workbook2.createCellStyle();
+		noHighlight2.cloneStyleFrom(noHighlight);
+
+		XSSFSheet sheet = workbook.getSheetAt(0);
+		XSSFSheet srcSheet = workbook2.getSheetAt(0);
+		int numRows = srcSheet.getLastRowNum();
+		int index = 1;
+		System.out.println("Numrows: " + srcSheet.getLastRowNum());
+		for (int i = 1; i <= numRows; i++) {
+			System.out.println("First index: " + index + " Second index: " + i);
+			XSSFRow row = sheet.getRow(index);
+			XSSFRow srcRow = srcSheet.getRow(i);
+			XSSFCell cell = row.getCell(0);
+			XSSFCell cell2 = srcRow.getCell(0);
+			String productName = cell.getStringCellValue().toLowerCase().replaceAll("\\s", "");
+			String productName2 = cell2.getStringCellValue().toLowerCase().replaceAll("\\s", "");
+			if (productName2.contains("(6)") || productName2.contains("(7)")) {
+				productName2 = productName2.substring(0, productName2.length() - 3);
+			}
+			String ratingarea1;
+			if (row.getCell(1).getCellTypeEnum() == CellType.STRING) {
+				ratingarea1 = row.getCell(1).getStringCellValue().substring(5);
+
+			} else {
+				System.out.println(row.getCell(1).getNumericCellValue());
+				ratingarea1 = Integer.toString((int) row.getCell(1).getNumericCellValue()).substring(5);
+			}
+			System.out.println(ratingarea1);
+			productName = productName + ratingarea1;
+			String ratingarea2 = Integer.toString((int) srcRow.getCell(1).getNumericCellValue()).substring(2);
+			productName2 = productName2 + ratingarea2;
+			System.out.println("Name 1: " + productName + " , Name 2: " + productName2);
+
+			int result = productName.compareTo(productName2);
+			System.out.println("Compare to result: " + result);
+			if (result == 0) {
+				// 49
+				cell.setCellStyle(noHighlight);
+				cell2.setCellStyle(noHighlight2);
+				System.out.println("Reaches here");
+				for (int j = 2; j < 49; j++) {
+					XSSFCell c1 = row.getCell(j);
+					XSSFCell c2 = srcRow.getCell(j);
+					System.out.println("Index: " + j);
+					if (c1.getNumericCellValue() != c2.getNumericCellValue()) {
+						c1.setCellStyle(style2);
+						c2.setCellStyle(style2a);
+					} else {
+						c1.setCellStyle(noHighlight);
+						c2.setCellStyle(noHighlight2);
+					}
+				}
+				index++;
+			} else if (result > 0) {
+				System.out.println("Reaches here instead");
+				cell2.setCellStyle(style1);
+			} else {
+				System.out.println("Reaches here thirdly");
+				i--;
+				index++;
+				cell.setCellStyle(style3);
+				System.out.println(cell.getCellStyle().getFillForegroundXSSFColor().getARGB()); // .getFillBackgroundXSSFColor().getRGB()[2]
+			}
+		}
+		if (index < sheet.getLastRowNum()) {
+			for (int i = index; i < sheet.getLastRowNum(); i++) {
+				// Highlight the remaining cells
+				XSSFRow c1row = sheet.getRow(i);
+				c1row.getCell(0).setCellStyle(style3);
+			}
+		}
+		FileOutputStream outputStream;
+		FileOutputStream outputStream2;
+		try {
+			outputStream = new FileOutputStream(output);
+			outputStream2 = new FileOutputStream(otherWorkbook);
+			workbook.write(outputStream);
+			workbook2.write(outputStream2);
+			outputStream.flush();
+			outputStream2.flush();
+			outputStream.close();
+			outputStream2.close();
+			fis.close();
+			fis2.close();
+			workbook.close();
+			workbook2.close();
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+	
 	public static double round(double value, int decimal_place) {
 	    if (decimal_place < 0) 
 	    	throw new IllegalArgumentException();
@@ -922,6 +1055,31 @@ public class Merger {
 	    return bd.doubleValue();
 	}
 	
+	public static Page mergeMedical(XSSFWorkbook rates, XSSFWorkbook benefits, int rates_line, int benefits_line) {
+		DataFormatter df = new DataFormatter();
+		Page page = new MedicalPage();
+		XSSFSheet ratesSheet = rates.getSheetAt(0);
+		XSSFSheet benefitsSheet = benefits.getSheetAt(0);
+		XSSFRow ratesRow = ratesSheet.getRow(rates_line);
+		XSSFRow benefitsRow = benefitsSheet.getRow(benefits_line);
+		
+		for (int i = 6; i < 27; i++) {
+			XSSFCell ratesCell = ratesRow.getCell(i);
+			XSSFCell benefitsCell = benefitsRow.getCell(i);
+			
+			String data = "";
+			if (benefitsCell.getCellTypeEnum() == CellType.NUMERIC) {
+				data = Formatter.formatValue(df.formatCellValue(benefitsCell));
+			} else {
+				data = benefitsCell.getStringCellValue();
+			}
+			
+			ratesCell.setCellValue(data);
+		}
+		
+		
+		return page;
+	}
 	
 	
 }

@@ -1,29 +1,37 @@
 package nj;
 
 import java.io.File;
+
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-import components.PDFManager;
-import components.Page;
+import components.*;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class NJ_Oxford_Benefits {
+public class NJ_Oxford_Benefits implements Parser {
 
 	static String[] tokens;
 
 	static String text;
+	
+	static String start_date;
+	
+	static String end_date;
 
-	public NJ_Oxford_Benefits(File file) throws IOException {
-		PDFManager pdfManager = new PDFManager();
-		pdfManager.setFilePath(file.getAbsolutePath());
-		text = pdfManager.ToText();
+	public NJ_Oxford_Benefits(String s_date, String e_date) throws IOException {
+		start_date = s_date;
+		end_date = e_date;
 	}
 
 	@SuppressWarnings("unused")
-	public Page parse(String filename) {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		PDFManager pdfManager = new PDFManager();
+		pdfManager.setFilePath(file.getAbsolutePath());
+		text = pdfManager.ToText();
+		
 		this.tokens = text.split("[\\s\\r\\n]+"); // Split pdf text by spaces
 													// and new line chars
 
@@ -34,8 +42,6 @@ public class NJ_Oxford_Benefits {
 		int temp_index = 1;
 		int carrier_id = 18;
 		StringBuilder carrier_plan_id = new StringBuilder("");
-		StringBuilder start_date = new StringBuilder("");
-		StringBuilder end_date = new StringBuilder("");
 		StringBuilder product_name = new StringBuilder("");
 		StringBuilder plan_pdf_file_name = new StringBuilder(filename);
 		StringBuilder deductible_indiv = new StringBuilder("");
@@ -156,20 +162,20 @@ public class NJ_Oxford_Benefits {
 			temp_index++;
 		}
 
-		while (!isPercentage(tokens[temp_index + 1]) & !isDollarValue(tokens[temp_index + 1])) {
+		while (!tokens[temp_index+1].contains("Office:") & !tokens[temp_index].contains("Not")) {
 			outpatient_complex_imaging.insert(0, tokens[temp_index] + " ");
 			temp_index--;
 		}
 
 		for (int i = 0; i < 3; i++) {
-			while (!tokens[temp_index - 1].contains("Retail:")) {
+			while (!tokens[temp_index - 1].contains("Retail:") || tokens[temp_index].equals("Up")) {
 				temp_index++;
 			}
 			rx_copay.append(tokens[temp_index]);
 			if (i != 2) {
 				rx_copay.append("/");
 			}
-			while (tokens[temp_index - 2].equals("Mail")) {
+			while (!tokens[temp_index - 2].equals("Mail") || tokens[temp_index].equals("Up")) {
 				temp_index++;
 			}
 			rx_mail_copay.append(tokens[temp_index]);
@@ -207,13 +213,17 @@ public class NJ_Oxford_Benefits {
 		while (!tokens[temp_index - 2].equals("hospital") || !tokens[temp_index - 1].equals("stay")) {
 			temp_index++;
 		}
-		while (!isDollarValue(tokens[temp_index]) & !isPercentage(tokens[temp_index])) {
-			temp_index++;
-		}
 		while (!tokens[temp_index].contains("Facility")) {
-			in_patient_hospital.append(tokens[temp_index] + " ");
 			temp_index++;
 		}
+		while (!isDollarValue(tokens[temp_index+1]) & !isPercentage(tokens[temp_index+1])) {
+			if(tokens[temp_index].contains("Charge") || tokens[temp_index].contains("No")){
+				in_patient_hospital = new StringBuilder("No Charge");
+				break;
+			}
+			in_patient_hospital.insert(0,tokens[temp_index] + " ");
+			temp_index--;
+		}	
 		while (!tokens[temp_index].contains("Rehabilitation")) {
 			temp_index++;
 		}
@@ -246,13 +256,12 @@ public class NJ_Oxford_Benefits {
 		oon_oop_max_indiv = formatString(oon_oop_max_indiv);
 		oon_oop_max_family = formatString(oon_oop_max_family);
 		in_patient_hospital = formatInpatientHospital(in_patient_hospital);
-		// in_patient_hospital = formatString(in_patient_hospital);
 		outpatient_surgery = formatString(outpatient_surgery);
 		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
 		outpatient_diagnostic_lab = outpatient_diagnostic_x_ray;
 		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
 		physical_occupational_therapy = formatString(physical_occupational_therapy);
-		Page new_page = new Page(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
+		MedicalPage new_page = new MedicalPage(carrier_id, carrier_plan_id.toString(), start_date, end_date, product_name.toString(),
 				plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
 				oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
 				dr_visit_copay.toString(), specialist_visit_copay.toString(), er_copay.toString(),
@@ -264,33 +273,17 @@ public class NJ_Oxford_Benefits {
 				tobacco_dict);
 
 		new_page.printPage();
-		return new_page;
+		ArrayList<Page> pages = new ArrayList<Page>();
+		pages.add(new_page);
+		return pages;
 	}
 
 	public StringBuilder formatString(StringBuilder input) {
-		input = removeString(input, "covered");
-		input = removeString(input, "Not");
-		input = removeString(input, "Urgent");
-		input = removeString(input, "Emergency");
-		input = removeString(input, ",");
-		input = removeString(input, ".");
-		input = removeString(input, "*");
-		input = removeString(input, "person");
-		input = removeString(input, "copay");
-		input = removeString(input, "per");
-		input = removeString(input, "visit");
-		input = removeString(input, "Individual");
-		input = removeString(input, "Free Standing Provider");
-		input = removeString(input, "service");
-		input = removeString(input, "Rehabilitation");
-		input = removeString(input, "outpatient");
-		input = removeString(input, "Diagnostic");
-		input = removeString(input, "after");
-		input = removeString(input, "ded");
-		input = removeString(input, "admission");
-		input = removeString(input, "co-ins");
+		String[] delims = {"covered", "Not", "Urgent", "Emergency", ",",".", "*", "person", "copay", "per", "visit", "Individual",
+				"Free Standing Provider", "service", "Rehabilitation", "outpatient", "Diagnostic", "after", "ded", "admission", "co-ins"};
+		input = Formatter.removeStrings(input, delims);
 		if (!input.toString().equals("N/A")) {
-			input = removeString(input, "/");
+			input = Formatter.removeString(input, "/");
 		}
 		if (input.length() > 0) {
 			if (input.charAt(0) == ' ') {
@@ -301,6 +294,10 @@ public class NJ_Oxford_Benefits {
 	}
 
 	public StringBuilder formatRx(StringBuilder s) {
+		if(s.indexOf("Not")!=-1){
+			s = new StringBuilder("N/A");
+			return s;
+		}
 		int x = s.indexOf("/");
 		int y = s.lastIndexOf("/");
 		if (s.subSequence(0, x).equals(s.subSequence(x + 1, y))
@@ -329,23 +326,22 @@ public class NJ_Oxford_Benefits {
 	}
 
 	public StringBuilder formatInpatientHospital(StringBuilder s) {
-		s = removeString(s, "Not");
-		s = removeString(s, "No");
-		s = removeString(s, "covered");
-		s = removeString(s, "ded");
-		s = removeString(s, "co-ins");
-		s = removeString(s, "after");
-		s = removeString(s, ".");
-		return s;
-	}
-
-	public StringBuilder removeString(StringBuilder s, String r) {
-		while (s.indexOf(r) != -1) {
-			int index = s.indexOf(r);
-			s.replace(index, index + r.length(), "");
+		String[] delims = {"Not", "covered", "ded", "co-ins", "after", ".", "Facility"};
+		s = Formatter.removeStrings(s,delims);
+		System.out.println(s);
+		char[] arr = s.toString().toCharArray();
+		char c = arr[0];
+		System.out.println(c);
+		int index = 0;
+		while(c == ' ' & index < arr.length){
+			s.deleteCharAt(0);
+			System.out.println(s);
+			index++;
+			c = arr[index];
+			System.out.println(c);
 		}
 		return s;
-
 	}
+
 
 }

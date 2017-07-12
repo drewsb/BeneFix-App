@@ -9,15 +9,18 @@ import java.util.List;
 import java.util.ListIterator;
 import org.apache.pdfbox.multipdf.Splitter;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import components.MedicalPage;
+import components.PDFManager;
 import components.Page;
+import components.Parser;
 
-public class PA_Geisinger_Rates {
+public class PA_Geisinger_Rates implements Parser {
 	
 	int page_counter = 0;
 
 	static String file_name = "pdf.txt";
-	static String text; 
-	static ArrayList<Page> products = new ArrayList<Page>();
+	static String text;
+	static ArrayList<Page> products;
 	static String[] pdfPagesText;
 	static int numPages;
 	static String start_date;
@@ -25,8 +28,17 @@ public class PA_Geisinger_Rates {
 	static ArrayList<ArrayList<String>> tokenPages;
 	static String start_page_string, end_page_string;
 	static Integer start_page, end_page;
-	static components.PDFManager pdfManager;
-	public PA_Geisinger_Rates() throws IOException {}
+
+	static PDFManager pdfManager;
+
+	public PA_Geisinger_Rates(String s_date, String e_date, int s_page, int e_page) throws IOException {
+		start_date = s_date;
+		end_date = e_date;
+		start_page = s_page;
+		end_page = e_page;	
+		products = new ArrayList<Page>();
+	}
+
 	static Integer number_of_age_bands = 46;
 
 	// rating area dictionaries
@@ -39,15 +51,9 @@ public class PA_Geisinger_Rates {
 	static String[] ra7 = { "Adams", "Berks", "York", "Lancaster" };
 	static String[] ra9 = { "Juniata", "Perry", "Dauphin", "Cumberland", "Lebanon", "Fulton" };
 
-	public ArrayList<Page> parse(File file, String s_date, String e_date, String s_page, String e_page) throws IOException {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
 
 		// set variables from FileChooser.java
-		start_date = s_date;
-		end_date = e_date;
-		start_page_string = s_page;
-		end_page_string = e_page;
-		start_page = Integer.parseInt(start_page_string);
-		end_page = Integer.parseInt(end_page_string);
 		tokenPages = new ArrayList<ArrayList<String>>();
 
 		// variables for Page creation
@@ -230,42 +236,42 @@ public class PA_Geisinger_Rates {
 			}
 			
 			if (rating2 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating3 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating5 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating6 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating7 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
 			if (rating9 == true) {
-				products.add(new Page(carrier_id, "", start_date, end_date, 
+				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",

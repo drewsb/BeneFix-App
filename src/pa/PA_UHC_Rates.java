@@ -15,14 +15,15 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.MedicalPage;
 import components.Page;
-
+import components.Parser;
 
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class PA_UHC_Rates {
+public class PA_UHC_Rates implements Parser{
 	
 	static ArrayList<Page> products;
 	
@@ -34,12 +35,18 @@ public class PA_UHC_Rates {
 	
 	static String end_date;
 	
-	public PA_UHC_Rates(File file, int sheet_index, String s_date, String e_date) throws IOException{
+	static int sheet_index;
+	
+	public PA_UHC_Rates(int s_index, String s_date, String e_date) throws IOException{
 		start_date = s_date;
 		end_date = e_date;
+		sheet_index = s_index;
+    }
+	
+	public ArrayList<Page> parse(File file, String filename){
 		products = new ArrayList<Page>();
 		try {
-            FileInputStream excelFile = new FileInputStream(file);
+            FileInputStream excelFile =  new FileInputStream(file);
             Workbook workbook = new XSSFWorkbook(excelFile);
             sheet = workbook.getSheetAt(sheet_index);
             iterator = sheet.iterator();
@@ -49,9 +56,6 @@ public class PA_UHC_Rates {
             e.printStackTrace();
         }
 
-    }
-	
-	public ArrayList<Page> parse(){
 		Cell cell;
 		int page_index = 1;
 		int carrier_id = 14;
@@ -141,7 +145,7 @@ public class PA_UHC_Rates {
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index+1);
 			tobacco_dict.put("65+", cell.getNumericCellValue());	
-			Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", 
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index, 
 					non_tobacco_dict, tobacco_dict);
