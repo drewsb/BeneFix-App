@@ -163,14 +163,14 @@ public class CA_Rates implements Parser {
 
 			StringBuilder plan = new StringBuilder("");
 			plan.append(tokens[index] + "_");
-			plan.append(tokens[index+1] + "_");
+			plan.append(tokens[index+1]);
 			index+=2;
 			
-			product_name.append(metal + "_");
 			product_name.append(carrier);
+			product_name.append(metal + "_");
 			//product_name.append(network + "_");
 			product_name.append(plan);
-			product_name.append(String.format("Area_%d", rating_area_index));
+			//product_name.append(String.format("Area_%d", rating_area_index));
 			
 			double rate = Double.parseDouble(tokens[index++]);
 			non_tobacco_dict.put("0-18", rate);
@@ -202,37 +202,6 @@ public class CA_Rates implements Parser {
 		
 
 		return products;
-	}
-
-	public static Boolean isPercentage(String s) {
-		return s.contains("%");
-	}
-
-	public static Boolean isDollarValue(String s) {
-		return s.contains("$");
-	}
-
-	public Boolean containsChar(String input) {
-		char[] arr = input.toCharArray();
-		for (char c : arr) {
-			if (c != ' ') {
-				return true;
-			}
-		}
-		return false;
-	}
-
-//	public StringBuilder formatProductName(StringBuilder x) {
-//		x.
-//		return s;
-//	}
-
-	public StringBuilder removeString(StringBuilder s, String r) {
-		while (s.indexOf(r) != -1) {
-			int index = s.indexOf(r);
-			s.replace(index, index + r.length(), "");
-		}
-		return s;
 	}
 
 }

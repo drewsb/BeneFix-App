@@ -15,6 +15,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.Formatter;
 import components.MedicalPage;
 import components.Page;
 import components.Parser;
@@ -79,10 +80,11 @@ public class PA_UHC_Rates implements Parser{
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String plan_id = cell.getStringCellValue();
+			System.out.println(plan_id);
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String form_num = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String rating_area = cell.getStringCellValue();
+			String rating_area = Formatter.removeString(cell.getStringCellValue(), "Rating Area ");
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String counties = cell.getStringCellValue();
 			row_index++;
@@ -133,18 +135,20 @@ public class PA_UHC_Rates implements Parser{
 			}
 			row_index+=2;
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			non_tobacco_dict.put("0-20", cell.getNumericCellValue());
+			System.out.println(row_index);
+			System.out.println(col_index);
+			non_tobacco_dict.put("0-20", Double.valueOf(getCellValue(cell)));
 			cell = r.getCell(col_index+1);
-			tobacco_dict.put("0-20", cell.getNumericCellValue());
+			tobacco_dict.put("0-20", Double.valueOf(getCellValue(cell)));
 			for(int i = 21; i < 65; i++){
 				r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-				non_tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
+				non_tobacco_dict.put(String.valueOf(i), Double.valueOf(getCellValue(cell)));
 				cell = r.getCell(col_index+1);
-				tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
+				tobacco_dict.put(String.valueOf(i), Double.valueOf(getCellValue(cell)));
 			}
-			non_tobacco_dict.put("65+", cell.getNumericCellValue());
+			non_tobacco_dict.put("65+", Double.valueOf(getCellValue(cell)));
 			cell = r.getCell(col_index+1);
-			tobacco_dict.put("65+", cell.getNumericCellValue());	
+			tobacco_dict.put("65+", Double.valueOf(getCellValue(cell)));	
 			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index, 

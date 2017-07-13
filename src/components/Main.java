@@ -59,7 +59,6 @@ public class Main extends JPanel implements ActionListener {
 	Boolean done;
 	String year;
 	String selectedOperation;
-	int progress;
 	State selectedState;
 	Carrier carrierType;
 	Plan planType;
@@ -68,7 +67,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> sourceCarriers;
 
 	public enum Carrier {
-		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta
+		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Oxford, Cigna, Horizon, Geisinger, Delta
 	}
 
 	public enum State {
@@ -337,7 +336,7 @@ public class Main extends JPanel implements ActionListener {
 			checkCarrier();
 			checkPlan();
 
-			delegator = new Delegator(carrierType, planType, progress, selectedState,
+			delegator = new Delegator(carrierType, planType, sheetBox.getSelectedIndex(), selectedState,
 					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log,
 					progressBar);
 			delegator.addPropertyChangeListener(new PropertyChangeListener() {
@@ -524,6 +523,8 @@ public class Main extends JPanel implements ActionListener {
 			this.carrierType = Carrier.NEPA;
 		} else if (carrierBox.getSelectedItem().equals("CPA")) {
 			this.carrierType = Carrier.CPA;
+		} else if (carrierBox.getSelectedItem().equals("UHC")) {
+			this.carrierType = Carrier.UHC;
 		} else if (carrierBox.getSelectedItem().equals("IBC")) {
 			this.carrierType = Carrier.IBC;
 		} else if (carrierBox.getSelectedItem().equals("CBC")) {

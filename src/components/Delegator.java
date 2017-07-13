@@ -313,9 +313,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 						//Needs to be finished
 						//return new PA_Geisinger_Rates(start_date,end_date);
 						break;
-					case Oxford:
+					case UHC:
+						System.out.println(sheetIndex);
 						return new PA_UHC_Rates(sheetIndex, start_date,end_date);
 					}
+					
 					break;
 				case NJ:
 					switch (carrierType) {
