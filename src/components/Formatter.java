@@ -11,7 +11,7 @@ public class Formatter {
 	}
 	
 	public static String removeString(String s, String r) {
-		s.replaceAll(String.format("[%s]", r), "");
+		s = s.replaceAll(r, "");
 		return s;
 	}
 
