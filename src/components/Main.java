@@ -68,7 +68,7 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> sourceCarriers;
 
 	public enum Carrier {
-		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta
+		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, Oxford, Cigna, Horizon, Geisinger, Delta, United_Concordia
 	}
 
 	public enum State {
@@ -157,7 +157,7 @@ public class Main extends JPanel implements ActionListener {
 		Set<String> OHcarriers = new HashSet<String>(Arrays.asList(OHcorps));
 		medicalCarriers.put("OH", OHcarriers);
 
-		String[] PA_dental = { "Delta", "Oxford" };
+		String[] PA_dental = { "Delta", "Oxford", "United Concordia", "CPA" };
 		Set<String> PA_dental_carriers = new HashSet<String>(Arrays.asList(PA_dental));
 		dentalCarriers.put("PA", PA_dental_carriers);
 
@@ -473,6 +473,9 @@ public class Main extends JPanel implements ActionListener {
 	}
 
 	public void createExcel() {
+		checkPlan();
+		checkCarrier();
+		checkState();
 		if (pages.size() == 0) {
 			log.append("No plans in array" + newline);
 			return;
@@ -536,6 +539,8 @@ public class Main extends JPanel implements ActionListener {
 			this.carrierType = Carrier.Delta;
 		} else if (carrierBox.getSelectedItem().equals("Anthem")) {
 			this.carrierType = Carrier.Anthem;
+		} else if (carrierBox.getSelectedItem().equals("United Concordia")) {
+			this.carrierType = Carrier.United_Concordia;
 		}
 	}
 

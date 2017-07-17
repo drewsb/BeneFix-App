@@ -58,9 +58,9 @@ public class ExcelWriter {
 			populateMedicalExcel(medical_products);
 			break;
 		case Dental:
-			ArrayList<MedicalPage> dental_products = new ArrayList<MedicalPage>();
-			dental_products.addAll((Collection<? extends MedicalPage>) pages);
-			populateMedicalExcel(dental_products);
+			ArrayList<DentalPage> dental_products = new ArrayList<DentalPage>();
+			dental_products.addAll((Collection<? extends DentalPage>) pages);
+			populateDentalExcel(dental_products);
 			break;
 		case Vision:
 			ArrayList<MedicalPage> vision_products = new ArrayList<MedicalPage>();
