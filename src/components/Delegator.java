@@ -278,8 +278,13 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					switch (carrierType) {
 					case Delta:
 						return new PA_Delta_Dental_Benefits();
-					case Oxford:
+					case Oxford: 						
+						//DEPRECATED/NOT FINISHED
 						return new PA_Oxford_Dental_Benefits();
+					case United_Concordia:
+						return new PA_United_Concordia_Dental_Benefits();
+					case CPA:
+						return new PA_Highmark_Dental_Benefits();
 					}
 					break;
 				}
@@ -341,6 +346,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 			case Dental:
 				switch(state) {
 				case PA:
+					switch (carrierType) {
+					case Delta:
+						//DEPRECATED/NOT FINISHED
+						return new PA_Delta_Dental_Rates(); 
+					}
 					break;
 				case NJ:
 					break;
