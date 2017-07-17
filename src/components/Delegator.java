@@ -19,6 +19,7 @@ import javax.swing.SwingWorker;
 
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.FillPatternType;
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -132,7 +133,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 		}
 	}
 
-	public void parsePlans() throws EncryptedDocumentException, InvalidFormatException, IOException {
+	public void parsePlans() throws EncryptedDocumentException, IOException, OpenXML4JException {
 		ArrayList<Page> plan_pages;
 		Parser plan_parser = getParser(ParserType.plans);
 		for (File selectedPlan : selectedPlans) {
@@ -148,7 +149,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 		}
 	}
 
-	public void parseRates() throws EncryptedDocumentException, InvalidFormatException, IOException {
+	public void parseRates() throws EncryptedDocumentException, IOException, OpenXML4JException {
 		ArrayList<Page> rate_pages;
 		if(carrierType == Carrier.WPA){
 			if (selectedRates.get(0).getName().contains("HCA")) {
@@ -317,9 +318,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 						//Needs to be finished
 						//return new PA_Geisinger_Rates(start_date,end_date);
 						break;
-					case Oxford:
+					case UHC:
+						System.out.println(sheetIndex);
 						return new PA_UHC_Rates(sheetIndex, start_date,end_date);
 					}
+					
 					break;
 				case NJ:
 					switch (carrierType) {
@@ -334,9 +337,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 				case OH:
 					switch (carrierType) {
 					case Anthem:
-						return new OH_Anthem_Benefits(start_date, end_date);
+						return new OH_Anthem_Rates(start_date, end_date);
 					}
 					break;
+				case CA:
+					return new CA_Rates(start_date, end_date);
 				}
 			case Dental:
 				switch(state) {

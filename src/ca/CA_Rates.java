@@ -4,23 +4,82 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 import components.PDFManager;
+import components.Page;
+import components.Parser;
+import components.Formatter;
 import components.MedicalPage;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class CA_Rates {
+public class CA_Rates implements Parser {
+	
+	static ArrayList<Page> products;
 
 	static String[] tokens;
 
 	static String text;
+
+	static String start_date;
+
+	static String end_date;
+
+	final Set<String> network_prefixes = new HashSet<String>();
+
+	final Set<String> plan_prefixes = new HashSet<String>();
 	
-	public CA_Rates(File file) throws IOException {
-		PDFManager pdfManager = new PDFManager();
-		pdfManager.setFilePath(file.getAbsolutePath());
-		text = pdfManager.ToText();
+	final Set<String> plan_suffixes = new HashSet<String>();
+	
+	final Set<String> carrier_prefixes = new HashSet<String>();
+	
+	final Set<String> metals = new HashSet<String>();
+
+	public CA_Rates(String s_date, String e_date) throws IOException {
+		products = new ArrayList<Page>();
+		
+		start_date = s_date;
+		end_date = e_date;
+
+		network_prefixes.add("Prudent");
+		network_prefixes.add("Premier");
+		network_prefixes.add("Performance");
+		network_prefixes.add("Select");
+		network_prefixes.add("Advantage");
+		network_prefixes.add("SignatureValue");
+		network_prefixes.add("PureCare");
+		network_prefixes.add("Full");
+		network_prefixes.add("WholeCare");
+		network_prefixes.add("Alliance");
+		network_prefixes.add("Salud");
+		network_prefixes.add("Focus");
+
+		plan_prefixes.add("HMO");
+		plan_prefixes.add("PPO");
+		plan_prefixes.add("HSP");
+		plan_prefixes.add("EPO");
+		
+		plan_suffixes.add("A");
+		plan_suffixes.add("B");
+		plan_suffixes.add("C");
+		plan_suffixes.add("D");
+		
+		carrier_prefixes.add("Anthem");
+		carrier_prefixes.add("Health");
+		carrier_prefixes.add("Kaiser");
+		carrier_prefixes.add("Sharp");
+		carrier_prefixes.add("Sutter");
+		carrier_prefixes.add("UnitedHealthcare");
+		carrier_prefixes.add("Western");
+
+		
+		metals.add("Bronze");
+		metals.add("Silver");
+		metals.add("Gold");
+		metals.add("Platinum");
 	}
 
 	enum type {
@@ -28,18 +87,22 @@ public class CA_Rates {
 	}
 
 	@SuppressWarnings("unused")
-	public ArrayList<MedicalPage> parse(String filename) {
+	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		PDFManager pdfManager = new PDFManager();
+		pdfManager.setFilePath(file.getAbsolutePath());
+		text = pdfManager.ToText();
 		this.tokens = text.split("[\\s\\r\\n]+"); // Split pdf text by spaces
 													// and new line chars
-		for(String s : tokens){
-			System.out.println(s);
-		}
+		int index = 0;
+		int rating_area_index = 1;
+		Boolean continued = false;
 		
-		int carrier_id = 1; //Needs to be changed
+		StringBuilder metal = new StringBuilder("");
+		
+		int carrier_id = 1; // Needs to be changed
 		StringBuilder carrier_plan_id = new StringBuilder("");
 		StringBuilder start_date = new StringBuilder("");
 		StringBuilder end_date = new StringBuilder("");
-		StringBuilder product_name = new StringBuilder("");
 		StringBuilder plan_pdf_file_name = new StringBuilder(filename);
 		StringBuilder deductible_indiv = new StringBuilder("");
 		StringBuilder deductible_family = new StringBuilder("");
@@ -65,118 +128,80 @@ public class CA_Rates {
 		StringBuilder group_rating_area = new StringBuilder("");
 		StringBuilder physical_occupational_therapy = new StringBuilder("");
 		StringBuilder service_zones = new StringBuilder("");
-		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
-		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
+		while (index < tokens.length-150) {
+			StringBuilder product_name = new StringBuilder("");
+			HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
+			HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
+
+			if(!carrier_prefixes.contains(tokens[index]) || tokens[index+1].equals("Care")){
+				if(!metals.contains(tokens[index]) || (tokens[index].equals("Health") & tokens[index+1].equals("Care"))){
+					if(continued){
+						rating_area_index++;
+					}
+					continued = !continued;
+				}
+				
+				while (!tokens[index + 1].contains("0-18")) {
+					index++;
+				}
+				metal = new StringBuilder(tokens[index]);
+				while (!tokens[index - 1].equals("PLAN")) {
+					index++;
+				}
+			}
 		
-		MedicalPage new_page = new MedicalPage(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
-				plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
-				oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
-				dr_visit_copay.toString(), specialist_visit_copay.toString(), er_copay.toString(),
-				urgent_care_copay.toString(), rx_copay.toString(), rx_mail_copay.toString(), oop_max_indiv.toString(),
-				oop_max_family.toString(), oon_oop_max_indiv.toString(), oon_oop_max_family.toString(),
-				in_patient_hospital.toString(), outpatient_diagnostic_lab.toString(), outpatient_surgery.toString(),
-				outpatient_diagnostic_x_ray.toString(), outpatient_complex_imaging.toString(),
-				physical_occupational_therapy.toString(), "", service_zones.toString(), "", 0, non_tobacco_dict,
-				tobacco_dict);
-
-		new_page.printPage();
-		return null;
-	}
-
-	public StringBuilder formatString(StringBuilder input) {
-		String[] delimiters = { "covered", "Not", "Urgent", "Emergency", ",", ".", "*", ";", "person", "copay/",
-				"copay", "per", "visit", "Individual", "coinsurance", "service", "Rehabilitation", "outpatient",
-				"Diagnostic", "after", "deductible", "does", "not", "apply", "facility", "Facility", "/day", "standing",
-				"free", "for" };
-		input = removeStrings(input, delimiters);
-		if (input.length() > 0) {
-			if (input.charAt(0) == ' ' || input.charAt(0) == '/') {
-				input.deleteCharAt(0);
+			StringBuilder carrier = new StringBuilder("");
+			while (!network_prefixes.contains(tokens[index])) {
+				carrier.append(tokens[index] + "_");
+				index++;
 			}
-		}
-		if (input.indexOf("days1-5") != -1) {
-			int index = input.indexOf("days1-5");
-			input.insert(index + 4, " ");
-		}
-		if (input.indexOf(",") != -1) {
-			int index = input.indexOf(",");
-			if (input.charAt(index - 1) == ' ') {
-				input.deleteCharAt(index - 1);
+
+			while(!plan_suffixes.contains(tokens[index+1])){
+				index++;
 			}
-		}
-		return new StringBuilder(input);
-	}
 
-	public StringBuilder formatRx(StringBuilder s) {
-		int x = s.indexOf("/");
-		int y = s.lastIndexOf("/");
-		if (s.subSequence(0, x).equals(s.subSequence(x + 1, y))
-				& s.subSequence(x + 1, y).equals(s.subSequence(y + 1, s.length()))) {
-			return new StringBuilder(s.subSequence(0, x));
-		}
-		return s;
-	}
-
-	public StringBuilder formatCare(StringBuilder s) {
-		String[] delims = { "Emergency", "waived", "/", "copay", "visit", "Urgent", "coinsurance" };
-		s = removeStrings(s, delims);
-		return s;
-	}
-
-	public static Boolean isPercentage(String s) {
-		return s.contains("%");
-	}
-
-	public static Boolean isDollarValue(String s) {
-		return s.contains("$");
-	}
-
-	public Boolean containsChar(String input) {
-		char[] arr = input.toCharArray();
-		for (char c : arr) {
-			if (c != ' ') {
-				return true;
+			StringBuilder plan = new StringBuilder("");
+			plan.append(tokens[index] + "_");
+			plan.append(tokens[index+1]);
+			index+=2;
+			
+			product_name.append(carrier);
+			product_name.append(metal + "_");
+			//product_name.append(network + "_");
+			product_name.append(plan);
+			//product_name.append(String.format("Area_%d", rating_area_index));
+			
+			double rate = Double.parseDouble(tokens[index++]);
+			non_tobacco_dict.put("0-18", rate);
+			rate = Double.parseDouble(tokens[index]);
+			non_tobacco_dict.put("19-20", rate);
+			
+			for(int i = 21; i < 65; i++){
+				rate = Double.parseDouble(tokens[++index]);
+				non_tobacco_dict.put(Integer.toString(i), rate);
 			}
+			rate = Double.parseDouble(tokens[index]);
+			non_tobacco_dict.put("65+", rate);
+			MedicalPage new_page = new MedicalPage(carrier_id, carrier_plan_id.toString(), "", "", product_name.toString(),
+					plan_pdf_file_name.toString(), deductible_indiv.toString(), deductible_family.toString(),
+					oon_deductible_indiv.toString(), oon_deductible_family.toString(), coinsurance.toString(),
+					dr_visit_copay.toString(), specialist_visit_copay.toString(), er_copay.toString(),
+					urgent_care_copay.toString(), rx_copay.toString(), rx_mail_copay.toString(), oop_max_indiv.toString(),
+					oop_max_family.toString(), oon_oop_max_indiv.toString(), oon_oop_max_family.toString(),
+					in_patient_hospital.toString(), outpatient_diagnostic_lab.toString(), outpatient_surgery.toString(),
+					outpatient_diagnostic_x_ray.toString(), outpatient_complex_imaging.toString(),
+					physical_occupational_therapy.toString(), Integer.toString(rating_area_index), service_zones.toString(), "CA", 0, non_tobacco_dict,
+					tobacco_dict);
+			
+			new_page.printPage();
+			products.add(new_page);
+			System.out.println(index);
+			index++;
 		}
-		return false;
-	}
+		
 
-	public StringBuilder formatProductName(String x) {
-		StringBuilder s = new StringBuilder(x);
-		String[] delims = { "Summary", "Of", "Benefit", "Coverage" };
-		s = removeStrings(s, delims);
-		return s;
-	}
-
-	public StringBuilder formatDeductible(StringBuilder s) {
-		String[] delims = { ";", "family", ".", ",", "what", "What" };
-		s = removeStrings(s, delims);
-		return s;
-	}
-
-	public StringBuilder formatInpatientHospital(StringBuilder s) {
-		String[] delims = { "Not", "covered", "afted ded" };
-		s = removeStrings(s, delims);
-		return s;
-	}
-
-	public StringBuilder removeStrings(StringBuilder s, String[] delims) {
-		for (String r : delims) {
-			while (s.indexOf(r) != -1) {
-				int index = s.indexOf(r);
-				s.replace(index, index + r.length(), "");
-			}
-		}
-		return s;
-	}
-
-	public StringBuilder removeString(StringBuilder s, String r) {
-		while (s.indexOf(r) != -1) {
-			int index = s.indexOf(r);
-			s.replace(index, index + r.length(), "");
-		}
-		return s;
+		return products;
 	}
 
 }

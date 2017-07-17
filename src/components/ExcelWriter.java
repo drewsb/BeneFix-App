@@ -76,7 +76,7 @@ public class ExcelWriter {
 				"plan_pdf_file_name", "deductible_indiv", "deductible_family", "oon_deductible_individual",
 				"oon_deductible_family", "coinsurance", "dr_visit_copay", "specialist_visits_copay", "er_copay",
 				"urgent_care_copay", "rx_copay", "rx_mail_copay", "oop_max_indiv", "oop_max_family",
-				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hosptial", "outpatient_diagnostic_lab",
+				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hospital", "outpatient_diagnostic_lab",
 				"outpatient_surgery", "outpatient_diagnostic_x_ray", "outpatient_complex_imaging",
 				"physical_occupational_therapy", "states", "group_rating_areas", "service_zones", "zero_eighteen",
 				"nineteen_twenty", "twenty_one", "twenty_two", "twenty_three", "twenty_four", "twenty_five",
@@ -171,11 +171,17 @@ public class ExcelWriter {
 			cell.setCellValue((String) p.group_rating_area);
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.service_zones);
-			if (p.non_tobacco_dict.containsKey("0-20")) {
+			if (p.non_tobacco_dict.containsKey("0-18") || p.non_tobacco_dict.containsKey("0-20")) {
 				cell = row.createCell(colCount++);
-				cell.setCellValue(p.non_tobacco_dict.get("0-20"));
-				cell = row.createCell(colCount++);
-				cell.setCellValue(p.non_tobacco_dict.get("0-20"));
+				if (p.non_tobacco_dict.containsKey("0-18")) {
+					cell.setCellValue(p.non_tobacco_dict.get("0-18"));
+					cell = row.createCell(colCount++);
+					cell.setCellValue(p.non_tobacco_dict.get("19-20"));
+				} else {
+					cell.setCellValue(p.non_tobacco_dict.get("0-20"));
+					cell = row.createCell(colCount++);
+					cell.setCellValue(p.non_tobacco_dict.get("0-20"));
+				}
 				for (int i = 0; i < max_age - 21; i++) {
 					cell = row.createCell(colCount++);
 					String index = String.format("%d", i + 21);
@@ -184,7 +190,6 @@ public class ExcelWriter {
 
 				cell = row.createCell(colCount++);
 				String max_age_string = String.format("%d+", max_age);
-				System.out.println(max_age_string);
 				cell.setCellValue(p.non_tobacco_dict.get(max_age_string));
 				if (max_age < 65) {
 					int diff = 65 - max_age;
