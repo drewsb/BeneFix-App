@@ -239,9 +239,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case CBC:
 						return new PA_CBC_Benefits(start_date,end_date);
 					case Geisinger:
-						/*
-						 * No class created yet. 
-						 */
+						return new PA_Geisinger_Benefits(start_date,end_date);
 					case Oxford:
 						return new PA_UHC_Benefits(start_date,end_date);				
 					}
@@ -310,9 +308,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case CBC:
 						return new PA_CBC_Rates(start_date,end_date);
 					case Geisinger:
-						//Needs to be finished
-						//return new PA_Geisinger_Rates(start_date,end_date);
-						break;
+						return new PA_Geisinger_Rates(start_date,end_date);
 					case Oxford:
 						return new PA_UHC_Rates(sheetIndex, start_date,end_date);
 					}

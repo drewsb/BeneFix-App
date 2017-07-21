@@ -16,6 +16,8 @@ import components.Parser;
 
 public class PA_Geisinger_Rates implements Parser {
 	
+	int temp_counter = 0;
+	
 	int page_counter = 0;
 
 	static String file_name = "pdf.txt";
@@ -31,11 +33,9 @@ public class PA_Geisinger_Rates implements Parser {
 
 	static PDFManager pdfManager;
 
-	public PA_Geisinger_Rates(String s_date, String e_date, int s_page, int e_page) throws IOException {
+	public PA_Geisinger_Rates(String s_date, String e_date) throws IOException {
 		start_date = s_date;
-		end_date = e_date;
-		start_page = s_page;
-		end_page = e_page;	
+		end_date = e_date;	
 		products = new ArrayList<Page>();
 	}
 
@@ -62,16 +62,38 @@ public class PA_Geisinger_Rates implements Parser {
 		String state = "PA";
 
 		// create new PDFmanager object
-		pdfManager = new components.PDFManager();
+		pdfManager = new PDFManager();
 		PDDocument document = PDDocument.load(file);
 
 		// split PDF, rates are every other page for Geisinger
 		Splitter splitter = new Splitter();
 		List<PDDocument> pages = splitter.split(document);
 		ArrayList<PDDocument> pages_arraylist = new ArrayList<PDDocument>(pages);
+		
+		//get start page
+		try {
+			do {
+				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
+				page_counter++;
+			} while (!text.toLowerCase().contains("benefits effective") && !text.toLowerCase().contains("rates effective"));
+			start_page = page_counter;
+		} catch (NullPointerException e) {
+			System.out.println(e.getStackTrace());
+		}
+		
+		//get end page
+		try {
+			do {
+				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
+				page_counter++;
+			} while (text.toLowerCase().contains("benefits effective") && text.toLowerCase().contains("rates effective"));
+			end_page = page_counter;
+		} catch (NullPointerException e) {
+			System.out.println(e.getStackTrace());
+		}
 
 		// convert rate pages to text in page range, add to array list
-		for (int i = start_page; i < (end_page + 1); i++) {
+		for (int i = 27; i < (97 + 1); i++) {
 			text = pdfManager.ToText(pages_arraylist.get(i));
 			String lines[] = text.split("\n"); // split page into strings
 			
@@ -151,7 +173,7 @@ public class PA_Geisinger_Rates implements Parser {
 				String[] tokens = lines[k].split("\\s+"); // split current string into tokens
 				ArrayList<String> token_list = new ArrayList<String>(Arrays.asList(tokens));
 				if (token_list.get(0).contains("65")) {
-					token_list.set(0, (token_list.get(0) + " " + token_list.get(1) + " " + token_list.get(2)));
+					token_list.set(0, token_list.get(0));
 					ListIterator<String> it = token_list.listIterator(0);
 					System.out.println(it.next());
 					System.out.println(it.next());
@@ -159,38 +181,38 @@ public class PA_Geisinger_Rates implements Parser {
 					if (rating2 == true) {
 						Double non_2 = Double.parseDouble(formatString(it.next()));
 						Double tob_2 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict2.put(token_list.get(0), non_2); //format string to get rid of any commas
-						tobacco_dict2.put(token_list.get(0), tob_2);
+						non_tobacco_dict2.put("65+", non_2); //format string to get rid of any commas
+						tobacco_dict2.put("65+", tob_2);
 					}
 					if (rating3 == true) {
 						Double non_3 = Double.parseDouble(formatString(it.next()));
 						Double tob_3 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict3.put(token_list.get(0), non_3);
-						tobacco_dict3.put(token_list.get(0), tob_3);
+						non_tobacco_dict3.put("65+", non_3);
+						tobacco_dict3.put("65+", tob_3);
 					}
 					if (rating5 == true) {
 						Double non_5 = Double.parseDouble(formatString(it.next()));
 						Double tob_5 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict5.put(token_list.get(0), non_5);
-						tobacco_dict5.put(token_list.get(0), tob_5);
+						non_tobacco_dict5.put("65+", non_5);
+						tobacco_dict5.put("65+", tob_5);
 					}
 					if (rating6 == true) {
 						Double non_6 = Double.parseDouble(formatString(it.next()));
 						Double tob_6 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict6.put(token_list.get(0), non_6);
-						tobacco_dict6.put(token_list.get(0), tob_6);
+						non_tobacco_dict6.put("65+", non_6);
+						tobacco_dict6.put("65+", tob_6);
 					}
 					if (rating7 == true) {
 						Double non_7 = Double.parseDouble(formatString(it.next()));
 						Double tob_7 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict7.put(token_list.get(0), non_7);
-						tobacco_dict7.put(token_list.get(0), tob_7);
+						non_tobacco_dict7.put("65+", non_7);
+						tobacco_dict7.put("65+", tob_7);
 					}
 					if (rating9 == true) {
 						Double non_9 = Double.parseDouble(formatString(it.next()));
 						Double tob_9 = Double.parseDouble(formatString(it.next()));
-						non_tobacco_dict9.put(token_list.get(0), non_9);
-						tobacco_dict9.put(token_list.get(0), tob_9);
+						non_tobacco_dict9.put("65+", non_9);
+						tobacco_dict9.put("65+", tob_9);
 					}
 				} 
 				else if (!token_list.get(0).contains("65")) {
@@ -277,9 +299,11 @@ public class PA_Geisinger_Rates implements Parser {
 						"", "", "", "", "", "", "", "", "", "", "", "", "2",
 						"", state, i, non_tobacco_dict2, tobacco_dict2));
 			}
-			// skip benefits page
-			i++; 
+			
+			i++; // skip benefits page
 		}
+		products.get(temp_counter).printPage();
+		temp_counter++;
 		return products;
 	}
 
