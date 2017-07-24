@@ -283,6 +283,8 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 						return new PA_United_Concordia_Dental_Benefits();
 					case CPA:
 						return new PA_Highmark_Dental_Benefits();
+					case Aetna:
+						return new PA_Aetna_Dental_Benefits();
 					}
 					break;
 				}
