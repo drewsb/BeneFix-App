@@ -305,8 +305,10 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.four_tier_f);
 		}
-
-		String outputName = String.format("%s_data.xlsx", filename);
+		
+		String dentalFilename = filename + "_Dental";
+		
+		String outputName = String.format("%s_data.xlsx", dentalFilename);
 		// Create output file
 		try (FileOutputStream outputStream = new FileOutputStream(outputName)) {
 			workbook.write(outputStream);
