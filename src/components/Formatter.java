@@ -9,6 +9,11 @@ public class Formatter {
 		}
 		return s;
 	}
+	
+	public static String removeString(String s, String r) {
+		s = s.replaceAll(r, "");
+		return s;
+	}
 
 	public static StringBuilder removeStrings(StringBuilder s, String[] delims) {
 		for (String r : delims) {

@@ -58,9 +58,9 @@ public class ExcelWriter {
 			populateMedicalExcel(medical_products);
 			break;
 		case Dental:
-			ArrayList<MedicalPage> dental_products = new ArrayList<MedicalPage>();
-			dental_products.addAll((Collection<? extends MedicalPage>) pages);
-			populateMedicalExcel(dental_products);
+			ArrayList<DentalPage> dental_products = new ArrayList<DentalPage>();
+			dental_products.addAll((Collection<? extends DentalPage>) pages);
+			populateDentalExcel(dental_products);
 			break;
 		case Vision:
 			ArrayList<MedicalPage> vision_products = new ArrayList<MedicalPage>();
@@ -76,7 +76,7 @@ public class ExcelWriter {
 				"plan_pdf_file_name", "deductible_indiv", "deductible_family", "oon_deductible_individual",
 				"oon_deductible_family", "coinsurance", "dr_visit_copay", "specialist_visits_copay", "er_copay",
 				"urgent_care_copay", "rx_copay", "rx_mail_copay", "oop_max_indiv", "oop_max_family",
-				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hosptial", "outpatient_diagnostic_lab",
+				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hospital", "outpatient_diagnostic_lab",
 				"outpatient_surgery", "outpatient_diagnostic_x_ray", "outpatient_complex_imaging",
 				"physical_occupational_therapy", "states", "group_rating_areas", "service_zones", "zero_eighteen",
 				"nineteen_twenty", "twenty_one", "twenty_two", "twenty_three", "twenty_four", "twenty_five",
