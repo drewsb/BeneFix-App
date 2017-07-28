@@ -2,6 +2,11 @@ package names;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Arrays.asList;
 
 import components.Main.Carrier;
 
@@ -15,10 +20,27 @@ public class Product_Name {
 	public String rx_copay;
 	public String deductible;
 	public String coinsurance;
+	public boolean isPlusPlan;
 
+	public final static ArrayList<State> states = new ArrayList<State>(Arrays.asList(State.values()));
 	public final static ArrayList<Plan> plans = new ArrayList<Plan>(Arrays.asList(Plan.values()));
 	public final static ArrayList<Metal> metals = new ArrayList<Metal>(Arrays.asList(Metal.values()));
 	public final static ArrayList<Carrier> carriers = new ArrayList<Carrier>(Arrays.asList(Carrier.values()));
+	
+	
+	public final HashMap<String[], Metal> metalAbbrevMap = new HashMap<String[], Metal>(){
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		{
+			put(new String[] {"brz"}, Metal.Bronze);
+			put(new String[] {"slv"}, Metal.Silver);
+			put(new String[] {"gld"}, Metal.Gold);
+			put(new String[] {"plt"}, Metal.Platinum);
+		}
+	};
 	
 	
 	public Product_Name(String original_name) {
@@ -48,6 +70,13 @@ public class Product_Name {
 		for(Metal m : metals){
 			if(str.contains(m.toString())){
 				return m;
+			}
+		}
+		for(Map.Entry<String[], Metal> entry : metalAbbrevMap.entrySet()){
+			for(String abb : entry.getKey()){
+				if(str.contains(abb)){
+					return entry.getValue();
+				}
 			}
 		}
 		return Metal.None;
