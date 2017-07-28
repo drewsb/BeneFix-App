@@ -5,18 +5,14 @@ import components.Main.Carrier;
 public class Product_Name {
 	
 	public final String original_name;
-	public final State state;
-	public final Metal metal;
-	public final Plan plan;
-	public final Carrier carrier;
+	public State state;
+	public Metal metal;
+	public Plan plan;
+	public Carrier carrier;
 
-	public Product_Name(String original_name, State state, Metal metal, Plan plan, Carrier carrier) {
+	public Product_Name(String original_name) {
 		super();
 		this.original_name = original_name;
-		this.state = state;
-		this.metal = metal;
-		this.plan = plan;
-		this.carrier = carrier;
 	}
 
 	public enum State {
@@ -75,5 +71,5 @@ public class Product_Name {
 			return Plan.None;
 		}
 	}
-
+	
 }
