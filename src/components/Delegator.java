@@ -212,12 +212,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 				case PA:
 					switch (carrierType) {
 					case Aetna:
-						return new PA_Aetna_Benefits(start_date,end_date);
+						return new PA_Aetna_AFA_Benefits(start_date,end_date);
 					case UPMC:
 						/*
 						 * Needs to be finished
 						 * return new PA_UPMC_Benefits(start_date,end_date);
-						 */
 						break;
 					case CPA:
 						/*
@@ -229,9 +228,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 						 * No class created yet.
 						 */
 					case WPA:
-						/*
-						 * No class created yet.
-						 */
+						return new PA_WPA_Benefits(start_date,end_date);
 					case IBC:
 						/*
 						 * No class created yet. 

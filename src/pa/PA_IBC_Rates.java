@@ -9,6 +9,7 @@ import java.util.HashMap;
 import components.PDFManager;
 import components.Page;
 import components.Parser;
+import components.Formatter;
 import components.MedicalPage;
 
 
@@ -45,6 +46,7 @@ public class PA_IBC_Rates implements Parser {
 		String[] tokens = text.split(" |\n"); // Split pdf text by spaces and
 												// new line chars
 		int token_length = tokens.length;
+		int carrier_id = 12; //CHANGE
 		String product_name = "";
 		String plan_code = "";
 		String rating_area = "";
@@ -54,40 +56,64 @@ public class PA_IBC_Rates implements Parser {
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
 		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
-		int temp_index = 27;
-		while(!tokens[temp_index].contains("$")){
-			product_name += tokens[temp_index];
-			temp_index++;
-		}
-		temp_index+=plan_name.length() + 3;
-		while(!tokens[temp_index].equals("Age")){
-			plan_name+=tokens[temp_index];
-			temp_index++;
-		}
-		temp_index+=10;
-		non_tobacco_dict.put("0-20",  Double.valueOf(tokens[temp_index]+1));
-		non_tobacco_dict.put("0-20",  Double.valueOf(tokens[temp_index]+2));
-		temp_index+=13;
-		while(tokens[temp_index].equals("Age")){
-			age_count++;
-			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+1));
-			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+2));
-			temp_index+=3;
-		}
-		age_count++;
-		temp_index+=8;
-		while(age_count < 65){
-			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+1));
-			non_tobacco_dict.put(tokens[temp_index],  Double.valueOf(tokens[temp_index]+2));
-			temp_index+=3;
+		int index = 2;
+		
+		while(!tokens[index-2].equals("through")){
+			index++;
 		}
 		
-//		Page page = new Page(carrier_id, plan_id, start_date, end_date, product, "", deductible, "", "", "",
-//				coinsurance, "", "", "", "", "", "", oop_maximum, "", "", "", "", "", "", "", "", "", rating_area, "",
-//				plan_name, state, page_index, non_tobacco_dict, tobacco_dict);
+		while(!tokens[index].equals("Region:")){
+			product_name += tokens[index] + " ";
+			index++;
+		}
+				
+		rating_area = tokens[index+1];
+		
+		while(!tokens[index-1].equals("20")){
+			index++;
+		}
+		
+		System.out.println(tokens[index]);
+		System.out.println(Formatter.formatValue(tokens[index]));
+		non_tobacco_dict.put("0-20",  Formatter.formatValue(tokens[index]));
+		tobacco_dict.put("0-20",  Formatter.formatValue(tokens[index+1]));
+		
+		index+=2;
+		int age = 0;
+		String token = "";
+		System.out.println(filename);
+		while(!token.equals("64+")){
+			try{
+				token = tokens[index];
+				age = Integer.parseInt(token);
+				non_tobacco_dict.put(String.valueOf(age),  Formatter.formatValue(tokens[index+1]));
+				tobacco_dict.put(String.valueOf(age),  Formatter.formatValue(tokens[index+2]));
+				index+=3;
+			}
+			catch(NumberFormatException e){
+				index++;
+			}
+		}
+		
+		non_tobacco_dict.put("64",  Formatter.formatValue(tokens[index]));
+		non_tobacco_dict.put("65+",  Formatter.formatValue(tokens[index]));
+		tobacco_dict.put("64",  Formatter.formatValue(tokens[index+1]));
+		tobacco_dict.put("65+",  Formatter.formatValue(tokens[index+1]));
+		
+		
+		MedicalPage page = new MedicalPage(carrier_id, "", start_date, end_date, product_name, filename,
+				"", "", "", "", "", "", "", "", "", "", "", "", "", "",
+				"", "", "", "", "", "", "", rating_area, "", state, 0,
+				non_tobacco_dict, tobacco_dict);
+		
+		page.setTobaccoRates(true);
+		
+		pages.add(page);
+		
+		Formatter.printDictionary(tobacco_dict);
 
 		// System.out.println("*****************************************************");
-		return null;
+		return pages;
 
 	}
 

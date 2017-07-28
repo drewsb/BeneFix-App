@@ -13,6 +13,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.Formatter;
 import components.MedicalPage;
 import components.Page;
 import components.Parser;
@@ -25,19 +26,20 @@ public class PA_CPA_Rates implements Parser{
 	
 	static ArrayList<Page> products;
 	
-	static int sheet_index;
+	final int sheet_index;
 	
-	static Sheet sheet;
+	public Sheet sheet;
 	
 	static Iterator<Row> iterator;	
 	
-	static String start_date;
+	final String start_date;
 	
-	static String end_date;
+	final String end_date;
 	
 	public PA_CPA_Rates(int sheet_index, String s_date, String e_date) throws IOException{
-		start_date = s_date;
-		end_date = e_date;
+		this.sheet_index = sheet_index;
+		this.start_date = s_date;
+		this.end_date = e_date;
 		products = new ArrayList<Page>();
 	
     }
@@ -65,6 +67,7 @@ public class PA_CPA_Rates implements Parser{
 		
 		String state = "PA";
 		
+		System.out.println(sheet_index);
         while(col_index < numCols){
 			HashMap<String,Double> non_tobacco_dict = new HashMap<String,Double>();		
 			HashMap<String,Double> tobacco_dict = new HashMap<String,Double>();
@@ -78,7 +81,7 @@ public class PA_CPA_Rates implements Parser{
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String form_num = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String rating_area = cell.getStringCellValue();
+			String rating_area = Formatter.removeString(cell.getStringCellValue(), "Area ");
 			//rating_area = rating_area.substring(0, rating_area.length());
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String network = String.format("HIGHMARK-%s",cell.getStringCellValue());
@@ -87,28 +90,28 @@ public class PA_CPA_Rates implements Parser{
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String plan_name = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String deductible = Double.toString(cell.getNumericCellValue());
+			String deductible = getCellValue(cell);
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String coinsurance = Double.toString(cell.getNumericCellValue());
+			String coinsurance = getCellValue(cell);
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String copays = cell.getStringCellValue();
+			String copays = getCellValue(cell);
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String oop_maximum = Double.toString(cell.getNumericCellValue());
+			String oop_maximum = getCellValue(cell);
 			row_index+=2;
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			non_tobacco_dict.put("0-20", cell.getNumericCellValue());
+			non_tobacco_dict.put("0-20", Formatter.formatValue(getCellValue(cell)));
 			cell = r.getCell(col_index+1);
-			tobacco_dict.put("0-20", cell.getNumericCellValue());
+			tobacco_dict.put("0-20", Formatter.formatValue(getCellValue(cell)));
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			for(int i = 21; i < 65; i++){
-				non_tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
+				non_tobacco_dict.put(String.valueOf(i), Formatter.formatValue(getCellValue(cell)));
 				cell = r.getCell(col_index+1);
-				tobacco_dict.put(String.valueOf(i), cell.getNumericCellValue());
+				tobacco_dict.put(String.valueOf(i), Formatter.formatValue(getCellValue(cell)));
 				r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			}
-			non_tobacco_dict.put("65+", cell.getNumericCellValue());
+			non_tobacco_dict.put("65+", Formatter.formatValue(getCellValue(cell)));
 			cell = r.getCell(col_index+1);
-			tobacco_dict.put("65+", cell.getNumericCellValue());
+			tobacco_dict.put("65+", Formatter.formatValue(getCellValue(cell)));
 			System.out.println(product);
 			System.out.println(dates);
 			System.out.println(plan_id);
@@ -126,7 +129,7 @@ public class PA_CPA_Rates implements Parser{
 				System.out.println(entry.getKey());
 				System.out.println(entry.getValue());
 			}
-			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", 
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, plan_name, "", 
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 	        products.add(page);

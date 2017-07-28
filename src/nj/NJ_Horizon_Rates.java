@@ -97,26 +97,19 @@ public class NJ_Horizon_Rates implements Parser {
 					age = "65+";
 				}
 				
-				String val1 = df.formatCellValue(row.getCell(cellIndex++));
-				String val2 = df.formatCellValue(row.getCell(cellIndex++));
-				String val3 = df.formatCellValue(row.getCell(cellIndex++));
-				String val4 = df.formatCellValue(row.getCell(cellIndex++));
-				String val5 = df.formatCellValue(row.getCell(cellIndex++));
-				String val6 = df.formatCellValue(row.getCell(cellIndex++));
+				Double val1 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
+				Double val2 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
+				Double val3 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
+				Double val4 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
+				Double val5 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
+				Double val6 = Formatter.formatValue(df.formatCellValue(row.getCell(cellIndex++)));
 				
-				val1 = Formatter.formatValue(val1);
-				val2 = Formatter.formatValue(val2);
-				val3 = Formatter.formatValue(val3);
-				val4 = Formatter.formatValue(val4);
-				val5 = Formatter.formatValue(val5);
-				val6 = Formatter.formatValue(val6);
-				
-				map1.put(age, Double.parseDouble(val1));
-				map2.put(age, Double.parseDouble(val2));
-				map3.put(age, Double.parseDouble(val3));
-				map4.put(age, Double.parseDouble(val4));
-				map5.put(age, Double.parseDouble(val5));
-				map6.put(age, Double.parseDouble(val6));
+				map1.put(age, val1);
+				map2.put(age, val2);
+				map3.put(age, val3);
+				map4.put(age, val4);
+				map5.put(age, val5);
+				map6.put(age, val6);
 
 			}
 			

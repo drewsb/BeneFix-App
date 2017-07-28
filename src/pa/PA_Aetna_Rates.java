@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import components.Formatter;
 import components.MedicalPage;
 import components.PDFManager;
 import components.Page;
@@ -46,7 +47,7 @@ public class PA_Aetna_Rates implements Parser {
 			String plan_id = "";
 			String plan_name = "";
 			String state = "";
-			int carrier_id = 12;
+			int carrier_id = 10;
 			String product_name = "";
 			String plan_code = "";
 
@@ -71,10 +72,10 @@ public class PA_Aetna_Rates implements Parser {
 				non_tob_dict.put(tokens[i], Double.valueOf(tokens[i+1]));
 			}
 			base_row+=count+159;    //Update base_row to beginning of next page
-			state = tokens[base_row-1];
-			MedicalPage page = new MedicalPage(carrier_id, "", start_date, end_date, product_name, "", "", "", "", "",
+			rating_area = Formatter.removeString(rating_area, "PARA0");
+			MedicalPage page = new MedicalPage(carrier_id, "", start_date, end_date, plan_name, filename, "", "", "", "",
 					"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", rating_area, "",
-					state, 0, non_tob_dict, tob_dict);
+					"PA", 0, non_tob_dict, tob_dict);
 			pages.add(page);
 		}
 		return pages;

@@ -152,7 +152,7 @@ public class Main extends JPanel implements ActionListener {
 		Set<String> CAcarriers = new HashSet<String>(Arrays.asList(CAcorps));
 		medicalCarriers.put("CA", CAcarriers);
 
-		String[] OHcorps = { "Anthem" };
+		String[] OHcorps = { "Anthem"};
 		Set<String> OHcarriers = new HashSet<String>(Arrays.asList(OHcorps));
 		medicalCarriers.put("OH", OHcarriers);
 
@@ -336,6 +336,7 @@ public class Main extends JPanel implements ActionListener {
 			checkCarrier();
 			checkPlan();
 
+			System.out.println(sheetBox.getSelectedItem());
 			delegator = new Delegator(carrierType, planType, sheetBox.getSelectedIndex(), selectedState,
 					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log,
 					progressBar);
@@ -427,7 +428,7 @@ public class Main extends JPanel implements ActionListener {
 				if (this.selectedOperation.equals("Merge")) {
 					ArrayList<Page> result = Merger.merge(path1, path2, carrierType);
 					ExcelWriter merge_excel = new ExcelWriter();
-					merge_excel.populateExcel(result, filename, carrierType, selectedState, planType);
+					merge_excel.populateExcel(result, filename, carrierType, selectedState, planType, log);
 				} else if (this.selectedOperation.equals("Compare")) {
 					Merger.compareAetnaWorkbooks(path1, path2);
 				}
@@ -486,9 +487,14 @@ public class Main extends JPanel implements ActionListener {
 							(String) dateBox.getSelectedItem(), year);
 				}
 			} else {
-				filename = removeFileExtension(selectedPlans.get(0).getName());
+				if(!selectedPlans.isEmpty()){
+					filename = removeFileExtension(selectedPlans.get(0).getName());
+				}
+				else{
+					filename = removeFileExtension(selectedRates.get(0).getName());
+				}
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState, planType);
+			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState, planType, log);
 			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
 			log.append(output);
 		} catch (IOException e1) {

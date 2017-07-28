@@ -83,19 +83,19 @@ public class PA_CBC_Rates implements Parser{
 			
 			cell = r.getCell(++col_index);
 			temp = getCellValue(cell);
-			non_tobacco_dict.put("0-18", Double.parseDouble(Formatter.formatValue(temp)));	
+			non_tobacco_dict.put("0-18", Formatter.formatValue(temp));	
 			
 			cell = r.getCell(++col_index);
 			temp = getCellValue(cell);
-			non_tobacco_dict.put("19-20", Double.parseDouble(Formatter.formatValue(temp)));	
+			non_tobacco_dict.put("19-20", Formatter.formatValue(temp));	
 			
 			cell = r.getCell(col_index+=2);
 			for(int i = 21; i < 65; i++){
 				temp = getCellValue(cell);
-				non_tobacco_dict.put(Integer.toString(i), Double.parseDouble(Formatter.formatValue(temp)));
+				non_tobacco_dict.put(Integer.toString(i),Formatter.formatValue(temp));
 				cell = r.getCell(++col_index);
 			}
-			non_tobacco_dict.put("65+", Double.parseDouble(Formatter.formatValue(temp)));
+			non_tobacco_dict.put("65+", Formatter.formatValue(temp));
 			
 			for(Map.Entry<String, Double> entry : non_tobacco_dict.entrySet()){
 				System.out.println(entry.getKey());

@@ -41,8 +41,8 @@ public class Tokenizer {
 			String text = pdfManager.ToText();
 			String[] tokens = text.split("[\\s\\r\\n]+"); // Split pdf text by
 															// spaces
+			System.out.println(f.getName());
 			for (String s : tokens) {
-				System.out.println(s);
 				row = rows.get(rowCount++);
 				Cell cell = row.createCell(colCount);
 				cell.setCellValue(s);

@@ -14,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import components.Formatter;
 import components.MedicalPage;
 import components.Page;
 import components.Parser;
@@ -80,7 +81,7 @@ public class PA_NEPA_Rates implements Parser {
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String form_num = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
-			String rating_area = cell.getStringCellValue();
+			String rating_area = Formatter.removeString(cell.getStringCellValue(), "Rating Area ");
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String counties = cell.getStringCellValue();
 			row_index++;
@@ -136,7 +137,7 @@ public class PA_NEPA_Rates implements Parser {
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index+1);
 			tobacco_dict.put("65+", cell.getNumericCellValue());
-			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "",
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, filename,
 					deductible, "", "", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "",
 					"", "", "", "", "", "", "", rating_area, "", state, page_index,
 					non_tobacco_dict, tobacco_dict);
