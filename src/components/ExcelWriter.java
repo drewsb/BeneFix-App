@@ -189,10 +189,6 @@ public class ExcelWriter {
 				cell.setCellValue(p.non_tobacco_dict.get("65+"));
 			}
 		}
-		
-		if(products.get(0).hasTobaccoRates){
-			
-		}
 
 		String outputName = String.format("%s_data.xlsx", filename);
 		// Create output file
