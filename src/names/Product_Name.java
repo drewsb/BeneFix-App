@@ -1,5 +1,8 @@
 package names;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import components.Main.Carrier;
 
 public class Product_Name {
@@ -9,7 +12,15 @@ public class Product_Name {
 	public Metal metal;
 	public Plan plan;
 	public Carrier carrier;
+	public String rx_copay;
+	public String deductible;
+	public String coinsurance;
 
+	public final static ArrayList<Plan> plans = new ArrayList<Plan>(Arrays.asList(Plan.values()));
+	public final static ArrayList<Metal> metals = new ArrayList<Metal>(Arrays.asList(Metal.values()));
+	public final static ArrayList<Carrier> carriers = new ArrayList<Carrier>(Arrays.asList(Carrier.values()));
+	
+	
 	public Product_Name(String original_name) {
 		super();
 		this.original_name = original_name;
@@ -32,23 +43,18 @@ public class Product_Name {
 		return original_name;
 	}
 	
-	public static Metal getMetal(String s) {
-		String str = s.toLowerCase().replaceAll("\\s", "");
-		if (str.contains("bronze")) {
-			return Metal.Bronze;
-		} else if (str.contains("silver")) {
-			return Metal.Silver;
-		} else if (str.contains("gold")) {
-			return Metal.Gold;
-		} else if (str.contains("platinum")) {
-			return Metal.Platinum;
-		} else {
-			return Metal.None;
+	public Metal getMetal() {
+		String str = original_name.toLowerCase().replaceAll("\\s", "");
+		for(Metal m : metals){
+			if(str.contains(m.toString())){
+				return m;
+			}
 		}
+		return Metal.None;
 	}
 	
-	public static Plan getPlan(String s) {
-		String str = s.toLowerCase().replaceAll("[\\s_]", "");
+	public Plan getPlan() {
+		String str = original_name.toLowerCase().replaceAll("[\\s_]", "");
 		if (str.contains("choiceplus")) {
 			return Plan.Choice_Plus;
 		} else if (str.contains("epo")) {

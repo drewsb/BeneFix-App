@@ -67,7 +67,8 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> sourceCarriers;
 
 	public enum Carrier {
-		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Oxford, Cigna, Horizon, Geisinger, Delta, United_Concordia
+		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Oxford, Cigna, 
+		Horizon, Geisinger, Delta, United_Concordia, NONE
 	}
 
 	public enum State {
