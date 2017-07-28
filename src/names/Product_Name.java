@@ -1,6 +1,23 @@
 package names;
 
-public interface Product_Name {
+import components.Main.Carrier;
+
+public class Product_Name {
+	
+	public final String original_name;
+	public final State state;
+	public final Metal metal;
+	public final Plan plan;
+	public final Carrier carrier;
+
+	public Product_Name(String original_name, State state, Metal metal, Plan plan, Carrier carrier) {
+		super();
+		this.original_name = original_name;
+		this.state = state;
+		this.metal = metal;
+		this.plan = plan;
+		this.carrier = carrier;
+	}
 
 	public enum State {
 		PA, OH, NJ, CA
@@ -15,7 +32,9 @@ public interface Product_Name {
 	}
 	
 	@Override
-	public String toString();
+	public String toString(){
+		return original_name;
+	}
 	
 	public static Metal getMetal(String s) {
 		String str = s.toLowerCase().replaceAll("\\s", "");
