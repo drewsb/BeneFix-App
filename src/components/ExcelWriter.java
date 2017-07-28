@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.swing.JTextArea;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -30,10 +32,6 @@ public class ExcelWriter {
 
 	static State state;
 
-	public static void main(String[] args) {
-
-	}
-
 	/*
 	 * Input: Array of page objects. Creates a new workbook sheet every
 	 * compilation. First populates the excel sheet with template data, then the
@@ -41,11 +39,11 @@ public class ExcelWriter {
 	 * "BenefixData.xlsx".
 	 */
 	@SuppressWarnings("unchecked")
-	public static void populateExcel(ArrayList<Page> pages, String f_name, Carrier type, State stateType, Plan plan)
+	public static void populateExcel(ArrayList<Page> pages, String f_name, Carrier type, State stateType, Plan plan, JTextArea log)
 			throws IOException {
 		workbook = new XSSFWorkbook();
 		sheet = workbook.createSheet("BenefixData");
-
+		
 		filename = f_name;
 		carrierType = type;
 		state = stateType;
@@ -78,7 +76,7 @@ public class ExcelWriter {
 				"urgent_care_copay", "rx_copay", "rx_mail_copay", "oop_max_indiv", "oop_max_family",
 				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hospital", "outpatient_diagnostic_lab",
 				"outpatient_surgery", "outpatient_diagnostic_x_ray", "outpatient_complex_imaging",
-				"physical_occupational_therapy", "states", "group_rating_areas", "service_zones", "zero_eighteen",
+				"physical_occupational_therapy", "state", "group_rating_areas", "service_zones", "zero_eighteen",
 				"nineteen_twenty", "twenty_one", "twenty_two", "twenty_three", "twenty_four", "twenty_five",
 				"twenty_six", "twenty_seven", "twenty_eight", "twenty_nine", "thirty", "thirty_one", "thirty_two",
 				"thirty_three", "thirty_four", "thirty_five", "thirty_six", "thirty_seven", "thirty_eight",
@@ -91,7 +89,7 @@ public class ExcelWriter {
 		int colCount = 0;
 		int max_age;
 
-		if (carrierType == Carrier.IBC || (carrierType == Carrier.Aetna && state == State.NJ)) {
+		if (carrierType == Carrier.IBC || carrierType == Carrier.Aetna) {
 			max_age = 64;
 		} else {
 			max_age = 65;
@@ -122,7 +120,7 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.product_name);
 			cell = row.createCell(colCount++);
-			cell.setCellValue((String) p.plan_pdf_file_name);
+			cell.setCellValue((String) p.plan_pdf_file_name + ".pdf");
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.deductible_indiv);
 			cell = row.createCell(colCount++);
@@ -182,22 +180,13 @@ public class ExcelWriter {
 					cell = row.createCell(colCount++);
 					cell.setCellValue(p.non_tobacco_dict.get("0-20"));
 				}
-				for (int i = 0; i < max_age - 21; i++) {
+				for (int i = 21; i < 65; i++) {
 					cell = row.createCell(colCount++);
-					String index = String.format("%d", i + 21);
+					String index = String.format("%d", i);
 					cell.setCellValue(p.non_tobacco_dict.get(index));
 				}
-
 				cell = row.createCell(colCount++);
-				String max_age_string = String.format("%d+", max_age);
-				cell.setCellValue(p.non_tobacco_dict.get(max_age_string));
-				if (max_age < 65) {
-					int diff = 65 - max_age;
-					for (int i = 0; i < diff; i++) {
-						cell = row.createCell(colCount++);
-						cell.setCellValue(p.non_tobacco_dict.get(max_age_string));
-					}
-				}
+				cell.setCellValue(p.non_tobacco_dict.get("65+"));
 			}
 		}
 
@@ -208,7 +197,13 @@ public class ExcelWriter {
 		}
 		workbook.close();
 	}
+	
+	public static void populateMedicalTobaccoRates(){
+		
+	}
 
+	
+	
 	public static void populateDentalExcel(ArrayList<DentalPage> products) throws FileNotFoundException, IOException {
 		XSSFWorkbook workbook = new XSSFWorkbook();
 		XSSFSheet sheet = workbook.createSheet("BenefixData");
@@ -305,8 +300,10 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.four_tier_f);
 		}
-
-		String outputName = String.format("%s_data.xlsx", filename);
+		
+		String dentalFilename = filename + "_Dental";
+		
+		String outputName = String.format("%s_data.xlsx", dentalFilename);
 		// Create output file
 		try (FileOutputStream outputStream = new FileOutputStream(outputName)) {
 			workbook.write(outputStream);

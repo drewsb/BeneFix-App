@@ -8,35 +8,36 @@ import java.util.HashMap;
 import components.PDFManager;
 import components.Page;
 import components.Parser;
+import components.Formatter;
 import components.MedicalPage;
 
 /*
  * Primary parsing class used to parse a pdf and create and populate an excel sheet. Assumes pdf template is shown 
  */
-public class PA_Aetna_Benefits implements Parser {
-	
+public class PA_Aetna_AFA_Benefits implements Parser {
+
 	ArrayList<Page> pages;
 
 	static String[] tokens;
 
 	static String text;
-	
+
 	String start_date;
-	
+
 	String end_date;
 
-	public PA_Aetna_Benefits(String s_date, String e_date) throws IOException {
+	public PA_Aetna_AFA_Benefits(String s_date, String e_date) throws IOException {
 		start_date = s_date;
 		end_date = e_date;
 	}
 
 	@SuppressWarnings("unused")
 	public ArrayList<Page> parse(File file, String filename) throws IOException {
+		pages = new ArrayList<Page>();
 		PDFManager pdfManager = new PDFManager();
 		pdfManager.setFilePath(file.getAbsolutePath());
 		text = pdfManager.ToText();
-		
-		
+
 		this.tokens = text.split(" |\n"); // Split pdf text by spaces and
 											// new line chars
 		for (String s : tokens) {
@@ -81,76 +82,51 @@ public class PA_Aetna_Benefits implements Parser {
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
 		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
-		while (!tokens[temp_index - 2].equals("BENEFITS")) {
-			temp_index++;
-		}
-		
-		while (!tokens[temp_index + 1].equals("PA")) {
+		while (!tokens[temp_index].equals("PLAN")) {
 			product_name += tokens[temp_index] + " ";
 			temp_index++;
 		}
-		
+
 		while (!tokens[temp_index].equals("year)")) {
 			temp_index++;
 		}
-		
+
 		temp_index++;
-		
-		if (tokens[temp_index].equals("Not")) {
-			deductible_indiv = "n/a";
-			deductible_family = "n/a";
-		} else {
-			deductible_indiv = tokens[temp_index];
-			deductible_family = tokens[temp_index + 2];
-		}
-		
+
+		deductible_indiv = tokens[temp_index];
+		deductible_family = tokens[temp_index + 2];
+
 		while (!tokens[temp_index].equals("Family")) {
 			temp_index++;
 		}
-		
+
 		temp_index++;
-		
-		if (tokens[temp_index].equals("Not")) {
-			oon_deductible_indiv = "n/a";
-			oon_deductible_family = "n/a";
-		} else {
-			oon_deductible_indiv = tokens[temp_index];
-			oon_deductible_indiv = tokens[temp_index + 2];
-		}
-		
+
+		oon_deductible_indiv = tokens[temp_index];
+		oon_deductible_family = tokens[temp_index + 2];
+
 		temp_index += 40;
-		
+
 		while (!tokens[temp_index].equals("Coinsurance")) {
 			temp_index++;
 		}
-		
+
 		temp_index += 8;
-		
+
 		coinsurance = tokens[temp_index];
-		
+
 		while (!tokens[temp_index].equals("deductible)")) {
 			temp_index++;
 		}
-		
+
 		temp_index++;
 		oop_max_indiv = tokens[temp_index];
 		oop_max_family = tokens[temp_index + 2];
-		temp_index+=4;
-		if(tokens[temp_index].equals("Not")){
-			oon_oop_max_indiv = "n/a";
-			oon_oop_max_family = "n/a";
-		}
-		else{
-			while(!tokens[temp_index].equals("Individual")){
-				oon_oop_max_indiv += tokens[temp_index];
-				temp_index++;
-			}
-			temp_index++;
-			while(!tokens[temp_index].equals("Family")){
-				oon_oop_max_family += tokens[temp_index];
-				temp_index++;
-			}
-		}
+		temp_index += 4;
+		oon_oop_max_indiv += tokens[temp_index];
+		temp_index += 2;
+		oon_oop_max_family += tokens[temp_index];
+
 		temp_index += 20;
 		while (!tokens[temp_index].equals("Office")) {
 			temp_index++;
@@ -165,13 +141,13 @@ public class PA_Aetna_Benefits implements Parser {
 		while (!tokens[temp_index].equals("Specialist")) {
 			temp_index++;
 		}
-		temp_index += 4;
+		temp_index += 3;
 		while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
 				& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
 			specialist_visit_copay += tokens[temp_index] + " ";
 			temp_index++;
 		}
-		temp_index += 400;
+		temp_index += 300;
 		while (!tokens[temp_index].equals("Outpatient")) {
 			temp_index++;
 		}
@@ -184,13 +160,13 @@ public class PA_Aetna_Benefits implements Parser {
 		while (!tokens[temp_index].equals("Outpatient")) {
 			temp_index++;
 		}
-		temp_index += 9;
+		temp_index += 8;
 		while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
 				& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
 			outpatient_diagnostic_x_ray += tokens[temp_index] + " ";
 			temp_index++;
 		}
-		while (!tokens[temp_index].equals("required.")) {
+		while (!tokens[temp_index].equals("Scans)")) {
 			temp_index++;
 		}
 		temp_index++;
@@ -211,32 +187,52 @@ public class PA_Aetna_Benefits implements Parser {
 		while (!tokens[temp_index].equals("Emergency")) {
 			temp_index++;
 		}
+
 		temp_index += 2;
-		while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
-				& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
-			er_copay += tokens[temp_index] + " ";
-			temp_index++;
+		if (tokens[temp_index].equals("Not")) {
+			er_copay = "n/a";
 		}
+		else if (tokens[temp_index].equals("Covered")) {
+			er_copay = "Covered in full after deductible";
+		} else {
+			while (!Formatter.isDollarValue(tokens[temp_index]) & !Formatter.isPercentage(tokens[temp_index])) {
+				temp_index++;
+			}
+
+			while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
+					& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
+				er_copay += tokens[temp_index] + " ";
+				temp_index++;
+			}
+		}
+
 		temp_index += 20;
 		while (!tokens[temp_index].equals("Inpatient")) {
 			temp_index++;
 		}
-		temp_index += 10;
+		while (!tokens[temp_index - 1].contains("stay")) {
+			temp_index++;
+		}
 		while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
 				& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
 			in_patient_hospital += tokens[temp_index] + " ";
 			temp_index++;
 		}
+		System.out.println(in_patient_hospital);
+
 		while (!tokens[temp_index].equals("Outpatient")) {
 			temp_index++;
 		}
-		temp_index += 12;
+		while (!tokens[temp_index - 1].contains("facility.")) {
+			temp_index++;
+		}
 		while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
 				& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
 			outpatient_surgery += tokens[temp_index] + " ";
 			temp_index++;
 		}
-		temp_index += 250;
+		System.out.println(outpatient_surgery);
+		System.out.println(temp_index);
 		while (!tokens[temp_index].equals("Occupational")) {
 			temp_index++;
 		}
@@ -255,125 +251,63 @@ public class PA_Aetna_Benefits implements Parser {
 		}
 		System.out.println(temp_index);
 		for (int i = 0; i < 2; i++) {
-			for (int j = 0; j < 2; j++) {
-				if ((i == 0 & !rx_covered) || (i == 1 & !rx_mail_covered)) {
-					while (!tokens[temp_index].equals("Generic:")) {
-						temp_index++;
-					}
+			if (i == 0) {
+				while (!tokens[temp_index - 1].contains("T1A")) {
 					temp_index++;
-					if (tokens[temp_index].equals("Covered")) {
-						if (i == 0) {
-							rx_copay = "Covered in full after deductible";
-							rx_covered = true;
-						} else {
-							rx_mail_copay = "Covered in full after deductible";
-							rx_mail_covered = true;
-						}
-						break;
-					}
-					while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
-							& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
-						if (i == 0) {
-							rx_copay += tokens[temp_index] + " ";
-						} else {
-							rx_mail_copay += tokens[temp_index] + " ";
-						}
-						temp_index++;
-					}
-					if (i == 0) {
-						rx_copay = rx_copay.substring(0, rx_copay.length()-1) +  "/";
-					} else {
-						rx_mail_copay = rx_mail_copay.substring(0, rx_mail_copay.length()-1) +  "/";
-					}
 				}
-			}
-			if ((i == 0 & !rx_covered) || (i == 1 & !rx_mail_covered)) {
-				for (int k = 0; k < 2; k++) {
-					while (!tokens[temp_index].equals("Preferred") & !tokens[temp_index].equals("Generic")) {
-						temp_index++;
-					}
-					temp_index += 3;
-					while (!tokens[temp_index - 1].equals("waived") & !tokens[temp_index].equals("Not")
-							& !tokens[temp_index - 1].equals("copayment") & !tokens[temp_index - 2].equals("after")) {
-						if (i == 0) {
-							rx_copay += tokens[temp_index] + " ";
-						} else {
-							rx_mail_copay += tokens[temp_index] + " ";
-						}
-						temp_index++;
-					}
-					if (i == 0 & k == 0) {
-						rx_copay = rx_copay.substring(0, rx_copay.length()-1) +  "/";
-					} else if (k == 0) {
-						rx_mail_copay = rx_mail_copay.substring(0, rx_mail_copay.length()-1) +  "/";
-					}
+				rx_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].equals("T1:")) {
+					temp_index++;
 				}
+				rx_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].contains("Drugs")) {
+					temp_index++;
+				}
+				rx_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].contains("Drugs")) {
+					temp_index++;
+				}
+				rx_copay += tokens[temp_index];
+			} else {
+				while (!tokens[temp_index - 1].contains("T1A")) {
+					temp_index++;
+				}
+				rx_mail_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].equals("T1:")) {
+					temp_index++;
+				}
+				rx_mail_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].contains("Drugs")) {
+					temp_index++;
+				}
+				rx_mail_copay += tokens[temp_index] + "/";
+				while (!tokens[temp_index - 1].contains("Drugs")) {
+					temp_index++;
+				}
+				rx_mail_copay += tokens[temp_index];
 			}
-			temp_index += 50;
 		}
 
-		deductible_indiv = formatString(deductible_indiv);
-		deductible_family = formatString(deductible_family);
-		oon_deductible_indiv = formatString(oon_deductible_indiv);
-		oon_deductible_family = formatString(oon_deductible_family);
-		coinsurance = "0%";
-		dr_visit_copay = formatString(dr_visit_copay);
-		specialist_visit_copay = formatString(specialist_visit_copay);
-		er_copay = formatString(er_copay);
-		urgent_care_copay = formatString(urgent_care_copay);
-		rx_copay = formatString(rx_copay);
-		rx_mail_copay = formatString(rx_mail_copay);
-		oop_max_indiv = formatString(oop_max_indiv);
-		oop_max_family = formatString(oop_max_family);
-		oon_oop_max_indiv = formatString(oon_oop_max_indiv);
-		in_patient_hospital = formatString(in_patient_hospital);
-		outpatient_diagnostic_lab = formatString(outpatient_diagnostic_lab);
-		outpatient_surgery = formatString(outpatient_surgery);
-		outpatient_diagnostic_x_ray = formatString(outpatient_diagnostic_x_ray);
-		outpatient_complex_imaging = formatString(outpatient_complex_imaging);
-		physical_occupational_therapy = formatString(physical_occupational_therapy);
+		String[] delims = {"copay deductible waived", "copayment"};
+		
+		dr_visit_copay = Formatter.removeStrings(dr_visit_copay, delims);
+		specialist_visit_copay = Formatter.removeStrings(specialist_visit_copay, delims);
+		er_copay = Formatter.removeStrings(er_copay, delims);
+		urgent_care_copay = Formatter.removeStrings(urgent_care_copay, delims);
+		outpatient_surgery = Formatter.removeStrings(outpatient_surgery, delims);
+		outpatient_complex_imaging = Formatter.removeStrings(outpatient_complex_imaging, delims);
+		physical_occupational_therapy = Formatter.removeStrings(physical_occupational_therapy, delims);
 
-		Page new_page = new MedicalPage(carrier_id, carrier_plan_id, start_date, end_date, product_name, plan_pdf_file_name,
-				deductible_indiv, deductible_family, oon_deductible_indiv, oon_deductible_family, coinsurance,
-				dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay, rx_copay, rx_mail_copay,
-				oop_max_indiv, oop_max_family, oon_oop_max_indiv, oon_oop_max_family, in_patient_hospital,
-				outpatient_diagnostic_lab, outpatient_surgery, outpatient_diagnostic_x_ray, outpatient_complex_imaging,
-				physical_occupational_therapy, "", service_zones, "", 0, non_tobacco_dict, tobacco_dict);
+		Page new_page = new MedicalPage(carrier_id, carrier_plan_id, start_date, end_date, product_name,
+				plan_pdf_file_name, deductible_indiv, deductible_family, oon_deductible_indiv, oon_deductible_family,
+				coinsurance, dr_visit_copay, specialist_visit_copay, er_copay, urgent_care_copay, rx_copay,
+				rx_mail_copay, oop_max_indiv, oop_max_family, oon_oop_max_indiv, oon_oop_max_family,
+				in_patient_hospital, outpatient_diagnostic_lab, outpatient_surgery, outpatient_diagnostic_x_ray,
+				outpatient_complex_imaging, physical_occupational_therapy, "", service_zones, "", 0, non_tobacco_dict,
+				tobacco_dict);
 		pages.add(new_page);
 		return pages;
 	}
 
-	public String formatString(String input) {
-		int index;
-		if (input.contains("Not Applicable") || input.contains("Not Applicable ")) {
-			return "n/a";
-		}
-		if (input.contains(" copayment per visit")) {
-			index = input.indexOf(" copayment per visit");
-			input = input.substring(0, index) + input.substring(index + 20, input.length());
-		}
-		if (input.contains(" copayment")) {
-			index = input.indexOf(" copayment");
-			input = input.substring(0, index) + input.substring(index + 10, input.length());
-		}
-		if (input.contains(",")) {
-			index = input.indexOf(",");
-			String afterComma = input.substring(index + 1, input.length());
-			if (!containsChar(afterComma)) {
-				input = input.substring(0, index) + input.substring(index + 1, input.length());
-			}
-		}
-		return input;
-	}
-
-	public Boolean containsChar(String input) {
-		char[] arr = input.toCharArray();
-		for (char c : arr) {
-			if (c != ' ') {
-				return true;
-			}
-		}
-		return false;
-	}
 
 }

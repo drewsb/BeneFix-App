@@ -42,6 +42,8 @@ public class MedicalPage implements Comparable, Page {
 	public HashMap<String,Double> non_tobacco_dict;
 	public HashMap<String,Double> tobacco_dict;
 	public int page;
+	
+	boolean hasTobaccoRates;
 
 	public MedicalPage(int carrier_id, String carrier_plan_id, String start_date, String end_date, String product_name, String plan_pdf_file_name,
 			String deductible_indiv, String deductible_family, String oon_deductible_indiv, String oon_deductible_family,
@@ -173,5 +175,13 @@ public class MedicalPage implements Comparable, Page {
 	public int compareTo(Object o) {
 		MedicalPage otherObj = (MedicalPage) o;
 		return (this.product_name.compareTo(otherObj.product_name));
+	}
+	
+	public boolean hasTobaccoRates(){
+		return hasTobaccoRates;
+	}
+	
+	public void setTobaccoRates(boolean b){
+		hasTobaccoRates = b;
 	}
 }

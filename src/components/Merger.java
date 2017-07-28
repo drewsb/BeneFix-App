@@ -1069,7 +1069,7 @@ public class Merger {
 			
 			String data = "";
 			if (benefitsCell.getCellTypeEnum() == CellType.NUMERIC) {
-				data = Formatter.formatValue(df.formatCellValue(benefitsCell));
+				data = String.valueOf(Formatter.formatValue(df.formatCellValue(benefitsCell)));
 			} else {
 				data = benefitsCell.getStringCellValue();
 			}
