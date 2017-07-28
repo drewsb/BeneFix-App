@@ -56,9 +56,9 @@ public class ExcelWriter {
 			populateMedicalExcel(medical_products);
 			break;
 		case Dental:
-			ArrayList<MedicalPage> dental_products = new ArrayList<MedicalPage>();
-			dental_products.addAll((Collection<? extends MedicalPage>) pages);
-			populateMedicalExcel(dental_products);
+			ArrayList<DentalPage> dental_products = new ArrayList<DentalPage>();
+			dental_products.addAll((Collection<? extends DentalPage>) pages);
+			populateDentalExcel(dental_products);
 			break;
 		case Vision:
 			ArrayList<MedicalPage> vision_products = new ArrayList<MedicalPage>();
@@ -300,8 +300,10 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.four_tier_f);
 		}
-
-		String outputName = String.format("%s_data.xlsx", filename);
+		
+		String dentalFilename = filename + "_Dental";
+		
+		String outputName = String.format("%s_data.xlsx", dentalFilename);
 		// Create output file
 		try (FileOutputStream outputStream = new FileOutputStream(outputName)) {
 			workbook.write(outputStream);

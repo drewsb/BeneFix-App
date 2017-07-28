@@ -57,7 +57,7 @@ public class DentalPage implements Page{
 		endodonitcs = "";
 		periodontics = "";
 		annual_max = "";
-		office_visit_copay = "";
+		office_visit_copay = "0";
 		deductible_ind_fam = "";
 		orthodontics = "";
 		orthodonitics_lifetime_maximum = "";

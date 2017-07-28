@@ -144,7 +144,7 @@ public class Merger {
 					}
 				}
 			} else if (token.equals("bluecard")) {
-				if (!str.contains("bluecard") && !str.contains("blue card")) {
+				if (!str.contains("bluecard") && !str.contains("blue card") && !str.contains("bl")) {
 //					System.out.println("Fails on bluecard");
 					return false;
 				} else {

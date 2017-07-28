@@ -236,9 +236,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case CBC:
 						return new PA_CBC_Benefits(start_date,end_date);
 					case Geisinger:
-						/*
-						 * No class created yet. 
-						 */
+						return new PA_Geisinger_Benefits(start_date,end_date);
 					case Oxford:
 						return new PA_UHC_Benefits(start_date,end_date);				
 					}
@@ -275,8 +273,15 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					switch (carrierType) {
 					case Delta:
 						return new PA_Delta_Dental_Benefits();
-					case Oxford:
+					case Oxford: 						
+						//DEPRECATED/NOT FINISHED
 						return new PA_Oxford_Dental_Benefits();
+					case United_Concordia:
+						return new PA_United_Concordia_Dental_Benefits();
+					case CPA:
+						return new PA_Highmark_Dental_Benefits();
+					case Aetna:
+						return new PA_Aetna_Dental_Benefits();
 					}
 					break;
 				}
@@ -307,11 +312,8 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case CBC:
 						return new PA_CBC_Rates(start_date,end_date);
 					case Geisinger:
-						//Needs to be finished
-						//return new PA_Geisinger_Rates(start_date,end_date);
-						break;
-					case UHC:
-						System.out.println(sheetIndex);
+						return new PA_Geisinger_Rates(start_date,end_date);
+					case Oxford:
 						return new PA_UHC_Rates(sheetIndex, start_date,end_date);
 					}
 					
@@ -338,6 +340,11 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 			case Dental:
 				switch(state) {
 				case PA:
+					switch (carrierType) {
+					case Delta:
+						//DEPRECATED/NOT FINISHED
+						return new PA_Delta_Dental_Rates(); 
+					}
 					break;
 				case NJ:
 					break;
