@@ -82,6 +82,7 @@ public class PA_CPA_Rates implements Parser{
 			String form_num = cell.getStringCellValue();
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String rating_area = Formatter.removeString(cell.getStringCellValue(), "Area ");
+			rating_area = rating_area.replace(", ", "/");
 			//rating_area = rating_area.substring(0, rating_area.length());
 			r = sheet.getRow(row_index++); cell = r.getCell(col_index);
 			String network = String.format("HIGHMARK-%s",cell.getStringCellValue());

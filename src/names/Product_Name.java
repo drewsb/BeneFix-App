@@ -6,13 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.util.Arrays.asList;
-
 import components.Main.Carrier;
 
 public class Product_Name {
 	
 	public final String original_name;
+	public final String[] name_tokens;
 	public State state;
 	public Metal metal;
 	public Plan plan;
@@ -20,7 +19,11 @@ public class Product_Name {
 	public String rx_copay;
 	public String deductible;
 	public String coinsurance;
+	
+	public boolean isHSAPlan;
 	public boolean isPlusPlan;
+	public boolean isAdvantagePlan;
+	public boolean isOffExchangePlan;
 
 	public final static ArrayList<State> states = new ArrayList<State>(Arrays.asList(State.values()));
 	public final static ArrayList<Plan> plans = new ArrayList<Plan>(Arrays.asList(Plan.values()));
@@ -28,17 +31,17 @@ public class Product_Name {
 	public final static ArrayList<Carrier> carriers = new ArrayList<Carrier>(Arrays.asList(Carrier.values()));
 	
 	
-	public final HashMap<String[], Metal> metalAbbrevMap = new HashMap<String[], Metal>(){
+	public final HashMap<Metal, String[]> metalAbbrevMap = new HashMap<Metal, String[]>(){
 		/**
 		 * 
 		 */
 		private static final long serialVersionUID = 1L;
 
 		{
-			put(new String[] {"brz"}, Metal.Bronze);
-			put(new String[] {"slv"}, Metal.Silver);
-			put(new String[] {"gld"}, Metal.Gold);
-			put(new String[] {"plt"}, Metal.Platinum);
+			put(Metal.Bronze, new String[] {"brz"});
+			put(Metal.Silver, new String[] {"slv"});
+			put(Metal.Gold, new String[] {"gld"});
+			put(Metal.Platinum, new String[] {"plt"});
 		}
 	};
 	
@@ -46,6 +49,7 @@ public class Product_Name {
 	public Product_Name(String original_name) {
 		super();
 		this.original_name = original_name;
+		this.name_tokens = original_name.toLowerCase().split("\\s");
 	}
 
 	public enum State {
@@ -57,7 +61,7 @@ public class Product_Name {
 	}
 	
 	public enum Plan {
-		Choice_Plus, EPO, PPO, HMO, POS, HSA, QPOS, Savings_Plus, Wekkspan_HNOption, LVHN_HNOption, None
+		Choice_Plus, EPO, PPO, HMO, POS, HSA, QPOS, Savings_Plus, Wellspan_HNOption, LVHN_HNOption, None
 	}
 	
 	@Override
@@ -66,16 +70,15 @@ public class Product_Name {
 	}
 	
 	public Metal getMetal() {
-		String str = original_name.toLowerCase().replaceAll("\\s", "");
-		for(Metal m : metals){
-			if(str.contains(m.toString())){
-				return m;
-			}
-		}
-		for(Map.Entry<String[], Metal> entry : metalAbbrevMap.entrySet()){
-			for(String abb : entry.getKey()){
-				if(str.contains(abb)){
-					return entry.getValue();
+		for(String t : name_tokens){
+			for(Metal m : metals){
+				if(t.equals(m.toString().toLowerCase())){
+					return m;
+				}
+				for(String abbrev : metalAbbrevMap.get(m)){
+					if(t.equals(abbrev)){
+						return m;
+					}
 				}
 			}
 		}
@@ -84,27 +87,14 @@ public class Product_Name {
 	
 	public Plan getPlan() {
 		String str = original_name.toLowerCase().replaceAll("[\\s_]", "");
-		if (str.contains("choiceplus")) {
-			return Plan.Choice_Plus;
-		} else if (str.contains("epo")) {
-			return Plan.EPO;
-		} else if (str.contains("ppo")) {
-			return Plan.PPO;
-		} else if (str.contains("hmo")) {
-			return Plan.HMO;
-		} else if (str.contains("hsa")) {
-			return Plan.HSA;
-		} else if (str.contains("qpos")) {
-			return Plan.QPOS;
-		} else if (str.contains("savingsplus")) {
-			return Plan.Savings_Plus;
-		} else if (str.contains("wekkspanhnoption")) {
-			return Plan.Wekkspan_HNOption;
-		} else if (str.contains("lvhnhnoption")) { //Add more to this
-			return Plan.LVHN_HNOption;
-		} else {
-			return Plan.None;
+		for(Plan p : plans){
+			if(str.contains(p.toString().toLowerCase())){
+				return p;
+			}
 		}
+		return Plan.None;
 	}
+	
+	
 	
 }

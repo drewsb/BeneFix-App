@@ -74,5 +74,13 @@ public class Formatter {
 		}
 
 	}
+	
+	public static String formatRatingArea(String r){
+		String[] delims = {"Rating Area ", "Area "};
+		r = r.replaceAll(", ", "/");
+		r = r.replaceAll(",", "/");
+		r = removeStrings(r, delims);
+		return r;
+	}
 
 }

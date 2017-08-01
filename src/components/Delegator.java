@@ -298,9 +298,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case Aetna:
 						return new PA_Aetna_Rates(start_date,end_date);
 					case UPMC:
-						//Need to be finished
-						//return new PA_UPMC_Rates(start_date,end_date);
-						break;
+						return new PA_UPMC_Rates(start_date,end_date);
 					case CPA:
 						return new PA_CPA_Rates(sheetIndex, start_date,end_date);
 					case NEPA:
