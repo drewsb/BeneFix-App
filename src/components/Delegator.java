@@ -230,9 +230,7 @@ public class Delegator extends SwingWorker<ArrayList<Page>, String> {
 					case WPA:
 						return new PA_WPA_Benefits(start_date,end_date);
 					case IBC:
-						/*
-						 * No class created yet. 
-						 */
+						return new PA_IBC_Benefits(start_date,end_date);
 					case CBC:
 						return new PA_CBC_Benefits(start_date,end_date);
 					case Geisinger:

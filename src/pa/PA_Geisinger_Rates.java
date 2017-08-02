@@ -71,32 +71,35 @@ public class PA_Geisinger_Rates implements Parser {
 		ArrayList<PDDocument> pages_arraylist = new ArrayList<PDDocument>(pages);
 		
 		//get start page
-		try {
-			do {
-				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
-				page_counter++;
-			} while (!text.toLowerCase().contains("benefits effective") && !text.toLowerCase().contains("rates effective"));
-			start_page = page_counter;
-		} catch (NullPointerException e) {
-			System.out.println(e.getStackTrace());
-		}
+//		try {
+//			do {
+//				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
+//				page_counter++;
+//			} while (!text.toLowerCase().contains("benefits effective") && !text.toLowerCase().contains("rates effective"));
+//			start_page = page_counter;
+//		} catch (NullPointerException e) {
+//			System.out.println(e.getStackTrace());
+//		}
 		
 		//get end page
-		try {
-			do {
-				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
-				page_counter++;
-			} while (text.toLowerCase().contains("benefits effective") && text.toLowerCase().contains("rates effective"));
-			end_page = page_counter;
-		} catch (NullPointerException e) {
-			System.out.println(e.getStackTrace());
-		}
+//		try {
+//			do {
+//				text = pdfManager.ToText(pages_arraylist.get(page_counter)); 
+//				page_counter++;
+//			} while (text.toLowerCase().contains("benefits effective") && text.toLowerCase().contains("rates effective"));
+//			end_page = page_counter;
+//		} catch (NullPointerException e) {
+//			System.out.println(e.getStackTrace());
+//		}
 
 		// convert rate pages to text in page range, add to array list
-		for (int i = 27; i < (97 + 1); i++) {
+		for (int i = 25; i < (97 + 1); i++) {
 			text = pdfManager.ToText(pages_arraylist.get(i));
 			String lines[] = text.split("\n"); // split page into strings
 			
+			for (int omg = 0; omg < lines.length; omg++) {
+				System.out.println(lines[omg]);
+			}
 			// rating area bools
 			boolean rating2 = true;
 			boolean rating3 = true;
@@ -268,41 +271,41 @@ public class PA_Geisinger_Rates implements Parser {
 				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "2",
-						"", state, i, non_tobacco_dict2, tobacco_dict2));
+						"", "", "", "", "", "", "", "", "", "", "", "", "3",
+						"", state, i, non_tobacco_dict3, tobacco_dict3));
 			}
 			if (rating5 == true) {
 				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "2",
-						"", state, i, non_tobacco_dict2, tobacco_dict2));
+						"", "", "", "", "", "", "", "", "", "", "", "", "5",
+						"", state, i, non_tobacco_dict5, tobacco_dict5));
 			}
 			if (rating6 == true) {
 				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "2",
-						"", state, i, non_tobacco_dict2, tobacco_dict2));
+						"", "", "", "", "", "", "", "", "", "", "", "", "6",
+						"", state, i, non_tobacco_dict6, tobacco_dict6));
 			}
 			if (rating7 == true) {
 				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "2",
-						"", state, i, non_tobacco_dict2, tobacco_dict2));
+						"", "", "", "", "", "", "", "", "", "", "", "", "7",
+						"", state, i, non_tobacco_dict7, tobacco_dict7));
 			}
 			if (rating9 == true) {
 				products.add(new MedicalPage(carrier_id, "", start_date, end_date, 
 						product, "", 
 						"", "", "", "", "", "", "", "", "",
-						"", "", "", "", "", "", "", "", "", "", "", "", "2",
-						"", state, i, non_tobacco_dict2, tobacco_dict2));
+						"", "", "", "", "", "", "", "", "", "", "", "", "9",
+						"", state, i, non_tobacco_dict9, tobacco_dict9));
 			}
 			
 			i++; // skip benefits page
 		}
-		products.get(temp_counter).printPage();
+		//products.get(temp_counter).printPage();
 		temp_counter++;
 		return products;
 	}
