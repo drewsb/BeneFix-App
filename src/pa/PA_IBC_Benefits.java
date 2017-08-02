@@ -75,8 +75,8 @@ public class PA_IBC_Benefits implements Parser {
 		String[] tokens5 = text5.split("\n");
 		String[] tokens6 = text6.split("\n");
 		
-		for (int i = 0; i < tokens5.length; i++) {
-			System.out.println(tokens5[i]);
+		for (int i = 0; i < tokens2.length; i++) {
+			System.out.println(tokens2[i]);
 		}
 		 
 		
@@ -84,7 +84,7 @@ public class PA_IBC_Benefits implements Parser {
 		if (tokens[0].toLowerCase().contains("soldbenefits"))
 			System.out.println("no plz god no");
 		else if (tokens[0].toLowerCase().contains("dpos") || tokens[0].toLowerCase().contains("classic"))
-			dposClassicParser(tokens, tokens2, tokens3, tokens4, tokens5, tokens6);
+			products.add(dposClassicParser(tokens, tokens2, tokens3, tokens4, tokens5, tokens6));
 //		else if (tokens[0].contains(""))
 //			dposParser();
 //		else if (tokens[0].contains(""))
@@ -111,20 +111,29 @@ public class PA_IBC_Benefits implements Parser {
 		
 		MedicalPage page = new MedicalPage();
 		
+		//getting substring starting from 'Classic', break into array split by '/'
+		String[] coinsurance_string = tokens_to_parse[0].substring((tokens_to_parse[0].indexOf("Classic") + 8), tokens_to_parse[0].length()).split("\\s+");
+		String[] coinsurance_sub_string = coinsurance_string[0].split("/");
+		if (coinsurance_sub_string.length >= 4) {
+			page.coinsurance = coinsurance_sub_string[3];
+		}
+		
+//		for (int i = 0; i < tokens_to_parse.length; i++) {
+//			if (tokens_to_parse[i].length() < 3 && tokens_to_parse[i].length() > 0) {
+//				
+//			}
+//		}
+		
 		for (int i = 0; i < tokens_to_parse.length; i++) {
 			if (tokens_to_parse[i].contains("DEDUCTIBLE")) {
 				String[] temp_tokens = tokens_to_parse[i].split("\\s+");
 				if (temp_tokens.length < 2) { //several lines have deductible, so only grab the right one
 					String[] sub_tokens = tokens_to_parse[i + 1].split("\\s+");
-//					for (int z = 0; z < sub_tokens.length; z++) {
-//						//System.out.println(sub_tokens[z]);
-//					}
 					page.deductible_indiv = sub_tokens[1].replace(",", "");
 					page.oon_deductible_indiv = sub_tokens[2].replace(",", "");
 					sub_tokens = tokens_to_parse[i + 2].split("\\s+");
 					page.deductible_family = sub_tokens[1].replace(",", "");
 					page.oon_deductible_family = sub_tokens[2].replace(",", "");
-					
 				}
 			} else if (tokens_to_parse[i].contains("OUT-OF-POCKET")) {
 				String[] sub_tokens = tokens_to_parse[i + 2].split("\\s+");
@@ -133,19 +142,21 @@ public class PA_IBC_Benefits implements Parser {
 				sub_tokens = tokens_to_parse[i + 3].split("\\s+");
 				page.oop_max_family = sub_tokens[1].replace(",", "");
 				page.oon_oop_max_family = sub_tokens[2].replace(",", "");
-			} else if (tokens_to_parse[i].contains("DOCTOR'S OFFICE VISITS")) {
-				if (tokens_to_parse[i + 1].contains("no deductible")) {
-					String[] sub_tokens = tokens_to_parse[i + 1].split("\\s+");
+			} else if (tokens_to_parse[i].contains("Primary Care Services")) {
+				if (tokens_to_parse[i].contains("no deductible")) {
+					String[] sub_tokens = tokens_to_parse[i].split("\\s+");
 					page.dr_visit_copay = sub_tokens[3] + " " + sub_tokens[4] + " " + sub_tokens[5] + " " + sub_tokens[6].replaceAll("[0-9]", "");
-					sub_tokens = tokens_to_parse[i + 2].split("\\s+");
-					page.specialist_visit_copay = sub_tokens[2] + " " + sub_tokens[3] + " " + sub_tokens[4] + " " + sub_tokens[5].replaceAll("[0-9]", "");
 				} else {
 					//only grab two subtokens, "$25 copayment" etc
 				}
+			} else if (tokens_to_parse[i].contains("Specialist Services")) {
+				String[] sub_tokens = tokens_to_parse[i].split("\\s+");
+				page.specialist_visit_copay = sub_tokens[2] + " " + sub_tokens[3] + " " + sub_tokens[4] + " " + sub_tokens[5].replaceAll("[0-9]", "");	
 			} else if (tokens_to_parse[i].contains("OUTPATIENT X-RAY")) {
 				String[] sub_tokens = tokens_to_parse[i + 1].split("\\s+");
 				page.outpatient_diagnostic_x_ray = sub_tokens[2] + " " + sub_tokens[3] + " " + sub_tokens[4] + " " + sub_tokens[5].replaceAll("[0-9]", "");
-				sub_tokens = tokens_to_parse[i + 2].split("\\s+");
+			} else if (tokens_to_parse[i].contains("MRI/MRA, CT/CTA Scan, PET Scan")) {
+				String[] sub_tokens = tokens_to_parse[i].split("\\s+");
 				page.outpatient_complex_imaging = sub_tokens[5] + " " + sub_tokens[6] + " " + sub_tokens[7] + " " + sub_tokens[8].replaceAll("[0-9]", "");
 			}
 		} //end for loop through tokens1
@@ -169,10 +180,46 @@ public class PA_IBC_Benefits implements Parser {
 			} else if (tokens_to_parse2[i].contains("URGENT CARE")) {
 				String[] sub_tokens = tokens_to_parse2[i].split("\\s+");
 				page.urgent_care_copay = sub_tokens[3] + " " + sub_tokens[4] + " " + sub_tokens[5];
-			} 
+			} else if (tokens_to_parse2[i].contains("INPATIENT HOSPITAL SERVICES")) {
+				for (int q = i; q < (i + 6); q++) {
+					if (tokens_to_parse2[q].contains("Facility")) {
+						String[] sub_tokens = tokens_to_parse2[q].split("\\s+");
+						page.in_patient_hospital = sub_tokens[0] + ": " + sub_tokens[1] + " " + sub_tokens[2] + " " + sub_tokens[3] + "; ";
+					} else if (tokens_to_parse2[q].contains("Physician")) {
+						String[] sub_tokens = tokens_to_parse2[q].split("\\s+");
+						page.in_patient_hospital = page.in_patient_hospital + sub_tokens[0] + ": " + sub_tokens[1] + " " + sub_tokens[2] + " " + sub_tokens[3];
+					}
+				}
+			}
 		}
 		for (int i = 0; i < tokens_to_parse5.length; i++) {
-			//if (tokens_to_parse5[i].contains(""))
+			if (tokens_to_parse5[i].contains("Retail Pharmacy")) { //starts from index of key word drugs or brand or formulary
+				if (tokens_to_parse5[i + 1].contains("Formulary")) {
+					String sub_string = tokens_to_parse5[i + 1].substring((tokens_to_parse5[i + 1].indexOf("Formulary") + 11), tokens_to_parse5[i + 1].length());
+					String sub_string2 = tokens_to_parse5[i + 2].substring((tokens_to_parse5[i + 2].indexOf("Formulary") + 11), tokens_to_parse5[i + 2].length());
+					String sub_string3 = tokens_to_parse5[i + 3].substring((tokens_to_parse5[i + 3].indexOf("Brand") + 6), tokens_to_parse5[i + 3].length());
+					String sub_string4 = tokens_to_parse5[i + 4].substring((tokens_to_parse5[i + 4].indexOf("Drugs") + 6), tokens_to_parse5[i + 4].length());
+					page.rx_copay = sub_string + "/" + sub_string2 + "/" + sub_string3 + "/" + sub_string4;
+				} else {
+					String sub_string = tokens_to_parse5[i + 1].substring((tokens_to_parse5[i + 1].indexOf("Drugs") + 6), tokens_to_parse5[i + 1].length());
+					String sub_string2 = tokens_to_parse5[i + 2].substring((tokens_to_parse5[i + 2].indexOf("Brand") + 6), tokens_to_parse5[i + 2].length());
+					String sub_string3 = tokens_to_parse5[i + 3].substring((tokens_to_parse5[i + 3].indexOf("Drugs") + 6), tokens_to_parse5[i + 3].length());
+					String sub_string4 = tokens_to_parse5[i + 4].substring((tokens_to_parse5[i + 4].indexOf("Drugs") + 6), tokens_to_parse5[i + 4].length());
+					page.rx_copay = sub_string + "/" + sub_string2 + "/" + sub_string3 + "/" + sub_string4;
+				}
+			} else if (tokens_to_parse5[i].contains("Mail Order Pharmacy")) {
+				if (tokens_to_parse5[i + 2].contains("Formulary")) {
+					String sub_string = tokens_to_parse5[i + 2].substring((tokens_to_parse5[i + 2].indexOf("Formulary") + 11), tokens_to_parse5[i + 2].length());
+					String sub_string2 = tokens_to_parse5[i + 3].substring((tokens_to_parse5[i + 3].indexOf("Formulary") + 11), tokens_to_parse5[i + 3].length());
+					String sub_string3 = tokens_to_parse5[i + 4].substring((tokens_to_parse5[i + 4].indexOf("Drugs") + 6), tokens_to_parse5[i + 4].length());
+					page.rx_mail_copay = sub_string + "/" + sub_string2 + "/" + sub_string3;
+				} else {
+					String sub_string = tokens_to_parse5[i + 2].substring((tokens_to_parse5[i + 2].indexOf("Drugs") + 6), tokens_to_parse5[i + 2].length());
+					String sub_string2 = tokens_to_parse5[i + 3].substring((tokens_to_parse5[i + 3].indexOf("Brand") + 6), tokens_to_parse5[i + 3].length());
+					String sub_string3 = tokens_to_parse5[i + 4].substring((tokens_to_parse5[i + 4].indexOf("Drugs") + 6), tokens_to_parse5[i + 4].length());
+					page.rx_mail_copay = sub_string + "/" + sub_string2 + "/" + sub_string3;
+				}
+			}
 		}
 		//page.printPage();
 		return page;
