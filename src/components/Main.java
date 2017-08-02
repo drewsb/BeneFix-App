@@ -428,8 +428,8 @@ public class Main extends JPanel implements ActionListener {
 			try {
 				if (this.selectedOperation.equals("Merge")) {
 					ArrayList<Page> result = Merger.merge(path1, path2, carrierType);
-					ExcelWriter merge_excel = new ExcelWriter();
-					merge_excel.populateExcel(result, filename, carrierType, selectedState, planType, log);
+					ExcelWriter merge_excel = new ExcelWriter(filename, result, carrierType, selectedState, planType, log);
+					merge_excel.populateExcel();
 				} else if (this.selectedOperation.equals("Compare")) {
 					Merger.compareAetnaWorkbooks(path1, path2);
 				}
@@ -498,9 +498,8 @@ public class Main extends JPanel implements ActionListener {
 					filename = removeFileExtension(selectedRates.get(0).getName());
 				}
 			}
-			ExcelWriter.populateExcel(pages, filename, carrierType, selectedState, planType, log);
-			String output = String.format("Output file: %s_data.xlxs" + newline, filename);
-			log.append(output);
+			ExcelWriter writer = new ExcelWriter(filename, pages, carrierType, selectedState, planType, log);
+			writer.populateExcel();
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();

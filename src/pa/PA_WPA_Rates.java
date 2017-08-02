@@ -17,6 +17,7 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import components.Delegator.WPA;
+import components.Formatter;
 import components.MedicalPage;
 import components.Page;
 import components.Parser;
@@ -100,7 +101,7 @@ public class PA_WPA_Rates implements Parser {
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
 			String rating_area = cell.getStringCellValue();
-			rating_area = rating_area.substring(5, rating_area.length());
+			rating_area = Formatter.removeString(rating_area, "Area ");
 			System.out.println(rating_area);
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
@@ -113,40 +114,16 @@ public class PA_WPA_Rates implements Parser {
 			String plan_name = cell.getStringCellValue();
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
-			String deductible = "";
-			switch (cell.getCellTypeEnum()) {
-			case STRING:
-				deductible = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				deductible = Double.toString(cell.getNumericCellValue());
-				break;
-			}
+			String deductible = getCellValue(cell);
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
-			String coinsurance = "";
-			switch (cell.getCellTypeEnum()) {
-			case STRING:
-				coinsurance = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				coinsurance = Double.toString(cell.getNumericCellValue());
-				break;
-			}
+			String coinsurance = getCellValue(cell);
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
 			String copays = cell.getStringCellValue();
 			r = sheet.getRow(row_index++);
 			cell = r.getCell(col_index);
-			String oop_maximum = "";
-			switch (cell.getCellTypeEnum()) {
-			case STRING:
-				oop_maximum = cell.getStringCellValue();
-				break;
-			case NUMERIC:
-				oop_maximum = Double.toString(cell.getNumericCellValue());
-				break;
-			}
+			String oop_maximum = getCellValue(cell);
 			System.out.println(oop_maximum);
 			row_index += 2;
 			r = sheet.getRow(row_index++);
@@ -166,7 +143,7 @@ public class PA_WPA_Rates implements Parser {
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index + 1);
 			tobacco_dict.put("65+", cell.getNumericCellValue());
-			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", deductible, "",
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, plan_name, "", deductible, "",
 					"", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "", "", "", "", "", "", "", "",
 					rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 			products.add(page);
@@ -288,7 +265,7 @@ public class PA_WPA_Rates implements Parser {
 			non_tobacco_dict.put("65+", cell.getNumericCellValue());
 			cell = r.getCell(col_index + 1);
 			tobacco_dict.put("65+", cell.getNumericCellValue());
-			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, product, "", deductible, "",
+			MedicalPage page = new MedicalPage(carrier_id, plan_id, start_date, end_date, plan_name, "", deductible, "",
 					"", "", coinsurance, "", "", "", "", "", "", oop_maximum, "", "", "", "", "", "", "", "", "",
 					rating_area, "", state, page_index, non_tobacco_dict, tobacco_dict);
 			products.add(page);
