@@ -62,7 +62,7 @@ public class ExcelWriter {
 			ArrayList<MedicalPage> medical_products = new ArrayList<MedicalPage>();
 			medical_products.addAll((Collection<? extends MedicalPage>) plans);
 			populateMedicalExcel(medical_products, non_tob_workbook, false);
-			if (medical_products.get(0).hasTobaccoRates) {
+			if (medical_products.get(0).hasTobaccoRates || !medical_products.get(0).tobacco_dict.isEmpty()) {
 				XSSFWorkbook tob_workbook = new XSSFWorkbook();
 				populateMedicalExcel(medical_products, tob_workbook, true);
 			}

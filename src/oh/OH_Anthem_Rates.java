@@ -46,16 +46,11 @@ public class OH_Anthem_Rates implements Parser{
 		products = new ArrayList<MedicalPage>();
     }
 	
-	@SuppressWarnings({ "unused", "incomplete-switch" })
 	public ArrayList<Page> parse(File file, String filename){	
-		System.out.println("1");
 		ArrayList<Page> products = new ArrayList<Page>();
 		try {
-			System.out.println("2");
             FileInputStream excelFile = new FileInputStream(file);
-    		System.out.println("3");
             workbook = new XSSFWorkbook(excelFile);
-    		System.out.println("4");
             this.sheet = workbook.getSheetAt(0);
             iterator = sheet.iterator();
         } catch (FileNotFoundException e) {
@@ -63,13 +58,12 @@ public class OH_Anthem_Rates implements Parser{
         } catch (IOException e) {
             e.printStackTrace();
         }
-		System.out.println("5");
 		Cell cell;
 		String temp;
 		int page_index = 1;
 		int carrier_id = 9;
 		int col_index = 1;
-		int row_index = 3;
+		int row_index = 1;
 		Row r = sheet.getRow(row_index);
         int numRows = getNumRows(sheet);
 		int numCols = r.getPhysicalNumberOfCells();
