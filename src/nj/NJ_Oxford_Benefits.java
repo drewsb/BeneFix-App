@@ -279,8 +279,9 @@ public class NJ_Oxford_Benefits implements Parser {
 	}
 
 	public StringBuilder formatString(StringBuilder input) {
-		String[] delims = {"covered", "Not", "Urgent", "Emergency", ",",".", "*", "person", "copay", "per", "visit", "Individual",
-				"Free Standing Provider", "service", "Rehabilitation", "outpatient", "Diagnostic", "after", "ded", "admission", "co-ins"};
+		String[] delims = {"covered", "Not", "Urgent", "Emergency", ",",".", "*", "person", 
+				"copay", "per", "visit", "Individual", "Free Standing Provider", "service", 
+				"Rehabilitation", "outpatient", "Diagnostic", "after", "ded", "admission", "co-ins"};
 		input = Formatter.removeStrings(input, delims);
 		if (!input.toString().equals("N/A")) {
 			input = Formatter.removeString(input, "/");

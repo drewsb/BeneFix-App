@@ -303,7 +303,7 @@ public class NJ_Aetna_Benefits implements Parser {
 
 		}
 
-		while (!tokens[index].contains("Preferred/") & !tokens[index].contains("Formulary/")) {
+		while (!tokens[index].contains("Preferred") & !tokens[index].contains("Formulary")) {
 			index++;
 		}
 		System.out.println(index);

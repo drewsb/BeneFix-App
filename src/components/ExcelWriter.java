@@ -25,19 +25,19 @@ import components.Main.State;
 public class ExcelWriter {
 
 	final String filename;
-	
+
 	final ArrayList<Page> plans;
 
 	final Carrier carrierType;
 
 	final State state;
-	
-	final Plan plan;
-	
-	final JTextArea log;
-	
 
-	public ExcelWriter(String filename, ArrayList<Page> plans, Carrier carrierType, State state, Plan plan, JTextArea log) {
+	final Plan plan;
+
+	final JTextArea log;
+
+	public ExcelWriter(String filename, ArrayList<Page> plans, Carrier carrierType, State state, Plan plan,
+			JTextArea log) {
 		this.filename = filename;
 		this.plans = plans;
 		this.carrierType = carrierType;
@@ -62,7 +62,7 @@ public class ExcelWriter {
 			ArrayList<MedicalPage> medical_products = new ArrayList<MedicalPage>();
 			medical_products.addAll((Collection<? extends MedicalPage>) plans);
 			populateMedicalExcel(medical_products, non_tob_workbook, false);
-			if (medical_products.get(0).hasTobaccoRates || !medical_products.get(0).tobacco_dict.isEmpty()) {
+			if (medical_products.get(0).hasTobaccoRates) {
 				XSSFWorkbook tob_workbook = new XSSFWorkbook();
 				populateMedicalExcel(medical_products, tob_workbook, true);
 			}
@@ -81,24 +81,30 @@ public class ExcelWriter {
 
 	}
 
-	public void populateMedicalExcel(ArrayList<MedicalPage> products, XSSFWorkbook workbook,
-			Boolean parsingTobacco) throws FileNotFoundException, IOException {
+	public void populateMedicalExcel(ArrayList<MedicalPage> products, XSSFWorkbook workbook, Boolean parsingTobacco)
+			throws FileNotFoundException, IOException {
 		String[] templateData = { "carrier_id", "carrier_plan_id", "start_date", "end_date", "product_name",
-				"plan_pdf_file_name", "deductible_indiv", "deductible_family", "oon_deductible_individual",
-				"oon_deductible_family", "coinsurance", "dr_visit_copay", "specialist_visits_copay", "er_copay",
-				"urgent_care_copay", "rx_copay", "rx_mail_copay", "oop_max_indiv", "oop_max_family",
-				"oon_oop_max_individual", "oon_oop_max_family", "in_patient_hospital", "outpatient_diagnostic_lab",
-				"outpatient_surgery", "outpatient_diagnostic_x_ray", "outpatient_complex_imaging",
-				"physical_occupational_therapy", "state", "group_rating_areas", "service_zones", "zero_eighteen",
-				"nineteen_twenty", "twenty_one", "twenty_two", "twenty_three", "twenty_four", "twenty_five",
-				"twenty_six", "twenty_seven", "twenty_eight", "twenty_nine", "thirty", "thirty_one", "thirty_two",
-				"thirty_three", "thirty_four", "thirty_five", "thirty_six", "thirty_seven", "thirty_eight",
-				"thirty_nine", "forty", "forty_one", "forty_two", "forty_three", "forty_four", "forty_five",
-				"forty_six", "forty_seven", "forty_eight", "forty_nine", "fifty", "fifty_one", "fifty_two",
-				"fifty_three", "fifty_four", "fifty_five", "fifty_six", "fifty_seven", "fifty_eight", "fifty_nine",
-				"sixty", "sixty_one", "sixty_two", "sixty_three", "sixty_four", "sixty_five_plus" };
-		
+				"plan_pdf_file_name", "state", "group_rating_areas", "service_zones", "deductible_indiv",
+				"deductible_family", "oon_deductible_individual", "oon_deductible_family", "coinsurance",
+				"dr_visit_copay", "specialist_visits_copay", "er_copay", "urgent_care_copay", "rx_copay",
+				"rx_mail_copay", "oop_max_indiv", "oop_max_family", "oon_oop_max_individual", "oon_oop_max_family",
+				"in_patient_hospital", "outpatient_diagnostic_lab", "outpatient_surgery", "outpatient_diagnostic_x_ray",
+				"outpatient_complex_imaging", "physical_occupational_therapy", "zero_eighteen", "nineteen_twenty",
+				"twenty_one", "twenty_two", "twenty_three", "twenty_four", "twenty_five", "twenty_six", "twenty_seven",
+				"twenty_eight", "twenty_nine", "thirty", "thirty_one", "thirty_two", "thirty_three", "thirty_four",
+				"thirty_five", "thirty_six", "thirty_seven", "thirty_eight", "thirty_nine", "forty", "forty_one",
+				"forty_two", "forty_three", "forty_four", "forty_five", "forty_six", "forty_seven", "forty_eight",
+				"forty_nine", "fifty", "fifty_one", "fifty_two", "fifty_three", "fifty_four", "fifty_five", "fifty_six",
+				"fifty_seven", "fifty_eight", "fifty_nine", "sixty", "sixty_one", "sixty_two", "sixty_three",
+				"sixty_four", "sixty_five_plus" };
+
 		Sheet sheet = workbook.createSheet("BenefixData");
+
+		Boolean hasContractCode = false;
+
+		if (!products.get(0).contractCode.isEmpty()) {
+			hasContractCode = true;
+		}
 
 		int rowCount = 0;
 		int colCount = 0;
@@ -115,6 +121,14 @@ public class ExcelWriter {
 		for (String header : templateData) {
 			Cell cell = row.createCell(colCount++);
 			cell.setCellValue((String) header);
+			if (hasContractCode & header.equals("carrier_plan_id")) {
+				if (carrierType == Carrier.Anthem) {
+					cell = row.createCell(colCount++);
+					cell.setCellValue("anthem_plan_id");
+				}
+				cell = row.createCell(colCount++);
+				cell.setCellValue("contract code");
+			}
 		}
 
 		// Populate with data
@@ -126,8 +140,19 @@ public class ExcelWriter {
 			row = sheet.createRow(++rowCount);
 			Cell cell = row.createCell(colCount++);
 			cell.setCellValue(p.carrier_id);
-			cell = row.createCell(colCount++);
-			cell.setCellValue(p.carrier_plan_id);
+			if (carrierType == Carrier.Anthem) {
+				cell = row.createCell(colCount++);
+				cell.setCellValue("");
+				cell = row.createCell(colCount++);
+				cell.setCellValue(p.carrier_plan_id);
+			} else {
+				cell = row.createCell(colCount++);
+				cell.setCellValue(p.carrier_plan_id);
+			}
+			if (hasContractCode) {
+				cell = row.createCell(colCount++);
+				cell.setCellValue(p.contractCode);
+			}
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.start_date);
 			cell = row.createCell(colCount++);
@@ -135,17 +160,29 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.product_name);
 			cell = row.createCell(colCount++);
-			if (!p.plan_pdf_file_name.isEmpty()) {
-				cell.setCellValue((String) p.plan_pdf_file_name + ".pdf");
-			}
+			cell.setCellValue((String) p.plan_pdf_file_name);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.state);
+			cell = row.createCell(colCount++);
+			cell.setCellValue(Formatter.formatRatingArea(p.group_rating_area));
+			cell = row.createCell(colCount++);
+			cell.setCellValue(p.service_zones);
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.deductible_indiv);
 			cell = row.createCell(colCount++);
 			cell.setCellValue((String) p.deductible_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue((String) p.oon_deductible_indiv);
+			if (p.oon_deductible_indiv.isEmpty()) {
+				cell.setCellValue("n/a");
+			} else {
+				cell.setCellValue((String) p.oon_deductible_indiv);
+			}
 			cell = row.createCell(colCount++);
-			cell.setCellValue((String) p.oon_deductible_family);
+			if (p.oon_deductible_family.isEmpty()) {
+				cell.setCellValue("n/a");
+			} else {
+				cell.setCellValue((String) p.oon_deductible_family);
+			}
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.coinsurance);
 			cell = row.createCell(colCount++);
@@ -165,9 +202,17 @@ public class ExcelWriter {
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.oop_max_family);
 			cell = row.createCell(colCount++);
-			cell.setCellValue(p.oon_oop_max_indiv);
+			if (p.oon_oop_max_indiv.isEmpty()) {
+				cell.setCellValue("n/a");
+			} else {
+				cell.setCellValue(p.oon_oop_max_indiv);
+			}
 			cell = row.createCell(colCount++);
-			cell.setCellValue(p.oon_oop_max_family);
+			if (p.oon_oop_max_family.isEmpty()) {
+				cell.setCellValue("n/a");
+			} else {
+				cell.setCellValue(p.oon_oop_max_family);
+			}
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.in_patient_hospital);
 			cell = row.createCell(colCount++);
@@ -180,12 +225,6 @@ public class ExcelWriter {
 			cell.setCellValue(p.outpatient_complex_imaging);
 			cell = row.createCell(colCount++);
 			cell.setCellValue(p.physical_occupational_therapy);
-			cell = row.createCell(colCount++);
-			cell.setCellValue(p.state);
-			cell = row.createCell(colCount++);
-			cell.setCellValue(Formatter.formatRatingArea(p.group_rating_area));
-			cell = row.createCell(colCount++);
-			cell.setCellValue(p.service_zones);
 			if (parsingTobacco) {
 				if (p.tobacco_dict.containsKey("0-18") || p.tobacco_dict.containsKey("0-20")) {
 					cell = row.createCell(colCount++);
@@ -221,6 +260,7 @@ public class ExcelWriter {
 					for (int i = 21; i < 65; i++) {
 						cell = row.createCell(colCount++);
 						String index = String.format("%d", i);
+						System.out.println(index);
 						cell.setCellValue(p.non_tobacco_dict.get(index));
 					}
 					cell = row.createCell(colCount++);

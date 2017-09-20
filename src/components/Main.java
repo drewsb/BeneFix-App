@@ -40,6 +40,7 @@ public class Main extends JPanel implements ActionListener {
 			tokenizeButton, clearButton;
 	JComboBox<String> typeBox;
 	JComboBox<String> carrierBox;
+	JComboBox<String> otherBox;
 	JComboBox<String> sheetBox;
 	JComboBox<String> dateBox;
 	JComboBox<String> stateBox;
@@ -67,12 +68,11 @@ public class Main extends JPanel implements ActionListener {
 	HashMap<String, Set<String>> sourceCarriers;
 
 	public enum Carrier {
-		Anthem, UPMC, Aetna, CPA, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Oxford, Cigna, 
-		Horizon, Geisinger, Delta, United_Concordia, NONE
+		Anthem, UPMC, Aetna, CPA, Highmark, NEPA, WPA, IBC, CBC, AmeriHealth, UHC, Oxford, Cigna, Horizon, Geisinger, Delta, United_Concordia, NONE
 	}
 
 	public enum State {
-		NJ, PA, CA, OH
+		NJ, PA, CA, OH, DE
 	}
 
 	public enum Plan {
@@ -153,9 +153,13 @@ public class Main extends JPanel implements ActionListener {
 		Set<String> CAcarriers = new HashSet<String>(Arrays.asList(CAcorps));
 		medicalCarriers.put("CA", CAcarriers);
 
-		String[] OHcorps = { "Anthem"};
+		String[] OHcorps = { "Anthem" };
 		Set<String> OHcarriers = new HashSet<String>(Arrays.asList(OHcorps));
 		medicalCarriers.put("OH", OHcarriers);
+
+		String[] DEcorps = { "Aetna", "UHC", "Highmark" };
+		Set<String> DEcarriers = new HashSet<String>(Arrays.asList(DEcorps));
+		medicalCarriers.put("DE", DEcarriers);
 
 		String[] PA_dental = { "Aetna", "CPA", "Delta", "Oxford", "United Concordia" };
 		Set<String> PA_dental_carriers = new HashSet<String>(Arrays.asList(PA_dental));
@@ -176,7 +180,9 @@ public class Main extends JPanel implements ActionListener {
 
 		Set<String> states = medicalCarriers.keySet();
 
-		String[] selection = { "Compare", "Merge" };
+		String[] selection = { "Compare", "Merge", "Plan Name Map" };
+
+		String[] otherOptions = { "None", "Code Retriever", "Base Rate Retriever", "PDF Mapper" };
 
 		String[] types = { "Medical", "Dental", "Vision" };
 
@@ -192,14 +198,20 @@ public class Main extends JPanel implements ActionListener {
 		JLabel sheetLbl = new JLabel("Sheet:");
 		JLabel quarterLbl = new JLabel("Quarter:");
 		JLabel stateLbl = new JLabel("State:");
+		JLabel otherLbl = new JLabel("Other:");
 		JLabel selectionLbl = new JLabel("Operation: ");
 		JLabel typeLbl = new JLabel("Type: ");
+
 		carrierBox = new JComboBox<String>(
 				medicalCarriers.get("PA").toArray(new String[medicalCarriers.get("PA").size()]));
 		sheetBox = new JComboBox<String>(sheets);
+		sheetBox.addActionListener(this);
 		dateBox = new JComboBox<String>(quarters);
+		dateBox.addActionListener(this);
 		stateBox = new JComboBox<String>(states.toArray(new String[states.size()]));
 		stateBox.addActionListener(this);
+		otherBox = new JComboBox<String>(otherOptions);
+		otherBox.addActionListener(this);
 		selectionBox = new JComboBox<String>(selection);
 		selectionBox.addActionListener(this);
 		typeBox = new JComboBox<String>(types);
@@ -208,39 +220,41 @@ public class Main extends JPanel implements ActionListener {
 		JPanel progressPanel = new JPanel();
 		progressPanel.add(progressBar);
 
-		JPanel typePanel = new JPanel();
-		typePanel.add(typeLbl);
-		typePanel.add(typeBox);
-		typePanel.add(tokenizeButton);
-		typePanel.add(clearButton);
+		JPanel planPanel = new JPanel();
+		planPanel.add(planButton);
+		planPanel.add(rateButton);
+		planPanel.add(outputButton);
+		planPanel.add(tokenizeButton);
+		planPanel.add(clearButton);
 
 		// For layout purposes, put the buttons in a separate panel
-		JPanel buttonPanel = new JPanel(); // use FlowLayout
-		buttonPanel.add(planButton);
-		buttonPanel.add(rateButton);
-		buttonPanel.add(outputButton);
-		buttonPanel.add(stateLbl);
-		buttonPanel.add(stateBox);
-		buttonPanel.add(carrierLbl);
-		buttonPanel.add(carrierBox);
-		buttonPanel.add(sheetLbl);
-		buttonPanel.add(sheetBox);
-		buttonPanel.add(quarterLbl);
-		buttonPanel.add(dateBox);
-		buttonPanel.add(parseButton);
+		JPanel typePanel = new JPanel(); // use FlowLayout
+		typePanel.add(otherLbl);
+		typePanel.add(otherBox);
+		typePanel.add(typeLbl);
+		typePanel.add(typeBox);
+		typePanel.add(stateLbl);
+		typePanel.add(stateBox);
+		typePanel.add(carrierLbl);
+		typePanel.add(carrierBox);
+		typePanel.add(sheetLbl);
+		typePanel.add(sheetBox);
+		typePanel.add(quarterLbl);
+		typePanel.add(dateBox);
+		typePanel.add(parseButton);
 
-		JPanel buttonPanel2 = new JPanel();
-		buttonPanel2.add(selectionLbl);
-		buttonPanel2.add(selectionBox);
-		buttonPanel2.add(compareButtonF1);
-		buttonPanel2.add(compareButtonF2);
-		buttonPanel2.add(compareButton);
+		JPanel typePanel2 = new JPanel();
+		typePanel2.add(selectionLbl);
+		typePanel2.add(selectionBox);
+		typePanel2.add(compareButtonF1);
+		typePanel2.add(compareButtonF2);
+		typePanel2.add(compareButton);
 
 		JPanel overall = new JPanel(new GridLayout(4, 1));
 		overall.add(progressPanel);
+		overall.add(planPanel);
 		overall.add(typePanel);
-		overall.add(buttonPanel);
-		overall.add(buttonPanel2);
+		overall.add(typePanel2);
 
 		// Add the buttons and the log to this panel.
 		add(overall, BorderLayout.PAGE_START);
@@ -248,9 +262,10 @@ public class Main extends JPanel implements ActionListener {
 
 		// Remember to delete default settings
 		dateBox.setSelectedItem("Q4");
-		stateBox.setSelectedItem("PA");
-		carrierBox.setSelectedItem("CBC");
 		typeBox.setSelectedItem("Medical");
+		stateBox.setSelectedItem("DE");
+		carrierBox.setSelectedItem("UHC");
+		selectionBox.setSelectedItem("Plan Name Map");
 	}
 
 	@SuppressWarnings("static-access")
@@ -338,9 +353,9 @@ public class Main extends JPanel implements ActionListener {
 			checkPlan();
 
 			System.out.println(sheetBox.getSelectedItem());
-			delegator = new Delegator(carrierType, planType, sheetBox.getSelectedIndex(), selectedState,
-					(String) dateBox.getSelectedItem(), selectedPlans, selectedRates, selectedOutputs, log,
-					progressBar);
+			delegator = new Delegator((String) otherBox.getSelectedItem(), carrierType, planType,
+					sheetBox.getSelectedIndex(), selectedState, (String) dateBox.getSelectedItem(), selectedPlans,
+					selectedRates, selectedOutputs, log, progressBar);
 			delegator.addPropertyChangeListener(new PropertyChangeListener() {
 				@Override
 				public void propertyChange(final PropertyChangeEvent event) {
@@ -427,11 +442,19 @@ public class Main extends JPanel implements ActionListener {
 			String path2 = f2.getAbsolutePath();
 			try {
 				if (this.selectedOperation.equals("Merge")) {
-					ArrayList<Page> result = Merger.merge(path1, path2, carrierType);
-					ExcelWriter merge_excel = new ExcelWriter(filename, result, carrierType, selectedState, planType, log);
+					System.out.println(path1);
+					ArrayList<Page> result = Merger.merge(path1, path2, carrierType,
+							(String) dateBox.getSelectedItem());
+					filename = String.format("%s_%s_%s_%s", selectedState.toString(), carrierType.toString(),
+							(String) dateBox.getSelectedItem(), year);
+					ExcelWriter merge_excel = new ExcelWriter(filename, result, carrierType, selectedState, planType,
+							log);
 					merge_excel.populateExcel();
 				} else if (this.selectedOperation.equals("Compare")) {
 					Merger.compareAetnaWorkbooks(path1, path2);
+				} else if (this.selectedOperation.equals("Plan Name Map")) {
+					Merger.mapIDName(path1, path2, Formatter.removeFileExtension(f2.getName()));
+					log.append("Output File: " + Formatter.removeFileExtension(f2.getName()) + "_Final.xslx");
 				}
 			} catch (IOException e1) {
 				// TODO Auto-generated catch block
@@ -482,7 +505,9 @@ public class Main extends JPanel implements ActionListener {
 			return;
 		}
 		try {
-			if (pages.size() > 1) {
+			if (otherBox.getSelectedItem() == "Base Rate Retriever") {
+				filename = "Base_Rate";
+			} else if (pages.size() > 1) {
 				if (selectedState.equals(State.CA)) {
 					filename = String.format("%s_%s_%s", selectedState.toString(), (String) dateBox.getSelectedItem(),
 							year);
@@ -491,11 +516,10 @@ public class Main extends JPanel implements ActionListener {
 							(String) dateBox.getSelectedItem(), year);
 				}
 			} else {
-				if(!selectedPlans.isEmpty()){
-					filename = removeFileExtension(selectedPlans.get(0).getName());
-				}
-				else{
-					filename = removeFileExtension(selectedRates.get(0).getName());
+				if (!selectedPlans.isEmpty()) {
+					filename = Formatter.removeFileExtension(selectedPlans.get(0).getName());
+				} else {
+					filename = Formatter.removeFileExtension(selectedRates.get(0).getName());
 				}
 			}
 			ExcelWriter writer = new ExcelWriter(filename, pages, carrierType, selectedState, planType, log);
@@ -519,6 +543,9 @@ public class Main extends JPanel implements ActionListener {
 		if (stateBox.getSelectedItem().equals("CA")) {
 			this.selectedState = State.CA;
 		}
+		if (stateBox.getSelectedItem().equals("DE")) {
+			this.selectedState = State.DE;
+		}
 	}
 
 	public void checkCarrier() {
@@ -534,6 +561,8 @@ public class Main extends JPanel implements ActionListener {
 			this.carrierType = Carrier.CPA;
 		} else if (carrierBox.getSelectedItem().equals("UHC")) {
 			this.carrierType = Carrier.UHC;
+		} else if (carrierBox.getSelectedItem().equals("Highmark")) {
+			this.carrierType = Carrier.Highmark;
 		} else if (carrierBox.getSelectedItem().equals("IBC")) {
 			this.carrierType = Carrier.IBC;
 		} else if (carrierBox.getSelectedItem().equals("CBC")) {
@@ -593,10 +622,6 @@ public class Main extends JPanel implements ActionListener {
 		// Display the window.
 		frame.pack();
 		frame.setVisible(true);
-	}
-
-	public static String removeFileExtension(String input) {
-		return input.substring(0, input.lastIndexOf("."));
 	}
 
 	public static void main(String[] args) {

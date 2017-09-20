@@ -17,7 +17,7 @@ public class CodeRetriever implements Parser {
 	
 	ArrayList<Page> pages;
 
-	static String[] tokens;
+	String[] tokens;
 
 	static String text;
 
