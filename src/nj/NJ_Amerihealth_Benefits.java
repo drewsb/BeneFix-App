@@ -8,6 +8,7 @@ import java.util.HashMap;
 import components.PDFManager;
 import components.Page;
 import components.Parser;
+import components.Formatter;
 import components.MedicalPage;
 
 /*
@@ -18,29 +19,24 @@ public class NJ_Amerihealth_Benefits implements Parser {
 	static String[] tokens;
 
 	static String text;
-	
+
 	String start_date;
-	
+
 	String end_date;
 
 	public NJ_Amerihealth_Benefits(String s_date, String e_date) {
 		start_date = s_date;
 		end_date = e_date;
 	}
-	
-	
+
 	@SuppressWarnings("unused")
 	public ArrayList<Page> parse(File file, String filename) throws IOException {
 		PDFManager pdfManager = new PDFManager();
 		pdfManager.setFilePath(file.getAbsolutePath());
 		text = pdfManager.ToText();
-		
+
 		this.tokens = text.split("[\\s\\r\\n]+"); // Split pdf text by spaces
 													// and new line chars
-		for (String s : tokens) {
-			System.out.println(s);
-		}
-		System.out.println("TOKENS******************");
 		int temp_index = 2;
 		int carrier_id = 18;
 		StringBuilder carrier_plan_id = new StringBuilder("");
@@ -75,10 +71,10 @@ public class NJ_Amerihealth_Benefits implements Parser {
 		HashMap<String, Double> non_tobacco_dict = new HashMap<String, Double>();
 		HashMap<String, Double> tobacco_dict = new HashMap<String, Double>();
 
-		while (!tokens[temp_index - 1].equals("Type:")) {
+		while (!tokens[temp_index].equals("SEH")) {
 			temp_index++;
 		}
-		while (!tokens[temp_index].equals("The")) {
+		while (!tokens[temp_index].equals("Coverage")) {
 			product_name.append(tokens[temp_index] + " ");
 			temp_index++;
 		}
@@ -86,24 +82,29 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			temp_index++;
 		}
 		if (tokens[temp_index].equals("For")) {
-			if (!tokens[temp_index + 1].equals("Tier")) {
-				temp_index += 3;
-				deductible_indiv.append(tokens[temp_index]);
-				deductible_family.append(tokens[temp_index + 3] + " ");
-				while (!tokens[temp_index].equals("out-of-network")) {
+			while (!tokens[temp_index - 1].contains("providers")) {
+				temp_index++;
+			}
+			deductible_indiv.append(tokens[temp_index++]);
+			while (!tokens[temp_index + 1].contains("family")) {
+				temp_index++;
+			}
+			deductible_family.append(tokens[temp_index]);
+			int temp_loop = temp_index + 10;
+			while (!tokens[temp_index].toLowerCase().contains("out") & temp_index < temp_loop) {
+				temp_index++;
+			}
+			if (temp_index < temp_loop) {
+				while (!tokens[temp_index + 1].contains("person")) {
 					temp_index++;
 				}
-				temp_index += 2;
 				oon_deductible_indiv.append(tokens[temp_index] + " ");
-				oon_deductible_family.append(tokens[temp_index + 3] + " ");
-			} else {
-				while (!tokens[temp_index - 1].equals("providers")) {
+				while (!tokens[temp_index + 1].contains("family")) {
 					temp_index++;
 				}
-				deductible_indiv.append(tokens[temp_index]);
-				deductible_family.append(tokens[temp_index + 2]);
-				oon_deductible_indiv.append("n/a");
-				oon_deductible_family.append("n/a");
+				oon_deductible_family.append(tokens[temp_index] + " ");
+			} else {
+				temp_index -= 10;
 			}
 		} else {
 			deductible_indiv.append(tokens[temp_index] + " ");
@@ -112,32 +113,36 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			} else {
 				deductible_family.append("n/a");
 			}
-			oon_deductible_indiv.append("n/a");
-			oon_deductible_family.append("n/a");
 		}
+		System.out.println(temp_index);
 		while (!tokens[temp_index].equals("out-of-pocket")) {
 			temp_index++;
 		}
+		System.out.println(temp_index);
 		temp_index += 5;
 		if (tokens[temp_index].equals("For")) {
-			if (!tokens[temp_index + 1].equals("Tier")) {
-				temp_index += 3;
-				oop_max_indiv.append(tokens[temp_index] + " ");
-				oop_max_family.append(tokens[temp_index + 3] + " ");
-				while (!tokens[temp_index].equals("out-of-network")) {
+			while (!tokens[temp_index - 1].equals("providers")) {
+				temp_index++;
+			}
+			oop_max_indiv.append(tokens[temp_index++]);
+
+			while (!tokens[temp_index + 1].contains("family")) {
+				temp_index++;
+			}
+			oop_max_family.append(tokens[temp_index]);
+			int temp_loop = temp_index + 10;
+			while (!tokens[temp_index].toLowerCase().contains("network") & temp_index < temp_loop) {
+				temp_index++;
+			}
+			if (temp_index < temp_loop) {
+				while (!tokens[temp_index + 1].contains("person")) {
 					temp_index++;
 				}
-				temp_index += 2;
-				oon_oop_max_indiv.append(tokens[temp_index] + " ");
-				oon_oop_max_family.append(tokens[temp_index + 3] + " ");
-			} else {
-				while (!tokens[temp_index - 1].equals("providers")) {
+				oon_oop_max_indiv.append(tokens[temp_index]);
+				while (!tokens[temp_index + 1].contains("family")) {
 					temp_index++;
 				}
-				oop_max_indiv.append(tokens[temp_index]);
-				oop_max_family.append(tokens[temp_index + 3]);
-				oon_oop_max_indiv.append("n/a");
-				oon_oop_max_family.append("n/a");
+				oon_oop_max_family.append(tokens[temp_index]);
 			}
 		} else {
 			oop_max_indiv.append(tokens[temp_index]);
@@ -146,10 +151,10 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			} else {
 				oop_max_family.append("n/a");
 			}
-			oon_oop_max_indiv.append("n/a");
-			oon_oop_max_family.append("n/a");
+			// oon_oop_max_indiv.append("n/a");
+			// oon_oop_max_family.append("n/a");
 		}
-
+		System.out.println(temp_index);
 		while (!tokens[temp_index].equals("Primary")) {
 			temp_index++;
 		}
@@ -171,29 +176,11 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			outpatient_diagnostic_lab.append("No Charge");
 			outpatient_diagnostic_x_ray.append("No Charge");
 		} else {
-			StringBuilder input = new StringBuilder("");
-			while (!tokens[temp_index].equals("Not") & !tokens[temp_index].contains("Work)")
-					& !tokens[temp_index].contains("Work),")) {
-				input.append(tokens[temp_index]);
+			while (!Formatter.isDollarValue(tokens[temp_index]) & !Formatter.isPercentage(tokens[temp_index])) {
 				temp_index++;
 			}
-			if (input.indexOf("/") == -1) {
-				int c = input.indexOf("%");
-				System.out.println(c);
-				System.out.println(input.length());
-				if (c != -1 & c < input.length() - 2) {
-					if (input.subSequence(0, c).equals(input.subSequence(c + 1, input.length() - 1))) {
-						outpatient_diagnostic_x_ray = new StringBuilder(input.subSequence(0, c + 1));
-						outpatient_diagnostic_lab = new StringBuilder(input.subSequence(0, c + 1));
-					}
-				} else {
-					outpatient_diagnostic_x_ray = input;
-					outpatient_diagnostic_lab = input;
-				}
-			} else {
-				outpatient_diagnostic_x_ray = formatXRay(input);
-				outpatient_diagnostic_lab = formatLab(input);
-			}
+			outpatient_diagnostic_x_ray.append(tokens[temp_index]);
+			outpatient_diagnostic_lab.append(tokens[temp_index]);
 		}
 		while (!tokens[temp_index].equals("MRIs)")) {
 			temp_index++;
@@ -204,50 +191,18 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			while (!tokens[temp_index + 1].equals("(1-30")) {
 				temp_index++;
 			}
-			if (tokens[temp_index].equals("copay")) {
-				temp_index--;
-			}
-			if (tokens[temp_index].equals("(copay)")) {
-				temp_index -= 2;
-			}
-			if (isPercentage(tokens[temp_index])) {
-				rx_copay.append(tokens[temp_index]);
-				while (!tokens[temp_index - 1].equals("Mail)") & !tokens[temp_index - 1].equals("Mail);")) {
-					temp_index++;
-				}
-				if (tokens[temp_index].equals("Maximum") || tokens[temp_index].equals("max")) {
-					rx_copay.append(" (max ");
-					if (tokens[temp_index].equals("Maximum")) {
-						temp_index += 2;
-					} else {
-						temp_index += 1;
-					}
-					rx_copay.append(formatString(new StringBuilder(tokens[temp_index])) + ")");
-				}
+			while (!Formatter.isDollarValue(tokens[temp_index])) {
 				temp_index++;
-				while (!tokens[temp_index].contains("(31-90/Mail)")) {
-					temp_index++;
-				}
-				temp_index--;
-				rx_mail_copay.append(tokens[temp_index]);
-				temp_index += 2;
-				if (tokens[temp_index].equals("Maximum") || tokens[temp_index].equals("max")) {
-					rx_mail_copay.append(" (max ");
-					if (tokens[temp_index].equals("Maximum")) {
-						temp_index += 2;
-					} else {
-						temp_index += 1;
-					}
-					rx_mail_copay.append(formatString(new StringBuilder(tokens[temp_index])) + ")");
-				}
+			}
+			rx_copay.append(formatRx(tokens[temp_index++]));
+			while (!Formatter.isDollarValue(tokens[temp_index])) {
+				temp_index++;
+			}
+			rx_mail_copay.append(formatRx(tokens[temp_index++]));
+
+			if (i < 2) {
 				rx_copay.append("/");
 				rx_mail_copay.append("/");
-			} else {
-				rx_copay.append(tokens[temp_index++] + "/");
-				while (!isDollarValue(tokens[temp_index]) & !tokens[temp_index].equals("(31-90/Mail)")) {
-					temp_index++;
-				}
-				rx_mail_copay.append(tokens[temp_index] + "/");
 			}
 		}
 
@@ -303,14 +258,12 @@ public class NJ_Amerihealth_Benefits implements Parser {
 			coinsurance.append(er_copay);
 		}
 		urgent_care_copay = formatString(urgent_care_copay);
-		rx_copay = formatString(rx_copay);
-		rx_mail_copay = formatString(rx_mail_copay);
-		rx_copay = formatRx(rx_copay);
-		rx_mail_copay = formatRx(rx_mail_copay);
-		oop_max_indiv = formatString(oop_max_indiv);
-		oop_max_family = formatString(oop_max_family);
-		oon_oop_max_indiv = formatString(oon_oop_max_indiv);
-		oon_oop_max_family = formatString(oon_oop_max_family);
+		// rx_copay = formatRx(rx_copay);
+		// rx_mail_copay = formatRx(rx_mail_copay);
+		// oop_max_indiv = formatString(oop_max_indiv);
+		// oop_max_family = formatString(oop_max_family);
+		// oon_oop_max_indiv = formatString(oon_oop_max_indiv);
+		// oon_oop_max_family = formatString(oon_oop_max_family);
 		in_patient_hospital = formatString(in_patient_hospital);
 		outpatient_diagnostic_lab = formatString(outpatient_diagnostic_lab);
 		outpatient_surgery = formatString(outpatient_surgery);
@@ -330,7 +283,7 @@ public class NJ_Amerihealth_Benefits implements Parser {
 				tobacco_dict);
 
 		new_page.printPage();
-		
+
 		ArrayList<Page> pages = new ArrayList<Page>();
 		pages.add(new_page);
 		return pages;
@@ -371,12 +324,11 @@ public class NJ_Amerihealth_Benefits implements Parser {
 		return new StringBuilder(input);
 	}
 
-	public StringBuilder formatRx(StringBuilder s) {
+	public String formatRx(String s) {
+		s = s.replace('(', ' ');
 		int x = s.indexOf("/");
-		int y = s.lastIndexOf("/");
-		if (s.subSequence(0, x).equals(s.subSequence(x + 1, y))
-				& s.subSequence(x + 1, y).equals(s.subSequence(y + 1, s.length()))) {
-			return new StringBuilder(s.subSequence(0, x));
+		if (x != -1) {
+			return s.substring(0, x);
 		}
 		return s;
 	}

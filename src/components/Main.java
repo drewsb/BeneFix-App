@@ -263,8 +263,8 @@ public class Main extends JPanel implements ActionListener {
 		// Remember to delete default settings
 		dateBox.setSelectedItem("Q4");
 		typeBox.setSelectedItem("Medical");
-		stateBox.setSelectedItem("DE");
-		carrierBox.setSelectedItem("UHC");
+		stateBox.setSelectedItem("NJ");
+		carrierBox.setSelectedItem("AmeriHealth");
 		selectionBox.setSelectedItem("Plan Name Map");
 	}
 
@@ -275,8 +275,12 @@ public class Main extends JPanel implements ActionListener {
 			progressBar.setValue(0);
 			int returnVal = fc.showOpenDialog(Main.this);
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				selectedPlans = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
-
+				if(selectedPlans.isEmpty()){
+					selectedPlans = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+				}
+				else{
+					selectedPlans.addAll(new ArrayList<File>(Arrays.asList(fc.getSelectedFiles())));
+				}
 				// This is where a real application would open the file.
 				for (File f : selectedPlans) {
 					log.append("Opening: " + f.getName() + "." + newline);
@@ -303,7 +307,12 @@ public class Main extends JPanel implements ActionListener {
 			int returnVal = fc.showOpenDialog(Main.this);
 
 			if (returnVal == JFileChooser.APPROVE_OPTION) {
-				selectedRates = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+				if(selectedRates.isEmpty()){
+					selectedRates = new ArrayList<File>(Arrays.asList(fc.getSelectedFiles()));
+				}
+				else{
+					selectedRates.addAll(new ArrayList<File>(Arrays.asList(fc.getSelectedFiles())));
+				}
 
 				// This is where a real application would open the file.
 				for (File f : selectedRates) {
