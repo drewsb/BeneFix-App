@@ -11,7 +11,7 @@ Packages
   * components -> holds class files that run the bulk of the application
   * names -> holds class files that manage the naming conventions of the files
   
-~Running the application~
+Running the application
 
 To run the application, first download the project/all class files + jar files. 
 
